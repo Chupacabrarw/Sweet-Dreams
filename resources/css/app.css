@@ -1,0 +1,40 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-serif: 'Playfair Display', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+
+    /* Sweet Dreams Pink Palette */
+    --color-pink-50: #fef5f7;
+    --color-pink-100: #fdedf1;
+    --color-pink-200: #fbd5df;
+    --color-pink-300: #f8b0c3;
+    --color-pink-400: #f48da8;
+    --color-pink-500: #e86b8a;
+    --color-pink-600: #d44d6e;
+    --color-pink-700: #b83a58;
+    --color-pink-800: #9a3249;
+    --color-pink-900: #812d41;
+
+    /* Rose Gold Accent */
+    --color-rosegold-50: #fdf8f5;
+    --color-rosegold-100: #f9ede5;
+    --color-rosegold-200: #f0d5c4;
+    --color-rosegold-300: #e4b89d;
+    --color-rosegold-400: #d49a78;
+    --color-rosegold-500: #c4815e;
+    --color-rosegold-600: #b46d4d;
+
+    /* Cream / Neutral */
+    --color-cream-50: #fefdfb;
+    --color-cream-100: #fdf9f3;
+    --color-cream-200: #f9f0e2;
+    --color-cream-300: #f3e3cc;
+    --color-cream-400: #ead0ae;
+}
