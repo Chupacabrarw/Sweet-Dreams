@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="bg-panda" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffe4ec"/>
+      <stop offset="100%" stop-color="#fba1b8"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <circle cx="60" cy="60" r="58" fill="url(#bg-panda)" stroke="#ffffff" stroke-width="3"/>
+  <circle cx="28" cy="28" r="2.5" fill="#fff" opacity="0.8"/>
+  <circle cx="94" cy="34" r="3" fill="#fff" opacity="0.8"/>
+  <!-- Panda Ears -->
+  <circle cx="36" cy="42" r="13" fill="#2d2024"/>
+  <circle cx="84" cy="42" r="13" fill="#2d2024"/>
+  <circle cx="36" cy="42" r="6" fill="#fca5ba"/>
+  <circle cx="84" cy="42" r="6" fill="#fca5ba"/>
+  <!-- Panda Body -->
+  <ellipse cx="60" cy="104" rx="36" ry="24" fill="#ffffff"/>
+  <!-- Panda Arms hugging pillow -->
+  <ellipse cx="60" cy="100" rx="22" ry="14" fill="#fed7e2" stroke="#f472b6" stroke-width="1.5"/>
+  <circle cx="40" cy="98" r="8" fill="#2d2024"/>
+  <circle cx="80" cy="98" r="8" fill="#2d2024"/>
+  <!-- Panda Head -->
+  <circle cx="60" cy="64" r="27" fill="#ffffff"/>
+  <!-- Eye Patches -->
+  <ellipse cx="46" cy="62" rx="7.5" ry="6.5" fill="#2d2024" transform="rotate(-15 46 62)"/>
+  <ellipse cx="74" cy="62" rx="7.5" ry="6.5" fill="#2d2024" transform="rotate(15 74 62)"/>
+  <!-- Sleeping Eyelashes inside patches -->
+  <path d="M42 62 Q46 65 50 62" stroke="#ffffff" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <path d="M70 62 Q74 65 78 62" stroke="#ffffff" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <!-- Nose & Mouth -->
+  <ellipse cx="60" cy="68" rx="3.5" ry="2.5" fill="#2d2024"/>
+  <path d="M57 72 Q60 74 63 72" stroke="#2d2024" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- Pink Cheeks -->
+  <ellipse cx="40" cy="69" rx="4.5" ry="3" fill="#f43f5e" opacity="0.6"/>
+  <ellipse cx="80" cy="69" rx="4.5" ry="3" fill="#f43f5e" opacity="0.6"/>
+  <!-- Pink Night Bow / Headband -->
+  <rect x="42" y="38" width="36" height="6" rx="3" fill="#d44d6e"/>
+  <circle cx="60" cy="41" r="5" fill="#f472b6"/>
+  <circle cx="60" cy="41" r="2" fill="#ffffff"/>
+</svg>

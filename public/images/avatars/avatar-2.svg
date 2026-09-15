@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="bg-cat" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fed7e2"/>
+      <stop offset="100%" stop-color="#fbb6ce"/>
+    </linearGradient>
+    <linearGradient id="nightcap" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e27396"/>
+      <stop offset="100%" stop-color="#ba3b5d"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <circle cx="60" cy="60" r="58" fill="url(#bg-cat)" stroke="#ffffff" stroke-width="3"/>
+  <!-- Sparkles -->
+  <circle cx="25" cy="30" r="2.5" fill="#fff" opacity="0.9"/>
+  <circle cx="95" cy="32" r="3" fill="#fff" opacity="0.9"/>
+  <circle cx="30" cy="90" r="2" fill="#fff" opacity="0.8"/>
+  <!-- Cat Ears -->
+  <polygon points="34,60 38,32 54,48" fill="#fef2f4"/>
+  <polygon points="38,56 41,38 50,48" fill="#fca5ba"/>
+  <polygon points="86,60 82,32 66,48" fill="#fef2f4"/>
+  <polygon points="82,56 79,38 70,48" fill="#fca5ba"/>
+  <!-- Cat Body -->
+  <ellipse cx="60" cy="102" rx="35" ry="24" fill="#fef2f4"/>
+  <!-- Cat Head -->
+  <circle cx="60" cy="66" r="28" fill="#fef2f4"/>
+  <!-- Rosy Cheeks -->
+  <ellipse cx="44" cy="72" rx="5" ry="3.5" fill="#f8719d" opacity="0.6"/>
+  <ellipse cx="76" cy="72" rx="5" ry="3.5" fill="#f8719d" opacity="0.6"/>
+  <!-- Sleeping Cat Eyes (Curved happy lines) -->
+  <path d="M46 64 Q51 68 56 64" stroke="#4a3036" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <path d="M64 64 Q69 68 74 64" stroke="#4a3036" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <!-- Tiny Whiskers -->
+  <line x1="32" y1="69" x2="41" y2="70" stroke="#d49aa7" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="33" y1="73" x2="42" y2="73" stroke="#d49aa7" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="88" y1="69" x2="79" y2="70" stroke="#d49aa7" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="87" y1="73" x2="78" y2="73" stroke="#d49aa7" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Nose & Mouth -->
+  <polygon points="58,69 62,69 60,71.5" fill="#e27396"/>
+  <path d="M56 72 Q60 74 60 72 Q60 74 64 72" stroke="#4a3036" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- Nightcap on head falling to the side -->
+  <path d="M46 45 Q62 38 75 46 Q85 36 92 48 Q82 54 75 48 Z" fill="url(#nightcap)"/>
+  <!-- Nightcap rim -->
+  <ellipse cx="60" cy="46" rx="16" ry="4" fill="#ffffff"/>
+  <!-- Nightcap pompom -->
+  <circle cx="92" cy="49" r="6.5" fill="#ffffff"/>
+</svg>

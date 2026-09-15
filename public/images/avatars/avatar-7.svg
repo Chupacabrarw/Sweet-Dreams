@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="bg-girl" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fee2e8"/>
+      <stop offset="100%" stop-color="#fca5ba"/>
+    </linearGradient>
+    <linearGradient id="hair-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4a3036"/>
+      <stop offset="100%" stop-color="#2a161c"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <circle cx="60" cy="60" r="58" fill="url(#bg-girl)" stroke="#ffffff" stroke-width="3"/>
+  <circle cx="24" cy="32" r="2.5" fill="#fff" opacity="0.8"/>
+  <circle cx="96" cy="32" r="2.5" fill="#fff" opacity="0.8"/>
+  <!-- Hair Buns in back -->
+  <circle cx="34" cy="45" r="14" fill="url(#hair-grad)"/>
+  <circle cx="86" cy="45" r="14" fill="url(#hair-grad)"/>
+  <circle cx="34" cy="45" r="15" fill="none" stroke="#f48da8" stroke-width="2.5"/>
+  <circle cx="86" cy="45" r="15" fill="none" stroke="#f48da8" stroke-width="2.5"/>
+  <!-- Shoulders & Pajama Top -->
+  <path d="M28 114 C32 94 45 88 60 88 C75 88 88 94 92 114 Z" fill="#ffffff"/>
+  <!-- Pajama Lapel -->
+  <path d="M48 89 L60 102 L72 89" stroke="#f48da8" stroke-width="2" fill="none"/>
+  <!-- Neck -->
+  <rect x="54" y="80" width="12" height="12" fill="#ffe2d6"/>
+  <!-- Face -->
+  <ellipse cx="60" cy="66" rx="22" ry="22" fill="#ffece3"/>
+  <!-- Hair Front Bangs -->
+  <path d="M38 58 C38 42 46 38 60 38 C74 38 82 42 82 58 C78 52 70 50 60 52 C50 50 42 52 38 58 Z" fill="url(#hair-grad)"/>
+  <!-- Side locks -->
+  <path d="M38 58 C37 66 38 78 40 82 C42 82 43 74 43 66 Z" fill="url(#hair-grad)"/>
+  <path d="M82 58 C83 66 82 78 80 82 C78 82 77 74 77 66 Z" fill="url(#hair-grad)"/>
+  <!-- Silk Sleep Mask pushed up on forehead or over eyes -->
+  <path d="M40 58 Q60 54 80 58 Q82 66 79 67 Q60 63 41 67 Q38 66 40 58 Z" fill="#d44d6e"/>
+  <circle cx="48" cy="62" r="1.5" fill="#fff"/>
+  <circle cx="72" cy="62" r="1.5" fill="#fff"/>
+  <path d="M56 61 Q60 63 64 61" stroke="#fff" stroke-width="1.2" fill="none"/>
+  <!-- Sweet Smile -->
+  <path d="M57 76 Q60 78 63 76" stroke="#b04664" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <!-- Cheeks Blush -->
+  <ellipse cx="46" cy="72" rx="4" ry="2.8" fill="#f43f5e" opacity="0.5"/>
+  <ellipse cx="74" cy="72" rx="4" ry="2.8" fill="#f43f5e" opacity="0.5"/>
+  <!-- Flower clip in hair -->
+  <circle cx="42" cy="44" r="3.5" fill="#fbcfe8"/>
+  <circle cx="42" cy="44" r="1.5" fill="#d44d6e"/>
+</svg>

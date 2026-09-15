@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="bg-cloud" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fedee8"/>
+      <stop offset="100%" stop-color="#f6a5bd"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <circle cx="60" cy="60" r="58" fill="url(#bg-cloud)" stroke="#ffffff" stroke-width="3"/>
+  <!-- Crescent Moon in Sky -->
+  <path d="M84 20 A 14 14 0 0 0 96 34 A 12 12 0 0 1 84 20 Z" fill="#fff9db"/>
+  <!-- Twinkles -->
+  <path d="M26 24 Q28 18 34 18 Q28 18 26 12 Q24 18 18 18 Q24 18 26 24 Z" fill="#ffffff" opacity="0.8"/>
+  <circle cx="34" cy="40" r="2" fill="#fff"/>
+  <!-- Golden Crown / Tiara -->
+  <path d="M50 42 L48 32 L55 36 L60 28 L65 36 L72 32 L70 42 Z" fill="#fcd34d" stroke="#f59e0b" stroke-width="1.2"/>
+  <circle cx="60" cy="28" r="2" fill="#ec4899"/>
+  <!-- Fluffy Cloud Character -->
+  <g id="cloud-body">
+    <ellipse cx="60" cy="74" rx="42" ry="24" fill="#ffffff"/>
+    <circle cx="40" cy="64" r="19" fill="#ffffff"/>
+    <circle cx="60" cy="54" r="22" fill="#ffffff"/>
+    <circle cx="80" cy="64" r="19" fill="#ffffff"/>
+    <circle cx="30" cy="75" r="16" fill="#ffffff"/>
+    <circle cx="90" cy="75" r="16" fill="#ffffff"/>
+  </g>
+  <!-- Sleeping Eyelashes -->
+  <path d="M44 68 Q50 73 56 68" stroke="#4a3036" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <path d="M64 68 Q70 73 76 68" stroke="#4a3036" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <!-- Sweet Smile -->
+  <path d="M56 75 Q60 78 64 75" stroke="#ba3b5d" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <!-- Blushing Cheeks -->
+  <ellipse cx="38" cy="72" rx="6" ry="4" fill="#ff8da9" opacity="0.6"/>
+  <ellipse cx="82" cy="72" rx="6" ry="4" fill="#ff8da9" opacity="0.6"/>
+  <!-- Tiny Star Garland or Drops below -->
+  <circle cx="45" cy="100" r="2" fill="#fff" opacity="0.9"/>
+  <circle cx="60" cy="104" r="2.5" fill="#fff" opacity="0.9"/>
+  <circle cx="75" cy="100" r="2" fill="#fff" opacity="0.9"/>
+</svg>

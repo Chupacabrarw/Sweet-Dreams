@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="bg-bunny" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffd5e2"/>
+      <stop offset="100%" stop-color="#f8a5c2"/>
+    </linearGradient>
+    <linearGradient id="ear-inner" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffb8cc"/>
+      <stop offset="100%" stop-color="#ea779a"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Circle -->
+  <circle cx="60" cy="60" r="58" fill="url(#bg-bunny)" stroke="#ffffff" stroke-width="3"/>
+  <!-- Stars Sparkle -->
+  <path d="M22 28 Q24 22 30 22 Q24 22 22 16 Q20 22 14 22 Q20 22 22 28 Z" fill="#ffffff" opacity="0.8"/>
+  <path d="M98 34 Q100 30 104 30 Q100 30 98 26 Q96 30 92 30 Q96 30 98 34 Z" fill="#ffffff" opacity="0.8"/>
+  <!-- Bunny Ears -->
+  <g id="ears">
+    <!-- Left Ear -->
+    <path d="M40 50 C30 20 36 6 46 8 C54 10 50 30 46 50 Z" fill="#ffffff"/>
+    <path d="M41 46 C34 23 38 12 45 14 C49 15 47 30 45 46 Z" fill="url(#ear-inner)"/>
+    <!-- Right Ear (Bent cute) -->
+    <path d="M74 50 C70 30 66 10 76 8 C86 6 92 20 80 50 Z" fill="#ffffff"/>
+    <path d="M75 46 C73 30 71 15 76 14 C82 13 86 24 79 46 Z" fill="url(#ear-inner)"/>
+  </g>
+  <!-- Bunny Body / Collar -->
+  <ellipse cx="60" cy="105" rx="36" ry="24" fill="#ffffff"/>
+  <path d="M46 95 Q60 102 74 95" stroke="#f48da8" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <circle cx="60" cy="98" r="4" fill="#d44d6e"/>
+  <!-- Bunny Head -->
+  <circle cx="60" cy="66" r="30" fill="#ffffff"/>
+  <!-- Rosy Cheeks -->
+  <ellipse cx="42" cy="73" rx="5" ry="3.5" fill="#ff9ebb" opacity="0.75"/>
+  <ellipse cx="78" cy="73" rx="5" ry="3.5" fill="#ff9ebb" opacity="0.75"/>
+  <!-- Cute Sleep Mask -->
+  <path d="M36 60 Q60 55 84 60 Q86 70 82 72 Q60 67 38 72 Q34 70 36 60 Z" fill="#d44d6e"/>
+  <!-- Mask eyes closed eyelashes -->
+  <path d="M45 66 Q49 70 53 66" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M67 66 Q71 70 75 66" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Tiny Nose & Mouth -->
+  <polygon points="58,74 62,74 60,76.5" fill="#ea779a"/>
+  <path d="M57 77 Q60 79 63 77" stroke="#b05872" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- Little Bow -->
+  <circle cx="48" cy="40" r="3" fill="#ff6b8b"/>
+  <path d="M48 40 L41 36 L43 44 Z" fill="#ff8da9"/>
+  <path d="M48 40 L55 36 L53 44 Z" fill="#ff8da9"/>
+</svg>

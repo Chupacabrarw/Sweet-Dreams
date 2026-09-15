@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="bg-teddy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fae8eb"/>
+      <stop offset="100%" stop-color="#f3b8c6"/>
+    </linearGradient>
+    <linearGradient id="teddy-fur" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#dfb898"/>
+      <stop offset="100%" stop-color="#c99f7d"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <circle cx="60" cy="60" r="58" fill="url(#bg-teddy)" stroke="#ffffff" stroke-width="3"/>
+  <circle cx="28" cy="30" r="2.5" fill="#fff" opacity="0.8"/>
+  <circle cx="92" cy="36" r="3" fill="#fff" opacity="0.8"/>
+  <!-- Teddy Ears -->
+  <circle cx="38" cy="46" r="14" fill="url(#teddy-fur)"/>
+  <circle cx="38" cy="46" r="8" fill="#f6d3ba"/>
+  <circle cx="82" cy="46" r="14" fill="url(#teddy-fur)"/>
+  <circle cx="82" cy="46" r="8" fill="#f6d3ba"/>
+  <!-- Teddy Body -->
+  <ellipse cx="60" cy="104" rx="34" ry="24" fill="url(#teddy-fur)"/>
+  <!-- Pajama Collar -->
+  <path d="M42 94 Q60 102 78 94" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- Pink Silk Ribbon Bow -->
+  <circle cx="60" cy="95" r="3.5" fill="#d44d6e"/>
+  <path d="M60 95 L50 90 L53 98 Z" fill="#eb708e"/>
+  <path d="M60 95 L70 90 L67 98 Z" fill="#eb708e"/>
+  <!-- Teddy Head -->
+  <circle cx="60" cy="66" r="28" fill="url(#teddy-fur)"/>
+  <!-- Snout Muzzle -->
+  <ellipse cx="60" cy="72" rx="14" ry="11" fill="#f7ddca"/>
+  <!-- Sleeping Eyes -->
+  <path d="M46 63 Q50 67 54 63" stroke="#5c3826" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <path d="M66 63 Q70 67 74 63" stroke="#5c3826" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <!-- Nose & Mouth -->
+  <ellipse cx="60" cy="68" rx="4" ry="3" fill="#5c3826"/>
+  <path d="M60 71 L60 75" stroke="#5c3826" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M56 75 Q60 78 64 75" stroke="#5c3826" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <!-- Cheeks -->
+  <ellipse cx="44" cy="71" rx="4.5" ry="3" fill="#ff7e9e" opacity="0.6"/>
+  <ellipse cx="76" cy="71" rx="4.5" ry="3" fill="#ff7e9e" opacity="0.6"/>
+</svg>

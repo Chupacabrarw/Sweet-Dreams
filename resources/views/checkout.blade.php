@@ -878,9 +878,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
-    document.getElementById('checkout-alert-close')?.addEventListener('click', () => {
-        document.getElementById('checkout-alert-toast')?.classList.remove('show');
-    });
+    // Auto prefill shipping details if user is logged in
+    if (window.SweetDreamsAuth) {
+        const activeUser = window.SweetDreamsAuth.getCurrentUser();
+        if (activeUser) {
+            const addresses = window.SweetDreamsAuth.getUserAddresses();
+            const primaryAddr = addresses.find(a => a.is_primary) || addresses[0];
+
+            const inputNama = document.getElementById('input-nama');
+            const inputPhone = document.getElementById('input-phone');
+            const inputAlamat = document.getElementById('input-alamat');
+            const inputKota = document.getElementById('input-kota');
+            const inputProvinsi = document.getElementById('input-provinsi');
+            const inputKodepos = document.getElementById('input-kodepos');
+
+            if (inputNama && !inputNama.value) {
+                inputNama.value = (primaryAddr && primaryAddr.name) ? primaryAddr.name : (activeUser.name || '');
+            }
+            if (inputPhone && !inputPhone.value) {
+                inputPhone.value = (primaryAddr && primaryAddr.phone) ? primaryAddr.phone : (activeUser.phone || '');
+            }
+            if (inputAlamat && !inputAlamat.value && primaryAddr && primaryAddr.address) {
+                inputAlamat.value = primaryAddr.address;
+            }
+            if (inputKota && !inputKota.value && primaryAddr && primaryAddr.city) {
+                inputKota.value = primaryAddr.city;
+            }
+            if (inputProvinsi && !inputProvinsi.value && primaryAddr && primaryAddr.province) {
+                inputProvinsi.value = primaryAddr.province;
+            }
+            if (inputKodepos && !inputKodepos.value && primaryAddr && primaryAddr.postal_code) {
+                inputKodepos.value = primaryAddr.postal_code;
+            }
+        }
+    }
 
     function validateCheckoutForm() {
         let isValid = true;

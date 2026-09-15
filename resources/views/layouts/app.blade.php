@@ -525,9 +525,10 @@
 
         /* ===== FOOTER ===== */
         .footer {
-            background: #3a2a2e;
-            color: #e8d5da;
+            background: #fdedf1;
+            color: #6e4b54;
             padding: 3.5rem 0 0 0;
+            border-top: 1px solid #fbd5df;
         }
         .footer-inner {
             max-width: 1280px;
@@ -541,12 +542,12 @@
             font-family: 'Playfair Display', serif;
             font-size: 1.5rem;
             font-weight: 600;
-            color: #f48da8;
+            color: #d44d6e;
             margin: 0 0 0.75rem 0;
         }
         .footer-brand p {
             font-size: 0.85rem;
-            color: #c4a0aa;
+            color: #7a5a62;
             line-height: 1.7;
             margin: 0;
         }
@@ -554,7 +555,7 @@
             font-family: 'Inter', sans-serif;
             font-size: 0.95rem;
             font-weight: 600;
-            color: #fff;
+            color: #3a2a2e;
             margin: 0 0 1rem 0;
         }
         .footer-col ul {
@@ -567,12 +568,12 @@
         }
         .footer-col ul li a {
             text-decoration: none;
-            color: #c4a0aa;
+            color: #7a5a62;
             font-size: 0.85rem;
             transition: color 0.3s ease;
         }
         .footer-col ul li a:hover {
-            color: #f48da8;
+            color: #d44d6e;
         }
         .footer-social {
             display: flex;
@@ -583,44 +584,52 @@
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background: rgba(244,141,168,0.15);
+            background: #fff;
+            border: 1px solid #fbd5df;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #f48da8;
+            color: #d44d6e;
             text-decoration: none;
+            box-shadow: 0 2px 6px rgba(212,77,110,0.08);
             transition: all 0.3s ease;
         }
         .footer-social a:hover {
             background: #d44d6e;
             color: #fff;
+            border-color: #d44d6e;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212,77,110,0.25);
         }
         .footer-bottom {
             max-width: 1280px;
             margin: 2.5rem auto 0;
             padding: 1.25rem 2rem;
-            border-top: 1px solid rgba(244,141,168,0.15);
+            border-top: 1px solid #fbd5df;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
         .footer-bottom p {
             font-size: 0.78rem;
-            color: #8a6a72;
+            color: #7a5a62;
             margin: 0;
         }
         .footer-payments {
             display: flex;
-            gap: 1.5rem;
+            gap: 0.75rem;
             align-items: center;
         }
         .footer-payments span {
             font-size: 0.72rem;
             font-weight: 700;
-            color: #8a6a72;
+            color: #7a5a62;
             text-transform: uppercase;
             letter-spacing: 0.08em;
+            background: rgba(255,255,255,0.7);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid #fbd5df;
         }
 
         /* ===== SCROLL ANIMATIONS ===== */
@@ -931,6 +940,20 @@
             navbar.classList.toggle('scrolled', window.scrollY > 20);
         });
 
+        // Nav Search on Enter
+        const globalSearchInput = document.getElementById('search-input');
+        const globalMobileSearch = document.querySelector('.mobile-nav-search input');
+        function handleGlobalSearch(e) {
+            if (e.key === 'Enter') {
+                const query = e.target.value.trim();
+                if (!window.location.pathname.startsWith('/katalog')) {
+                    window.location.href = '/katalog?q=' + encodeURIComponent(query);
+                }
+            }
+        }
+        if (globalSearchInput) globalSearchInput.addEventListener('keydown', handleGlobalSearch);
+        if (globalMobileSearch) globalMobileSearch.addEventListener('keydown', handleGlobalSearch);
+
         // Mobile Menu
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileNav = document.getElementById('mobile-nav');
@@ -1074,6 +1097,226 @@
         window.addEventListener('sweetdreams_cart_updated', () => window.SweetDreamsCart.updateNavbarBadge());
         document.addEventListener('DOMContentLoaded', () => window.SweetDreamsCart.updateNavbarBadge());
         window.SweetDreamsCart.updateNavbarBadge();
+
+        // ===== GLOBAL SWEET DREAMS AUTH HELPER =====
+        window.SweetDreamsAuth = {
+            USER_KEY: 'sweetdreams_auth_user',
+            DB_KEY: 'sweetdreams_registered_users',
+
+            getRegisteredUsers: function() {
+                try {
+                    const raw = localStorage.getItem(this.DB_KEY);
+                    return raw ? JSON.parse(raw) : [];
+                } catch(e) {
+                    return [];
+                }
+            },
+
+            saveRegisteredUsers: function(users) {
+                try {
+                    localStorage.setItem(this.DB_KEY, JSON.stringify(users));
+                } catch(e) {
+                    console.error('Error saving registered users:', e);
+                }
+            },
+
+            getCurrentUser: function() {
+                try {
+                    const raw = localStorage.getItem(this.USER_KEY);
+                    return raw ? JSON.parse(raw) : null;
+                } catch(e) {
+                    return null;
+                }
+            },
+
+            saveCurrentUser: function(user) {
+                try {
+                    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+                    // Also sync back to registered users list if this is a registered user
+                    if (user && user.email) {
+                        const users = this.getRegisteredUsers();
+                        const idx = users.findIndex(u => 
+                            u.email.toLowerCase() === user.email.toLowerCase() || 
+                            (user.username && u.username && u.username.toLowerCase() === user.username.toLowerCase())
+                        );
+                        if (idx > -1) {
+                            users[idx] = Object.assign({}, users[idx], user);
+                            this.saveRegisteredUsers(users);
+                        }
+                    }
+                    window.dispatchEvent(new CustomEvent('sweetdreams_user_updated', { detail: user }));
+                } catch(e) {
+                    console.error('Error saving current user:', e);
+                }
+            },
+
+            updateUserProfile: function(newData) {
+                let user = this.getCurrentUser();
+                if (!user) {
+                    user = {
+                        name: 'Alya Putri',
+                        email: 'alya.putri@email.com',
+                        username: 'alya',
+                        phone: '0812 3456 7890',
+                        birthdate: '17 Mei 1997',
+                        city: 'Jakarta Selatan',
+                        role: 'customer',
+                        avatar: 'images/avatars/avatar-1.svg',
+                        addresses: this.getUserAddresses()
+                    };
+                }
+                user = Object.assign({}, user, newData);
+                this.saveCurrentUser(user);
+                return user;
+            },
+
+            getUserAddresses: function() {
+                const user = this.getCurrentUser();
+                if (!user) {
+                    return [
+                        {
+                            id: 'addr-default-1',
+                            label: 'Alamat Utama',
+                            name: 'Alya Putri',
+                            phone: '0812 3456 7890',
+                            address: 'Jl. Kemang Raya No. 45, RT.2/RW.2, Bangka, Kec. Mampang Prapatan',
+                            city: 'Jakarta Selatan',
+                            province: 'DKI Jakarta',
+                            postal_code: '12730',
+                            is_primary: true
+                        },
+                        {
+                            id: 'addr-default-2',
+                            label: 'Kantor',
+                            name: 'Alya Putri',
+                            phone: '0812 3456 7890',
+                            address: 'Gedung Menara Sudirman Lt. 14, Jl. Jend. Sudirman Kav. 60',
+                            city: 'Jakarta Selatan',
+                            province: 'DKI Jakarta',
+                            postal_code: '12190',
+                            is_primary: false
+                        }
+                    ];
+                }
+
+                if (!Array.isArray(user.addresses) || user.addresses.length === 0) {
+                    // Create an initial default address matching this user's profile
+                    const initialAddress = {
+                        id: 'addr-' + Date.now(),
+                        label: 'Alamat Utama',
+                        name: user.name || 'Pelanggan Sweet Dreams',
+                        phone: user.phone || '081234567890',
+                        address: 'Jl. Kemang Raya No. 45, RT.2/RW.2, Bangka, Kec. Mampang Prapatan',
+                        city: user.city || 'Jakarta Selatan',
+                        province: 'DKI Jakarta',
+                        postal_code: '12730',
+                        is_primary: true
+                    };
+                    user.addresses = [initialAddress];
+                    this.saveCurrentUser(user);
+                    return user.addresses;
+                }
+
+                return user.addresses;
+            },
+
+            saveUserAddress: function(addrData, addrId) {
+                let user = this.getCurrentUser();
+                if (!user) {
+                    user = {
+                        name: 'Pelanggan Sweet Dreams',
+                        email: 'customer@sweetdreams.com',
+                        phone: '081234567890',
+                        role: 'customer',
+                        avatar: 'images/alya-avatar.jpg',
+                        addresses: []
+                    };
+                }
+
+                let addresses = Array.isArray(user.addresses) ? [...user.addresses] : [];
+
+                if (addrData.is_primary) {
+                    addresses.forEach(a => a.is_primary = false);
+                }
+
+                if (addrId) {
+                    const idx = addresses.findIndex(a => a.id === addrId);
+                    if (idx > -1) {
+                        addresses[idx] = Object.assign({}, addresses[idx], addrData, { id: addrId });
+                    } else {
+                        addresses.push(Object.assign({}, addrData, { id: addrId }));
+                    }
+                } else {
+                    const newId = 'addr-' + Date.now();
+                    const isFirst = addresses.length === 0;
+                    addresses.push(Object.assign({}, addrData, { 
+                        id: newId, 
+                        is_primary: addrData.is_primary || isFirst 
+                    }));
+                }
+
+                // Ensure at least one primary exists
+                if (!addresses.some(a => a.is_primary) && addresses.length > 0) {
+                    addresses[0].is_primary = true;
+                }
+
+                user.addresses = addresses;
+                this.saveCurrentUser(user);
+                return addresses;
+            },
+
+            deleteUserAddress: function(addrId) {
+                const user = this.getCurrentUser();
+                if (!user || !Array.isArray(user.addresses)) return [];
+
+                let addresses = user.addresses.filter(a => a.id !== addrId);
+                if (!addresses.some(a => a.is_primary) && addresses.length > 0) {
+                    addresses[0].is_primary = true;
+                }
+
+                user.addresses = addresses;
+                this.saveCurrentUser(user);
+                return addresses;
+            },
+
+            setPrimaryAddress: function(addrId) {
+                const user = this.getCurrentUser();
+                if (!user || !Array.isArray(user.addresses)) return [];
+
+                user.addresses.forEach(a => {
+                    a.is_primary = (a.id === addrId);
+                });
+
+                this.saveCurrentUser(user);
+                return user.addresses;
+            },
+
+            logout: function() {
+                localStorage.removeItem(this.USER_KEY);
+                window.location.href = '/login';
+            }
+        };
+
+        function updateNavUserState() {
+            const user = window.SweetDreamsAuth.getCurrentUser();
+            const btnUser = document.getElementById('btn-user');
+            if (btnUser) {
+                if (user) {
+                    btnUser.href = '/profil';
+                    btnUser.setAttribute('title', `Akun: ${user.name}`);
+                    const avatarSrc = user.avatar ? (user.avatar.startsWith('data:') || user.avatar.startsWith('http') || user.avatar.startsWith('/') ? user.avatar : '/' + user.avatar) : '/images/avatars/avatar-1.svg';
+                    btnUser.innerHTML = `<img src="${avatarSrc}" alt="${user.name}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid #f48da8;display:block;">`;
+                } else {
+                    btnUser.href = '/login';
+                    btnUser.setAttribute('title', 'Masuk ke Akun Anda');
+                    btnUser.innerHTML = '<i data-lucide="user" style="width:20px;height:20px;"></i>';
+                    if (window.lucide) lucide.createIcons();
+                }
+            }
+        }
+        updateNavUserState();
+        window.addEventListener('storage', updateNavUserState);
+        window.addEventListener('sweetdreams_user_updated', updateNavUserState);
     </script>
 </body>
 </html>
