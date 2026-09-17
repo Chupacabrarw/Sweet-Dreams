@@ -1116,12 +1116,6 @@
                         <span>Masuk</span>
                     </button>
 
-                    {{-- Admin Shortcut Link --}}
-                    <div class="admin-link-box">
-                        <button type="button" class="link-admin" id="btn-admin-fill">
-                            Masuk sebagai Admin
-                        </button>
-                    </div>
 
                     {{-- Switch to Register --}}
                     <div class="auth-switch-box">
@@ -2240,17 +2234,31 @@
                     return;
                 }
 
-                const result = window.SweetDreamsAuth.login(identifier, password);
-                if (result.success) {
-                    showAuthToast('Masuk Berhasil!', `Selamat datang kembali, ${result.user.name}!`, true);
-                    setTimeout(() => {
-                        window.location.href = '/profil';
-                    }, 1000);
-                } else {
-                    idEl.classList.add('is-invalid');
-                    pwdEl.classList.add('is-invalid');
-                    showAuthToast('Gagal Masuk', result.message);
-                }
+                                fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ email: identifier, password: password })
+                })
+                .then(res => res.json().then(data => ({ status: res.status, body: data })))
+                .then(({ status, body }) => {
+                    if (status === 200) {
+                        showAuthToast('Masuk Berhasil!', `Selamat datang kembali, ${body.user.name}!`, true);
+                        setTimeout(() => {
+                            window.location.href = body.user.role === 'admin' ? '/admin/dashboard' : '/profil';
+                        }, 1000);
+                    } else {
+                        idEl.classList.add('is-invalid');
+                        pwdEl.classList.add('is-invalid');
+                        showAuthToast('Gagal Masuk', body.message || 'Email atau kata sandi salah.');
+                    }
+                })
+                .catch(() => {
+                    showAuthToast('Terjadi Kesalahan', 'Tidak bisa menghubungi server, coba lagi.');
+                });
             });
         }
 
@@ -2302,23 +2310,35 @@
                 }
 
                 const selectedAvatar = document.getElementById('reg-selected-avatar')?.value || 'images/avatars/avatar-1.svg';
-
-                const result = window.SweetDreamsAuth.register({
-                    name: name,
-                    email: email,
-                    username: username,
-                    password: password,
-                    avatar: selectedAvatar
+                fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        email: email,
+                        password: password,
+                        avatar: selectedAvatar
+                    })
+                })
+                .then(res => res.json().then(data => ({ status: res.status, body: data })))
+                .then(({ status, body }) => {
+                    if (status === 201) {
+                        showAuthToast('Pendaftaran Berhasil!', `Selamat datang di Sweet Dreams, ${body.user.name}!`, true);
+                        setTimeout(() => {
+                            window.location.href = '/profil';
+                        }, 1200);
+                    } else {
+                        const msg = body.message || (body.errors ? Object.values(body.errors)[0][0] : 'Pendaftaran gagal, coba lagi.');
+                        showAuthToast('Gagal Mendaftar', msg);
+                    }
+                })
+                .catch(() => {
+                    showAuthToast('Terjadi Kesalahan', 'Tidak bisa menghubungi server, coba lagi.');
                 });
-
-                if (result.success) {
-                    showAuthToast('Pendaftaran Berhasil!', `Selamat datang di Sweet Dreams, ${result.user.name}!`, true);
-                    setTimeout(() => {
-                        window.location.href = '/profil';
-                    }, 1200);
-                } else {
-                    showAuthToast('Gagal Mendaftar', result.message);
-                }
             });
         }
 

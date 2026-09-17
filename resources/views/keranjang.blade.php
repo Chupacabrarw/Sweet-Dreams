@@ -759,6 +759,7 @@
 </div>
 
 <script>
+ window.initialCartItems = @json($cartItems);
 document.addEventListener('DOMContentLoaded', function() {
     let discountAmount = 50000;
     let isVoucherApplied = true;
@@ -778,7 +779,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function renderCart() {
-        const items = window.SweetDreamsCart ? window.SweetDreamsCart.getCart() : [];
+                const items = window.initialCartItems || [];
 
         // Check if empty
         if (!items || items.length === 0) {
@@ -842,15 +843,24 @@ document.addEventListener('DOMContentLoaded', function() {
         itemsContainer.innerHTML = html;
         lucide.createIcons();
 
+                function updateCartQty(id, newQty) {
+            fetch(`/api/cart/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ quantity: newQty })
+            }).then(() => window.location.reload());
+        }
+
         // Plus quantity
         itemsContainer.querySelectorAll('.btn-qty-inc').forEach(btn => {
             btn.addEventListener('click', function() {
                 const id = this.getAttribute('data-id');
-                const it = items.find(i => i.id === id);
-                if (it) {
-                    window.SweetDreamsCart.updateQty(id, it.qty + 1);
-                    renderCart();
-                }
+                const it = items.find(i => String(i.id) === String(id));
+                if (it) updateCartQty(id, it.qty + 1);
             });
         });
 
@@ -858,11 +868,8 @@ document.addEventListener('DOMContentLoaded', function() {
         itemsContainer.querySelectorAll('.btn-qty-dec').forEach(btn => {
             btn.addEventListener('click', function() {
                 const id = this.getAttribute('data-id');
-                const it = items.find(i => i.id === id);
-                if (it && it.qty > 1) {
-                    window.SweetDreamsCart.updateQty(id, it.qty - 1);
-                    renderCart();
-                }
+                const it = items.find(i => String(i.id) === String(id));
+                if (it && it.qty > 1) updateCartQty(id, it.qty - 1);
             });
         });
 
@@ -871,13 +878,15 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.addEventListener('click', function() {
                 const id = this.getAttribute('data-id');
                 const row = document.getElementById('cart-row-' + id);
-                if (row) {
-                    row.classList.add('removing');
-                    setTimeout(() => {
-                        window.SweetDreamsCart.removeItem(id);
-                        renderCart();
-                    }, 250);
-                }
+                if (row) row.classList.add('removing');
+
+                fetch(`/api/cart/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                }).then(() => setTimeout(() => window.location.reload(), 250));
             });
         });
 
@@ -931,24 +940,51 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnVoucher && inputVoucher) {
         btnVoucher.addEventListener('click', function() {
             const code = inputVoucher.value.trim().toUpperCase();
-            if (code === 'SWEETDREAM50') {
-                isVoucherApplied = true;
-                discountAmount = 50000;
-                msgVoucher.textContent = 'Voucher diskon Rp50.000 berhasil dipasang!';
-                msgVoucher.style.color = '#10b981';
-                msgVoucher.style.display = 'block';
-            } else if (code === '') {
+            
+            if (code === '') {
                 isVoucherApplied = false;
                 discountAmount = 0;
                 msgVoucher.style.display = 'none';
-            } else {
-                isVoucherApplied = false;
-                discountAmount = 0;
-                msgVoucher.textContent = 'Kode voucher tidak valid';
-                msgVoucher.style.color = '#f43f5e';
-                msgVoucher.style.display = 'block';
+                renderCart();
+                return;
             }
-            renderCart();
+
+            // Memanggil API backend untuk mengecek validitas voucher
+            fetch('/api/validate-voucher', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ 
+                    code: code,
+                    // Karena subtotal sudah dideklarasikan di renderCart, kita perlu menghitung ulang sementara
+                    // atau ambil dari elemen teks subtotal yang ada.
+                    subtotal: window.initialCartItems ? window.initialCartItems.reduce((sum, item) => sum + (item.qty * item.price), 0) : 0
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.valid) {
+                    isVoucherApplied = true;
+                    discountAmount = data.discount;
+                    msgVoucher.textContent = `Voucher ${data.label || 'diskon'} berhasil dipasang!`;
+                    msgVoucher.style.color = '#10b981';
+                    msgVoucher.style.display = 'block';
+                } else {
+                    isVoucherApplied = false;
+                    discountAmount = 0;
+                    msgVoucher.textContent = data.message || 'Kode voucher tidak valid';
+                    msgVoucher.style.color = '#f43f5e';
+                    msgVoucher.style.display = 'block';
+                }
+                renderCart();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat mengecek voucher.');
+            });
         });
     }
 

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Keluar Akun - Sweet Dreams</title>
@@ -49,17 +50,20 @@
             margin: 0;
         }
     </style>
-    <script>
-        try {
-            localStorage.removeItem('sweetdreams_auth_user');
-            sessionStorage.clear();
-        } catch(e) {
-            console.error(e);
+    
+<script>
+    fetch('/api/logout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
         }
-        setTimeout(function() {
-            window.location.replace('/login?status=logout');
-        }, 300);
-    </script>
+    })
+    .finally(() => {
+        window.location.replace('/login?status=logout');
+    });
+</script>
 </head>
 <body>
     <div class="logout-box">

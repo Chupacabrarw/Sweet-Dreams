@@ -828,6 +828,40 @@
         background: #fef5f7;
         color: #d44d6e;
     }
+
+    .katalog-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2.5rem;
+    flex-wrap: wrap;
+}
+.pagination-btn {
+    min-width: 40px;
+    height: 40px;
+    padding: 0 0.75rem;
+    border: 1px solid #fbd5df;
+    background: #fff;
+    color: #3a2a2e;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.pagination-btn:hover:not(:disabled) {
+    background: #fff0f4;
+    border-color: #d44d6e;
+}
+.pagination-btn.active {
+    background: #d44d6e;
+    border-color: #d44d6e;
+    color: #fff;
+}
+.pagination-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
 </style>
 
 {{-- PAGE HEADER --}}
@@ -1015,7 +1049,7 @@
                 </div>
             @endforeach
         </div>
-
+        <div class="katalog-pagination" id="katalog-pagination"></div>
         {{-- Empty State (hidden by default) --}}
         <div class="catalog-empty-state" id="catalog-empty-state" style="display: none;">
             <div class="catalog-empty-icon">
@@ -1075,34 +1109,30 @@ document.addEventListener('DOMContentLoaded', function() {
     const mobileNavSearchInput = document.querySelector('.mobile-nav-search input');
 
     // 3. STATE
-    const state = {
+      const state = {
         categories: [],
         sizes: [],
         colors: [],
         minPrice: 0,
         maxPrice: 1000000,
         sort: 'newest',
-        search: ''
+        search: '',
+        page: 1
     };
 
-    // Wishlist stored in localStorage
+    const PRODUCTS_PER_PAGE = 8;
+        window.initialWishlist = @json($wishlistIds);
+
+        // Wishlist tersimpan di database
+    let wishlistIds = window.initialWishlist || [];
     function getWishlist() {
-        try {
-            return JSON.parse(localStorage.getItem('sweet_dreams_wishlist')) || [];
-        } catch (e) {
-            return [];
-        }
-    }
-    function setWishlist(list) {
-        localStorage.setItem('sweet_dreams_wishlist', JSON.stringify(list));
-        updateWishlistBadge();
+        return wishlistIds;
     }
     function updateWishlistBadge() {
-        const list = getWishlist();
         const badge = document.querySelector('#btn-wishlist .badge');
         if (badge) {
-            badge.textContent = list.length;
-            badge.style.display = list.length > 0 ? 'flex' : 'none';
+            badge.textContent = wishlistIds.length;
+            badge.style.display = wishlistIds.length > 0 ? 'flex' : 'none';
         }
     }
 
@@ -1429,18 +1459,26 @@ document.addEventListener('DOMContentLoaded', function() {
         updateUrlParams();
 
         // Show / hide Empty State
-        if (sorted.length === 0) {
+                if (sorted.length === 0) {
             productsGrid.style.display = 'none';
             emptyState.style.display = 'flex';
             lucide.createIcons();
+            renderPagination(0);
             return;
         }
 
-        emptyState.style.display = 'none';
+                emptyState.style.display = 'none';
         productsGrid.style.display = 'grid';
 
+        // Pagination slicing
+        const totalPages = Math.ceil(sorted.length / PRODUCTS_PER_PAGE);
+        if (state.page > totalPages) state.page = totalPages;
+        if (state.page < 1) state.page = 1;
+        const pageStart = (state.page - 1) * PRODUCTS_PER_PAGE;
+        const pageItems = sorted.slice(pageStart, pageStart + PRODUCTS_PER_PAGE);
+
         // Build HTML
-        const html = sorted.map((prod, index) => {
+        const html = pageItems.map((prod, index) => {
             const isWishlisted = wishlist.includes(prod.id);
             const discountBadge = prod.discount 
                 ? `<span class="card-discount-badge">${prod.discount}</span>` 
@@ -1488,9 +1526,40 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         }).join('');
 
-        productsGrid.innerHTML = html;
+                productsGrid.innerHTML = html;
         lucide.createIcons();
+        renderPagination(sorted.length);
     }
+
+    function renderPagination(totalItems) {
+        const container = document.getElementById('katalog-pagination');
+        if (!container) return;
+
+        const totalPages = Math.ceil(totalItems / PRODUCTS_PER_PAGE);
+        if (totalPages <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+
+        let buttons = `<button type="button" class="pagination-btn" data-page="${state.page - 1}" ${state.page === 1 ? 'disabled' : ''}>‹</button>`;
+        for (let i = 1; i <= totalPages; i++) {
+            buttons += `<button type="button" class="pagination-btn ${i === state.page ? 'active' : ''}" data-page="${i}">${i}</button>`;
+        }
+        buttons += `<button type="button" class="pagination-btn" data-page="${state.page + 1}" ${state.page === totalPages ? 'disabled' : ''}>›</button>`;
+
+        container.innerHTML = buttons;
+
+        container.querySelectorAll('.pagination-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const targetPage = parseInt(this.getAttribute('data-page'));
+                if (!targetPage || targetPage < 1 || targetPage > totalPages) return;
+                state.page = targetPage;
+                renderProducts();
+                document.getElementById('katalog-products-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    }
+
 
     // 9. FILTER CHIPS
     function renderChips() {
@@ -1609,20 +1678,30 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // Wishlist toggle
-    window.toggleWishlist = function(productId, btn) {
-        let wishlist = getWishlist();
-        const index = wishlist.indexOf(productId);
-        if (index > -1) {
-            wishlist.splice(index, 1);
-            btn.classList.remove('active');
-        } else {
-            wishlist.push(productId);
-            btn.classList.add('active');
-            // Little bounce animation
-            btn.style.transform = 'scale(1.3)';
-            setTimeout(() => { btn.style.transform = ''; }, 200);
-        }
-        setWishlist(wishlist);
+        window.toggleWishlist = function(productId, btn) {
+        fetch('/api/wishlist/toggle', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ product_id: productId })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.is_wishlisted) {
+                wishlistIds.push(productId);
+                btn.classList.add('active');
+                btn.style.transform = 'scale(1.3)';
+                setTimeout(() => { btn.style.transform = ''; }, 200);
+            } else {
+                wishlistIds = wishlistIds.filter(id => id !== productId);
+                btn.classList.remove('active');
+            }
+            updateWishlistBadge();
+        })
+        .catch(() => alert('Tidak bisa menghubungi server, coba lagi.'));
     };
 
     // URL parameter updater

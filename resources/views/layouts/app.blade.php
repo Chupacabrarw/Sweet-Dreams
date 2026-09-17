@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Sweet Dreams - Koleksi sleepwear & lingerie premium untuk kenyamanan dan kepercayaan dirimu. Temukan baju tidur, kimono, lingerie terbaik.">
@@ -841,15 +842,24 @@
             </div>
 
             <div class="nav-icons">
-                <a href="/profil" class="nav-icon-btn {{ request()->is('profil*') ? 'active' : '' }}" id="btn-user" aria-label="Akun">
-                    <i data-lucide="user" style="width:20px;height:20px;"></i>
-                </a>
-                <button class="nav-icon-btn" id="btn-wishlist" aria-label="Wishlist">
+                @auth
+<a href="/profil" class="nav-icon-btn {{ request()->is('profil*') ? 'active' : '' }}" id="btn-user" title="Akun: {{ auth()->user()->name }}">
+    <img src="{{ auth()->user()->avatar ? asset(auth()->user()->avatar) : asset('images/alya-avatar.jpg') }}"
+         alt="{{ auth()->user()->name }}"
+         style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid #f48da8;display:block;">
+</a>
+@else
+<a href="/login" class="nav-icon-btn {{ request()->is('profil*') ? 'active' : '' }}" id="btn-user" aria-label="Akun" title="Masuk ke Akun Anda">
+    <i data-lucide="user" style="width:20px;height:20px;"></i>
+</a>
+@endauth    
+                                               <a href="/wishlist" class="nav-icon-btn" id="btn-wishlist" aria-label="Wishlist">
                     <i data-lucide="heart" style="width:20px;height:20px;"></i>
-                </button>
-                <a href="/keranjang" class="nav-icon-btn" id="btn-cart" aria-label="Keranjang">
+                    <span class="badge">{{ auth()->check() ? auth()->user()->wishlists()->count() : 0 }}</span>
+                </a>
+                                <a href="/keranjang" class="nav-icon-btn" id="btn-cart" aria-label="Keranjang">
                     <i data-lucide="shopping-bag" style="width:20px;height:20px;"></i>
-                    <span class="badge">2</span>
+                    <span class="badge">{{ auth()->check() ? auth()->user()->cartItems()->sum('quantity') : 0 }}</span>
                 </a>
                 <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">
                     <i data-lucide="menu" style="width:24px;height:24px;"></i>
@@ -1092,11 +1102,7 @@
             }
         };
 
-        // Initialize and listen for cart updates
-        window.addEventListener('storage', () => window.SweetDreamsCart.updateNavbarBadge());
-        window.addEventListener('sweetdreams_cart_updated', () => window.SweetDreamsCart.updateNavbarBadge());
-        document.addEventListener('DOMContentLoaded', () => window.SweetDreamsCart.updateNavbarBadge());
-        window.SweetDreamsCart.updateNavbarBadge();
+    
 
         // ===== GLOBAL SWEET DREAMS AUTH HELPER =====
         window.SweetDreamsAuth = {
@@ -1291,32 +1297,12 @@
                 return user.addresses;
             },
 
-            logout: function() {
-                localStorage.removeItem(this.USER_KEY);
-                window.location.href = '/login';
+                        logout: function() {
+                window.location.href = '/logout';
             }
         };
 
-        function updateNavUserState() {
-            const user = window.SweetDreamsAuth.getCurrentUser();
-            const btnUser = document.getElementById('btn-user');
-            if (btnUser) {
-                if (user) {
-                    btnUser.href = '/profil';
-                    btnUser.setAttribute('title', `Akun: ${user.name}`);
-                    const avatarSrc = user.avatar ? (user.avatar.startsWith('data:') || user.avatar.startsWith('http') || user.avatar.startsWith('/') ? user.avatar : '/' + user.avatar) : '/images/avatars/avatar-1.svg';
-                    btnUser.innerHTML = `<img src="${avatarSrc}" alt="${user.name}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid #f48da8;display:block;">`;
-                } else {
-                    btnUser.href = '/login';
-                    btnUser.setAttribute('title', 'Masuk ke Akun Anda');
-                    btnUser.innerHTML = '<i data-lucide="user" style="width:20px;height:20px;"></i>';
-                    if (window.lucide) lucide.createIcons();
-                }
-            }
-        }
-        updateNavUserState();
-        window.addEventListener('storage', updateNavUserState);
-        window.addEventListener('sweetdreams_user_updated', updateNavUserState);
+        
     </script>
 </body>
 </html>

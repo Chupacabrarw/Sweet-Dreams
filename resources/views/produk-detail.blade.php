@@ -893,7 +893,7 @@
         <i data-lucide="chevron-right"></i>
         <a href="/katalog">Koleksi</a>
         <i data-lucide="chevron-right"></i>
-        <a href="/katalog/lingerie">{{ $product['category'] }}</a>
+        <a href="/katalog/{{ $product['category_slug'] }}">{{ $product['category'] }}</a>
         <i data-lucide="chevron-right"></i>
         <span class="active">{{ $product['title'] }}</span>
     </div>
@@ -921,7 +921,7 @@
             {{-- Main Image Box --}}
             <div class="product-main-img-box" id="product-main-img-box">
                 <span class="badge-bestseller">{{ $product['badge'] ?? 'BEST SELLER' }}</span>
-                <button class="btn-wishlist-float" id="btn-wishlist-toggle" aria-label="Tambah ke Wishlist">
+                                <button class="btn-wishlist-float {{ ($product['is_wishlisted'] ?? false) ? 'active' : '' }}" id="btn-wishlist-toggle" aria-label="Tambah ke Wishlist">
                     <i data-lucide="heart" style="width:20px;height:20px;"></i>
                 </button>
                 <img id="main-product-img" src="{{ asset($product['main_image']) }}" alt="{{ $product['title'] }}" loading="eager">
@@ -1274,13 +1274,26 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // 5. Wishlist Float Button
-    const wishlistBtn = document.getElementById('btn-wishlist-toggle');
+        const wishlistBtn = document.getElementById('btn-wishlist-toggle');
     if (wishlistBtn) {
         wishlistBtn.addEventListener('click', function() {
-            this.classList.toggle('active');
+            const productId = {{ $product['id'] }};
+            fetch('/api/wishlist/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ product_id: productId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                wishlistBtn.classList.toggle('active', data.is_wishlisted);
+            })
+            .catch(() => alert('Tidak bisa menghubungi server, coba lagi.'));
         });
     }
-
     // 6. Smooth Scroll to Size Guide Table
     const gotoSizeBtn = document.getElementById('btn-goto-size-guide');
     const sizeTableBox = document.getElementById('size-table-box');
@@ -1319,7 +1332,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const toastMsg = document.getElementById('toast-msg');
 
     if (addToCartBtn && toast) {
+        const isLoggedIn = @json(auth()->check());
         addToCartBtn.addEventListener('click', function() {
+            if (!isLoggedIn) {
+    window.location.href = '/login';
+    return;
+}
             const selectedSize = document.querySelector('.size-pill-btn.active')?.textContent.trim() || 'M';
             const selectedColor = colorLabel ? colorLabel.textContent.trim() : 'Red';
             const productPrice = {{ $product['price_raw'] ?? 280000 }};
@@ -1328,27 +1346,36 @@ document.addEventListener('DOMContentLoaded', function() {
             const productImage = "{{ asset($product['main_image']) }}";
 
             // Add to dynamic cart
-            if (window.SweetDreamsCart) {
-                window.SweetDreamsCart.addItem({
-                    id: `${productSlug}-${selectedColor}-${selectedSize}`,
-                    productId: productSlug,
-                    title: productTitle,
-                    slug: productSlug,
-                    variant: `${selectedColor} · Size ${selectedSize}`,
-                    color: selectedColor,
+                        const productId = {{ $product['id'] }};
+
+            fetch('/api/cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    product_id: productId,
                     size: selectedSize,
-                    price: productPrice,
-                    qty: currentQty,
-                    image: productImage
-                });
-            }
+                    color: selectedColor,
+                    quantity: currentQty
+                })
+            })
+            .then(res => res.json().then(data => ({ status: res.status, body: data })))
+            .then(({ status, body }) => {
+                if (status === 201) {
+                    const badge = document.querySelector('#btn-cart .badge');
+                    if (badge) badge.textContent = body.cart_count;
 
-            toastMsg.textContent = `${currentQty}x ${productTitle} (${selectedColor}, ${selectedSize}) ditambahkan!`;
-            toast.classList.add('show');
-
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 4000);
+                    toastMsg.textContent = `${currentQty}x ${productTitle} (${selectedColor}, ${selectedSize}) ditambahkan!`;
+                    toast.classList.add('show');
+                    setTimeout(() => toast.classList.remove('show'), 4000);
+                } else {
+                    alert(body.message || 'Gagal menambahkan ke keranjang.');
+                }
+            })
+            .catch(() => alert('Tidak bisa menghubungi server, coba lagi.'));
         });
     }
 });

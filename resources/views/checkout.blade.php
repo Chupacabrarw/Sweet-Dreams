@@ -829,9 +829,12 @@
         <p class="success-desc">
             Terima kasih, <strong id="customer-name-display">Nabila Putri</strong>! Instruksi pembayaran telah dikirimkan ke nomor telepon dan pesanan Anda sedang disiapkan.
         </p>
-        <a href="/" class="btn-home-return">
-            Kembali ke Beranda
+               <a href="#" id="btn-view-order" class="btn-home-return">
+            Lihat Pesanan Saya
             <i data-lucide="arrow-right" style="width:18px;height:18px;"></i>
+        </a>
+        <a href="/" class="btn-home-return" style="background:transparent;color:#d44d6e;border:1px solid #fbd5df;margin-top:0.5rem;">
+            Kembali ke Beranda
         </a>
     </div>
 </div>
@@ -841,7 +844,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Re-init Lucide Icons
     lucide.createIcons();
 
-    let items = window.SweetDreamsCart ? window.SweetDreamsCart.getCart() : [];
+        let items = @json($checkoutItems);
     let currentShippingCost = 25000;
     let appliedVoucher = 'SWEETDREAM10';
 
@@ -878,39 +881,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
-    // Auto prefill shipping details if user is logged in
-    if (window.SweetDreamsAuth) {
-        const activeUser = window.SweetDreamsAuth.getCurrentUser();
-        if (activeUser) {
-            const addresses = window.SweetDreamsAuth.getUserAddresses();
-            const primaryAddr = addresses.find(a => a.is_primary) || addresses[0];
+    
+    // Auto prefill shipping details dari alamat tersimpan di database
+    const savedAddresses = @json($addresses);
+    const primaryAddr = savedAddresses.find(a => a.is_primary) || savedAddresses[0];
 
-            const inputNama = document.getElementById('input-nama');
-            const inputPhone = document.getElementById('input-phone');
-            const inputAlamat = document.getElementById('input-alamat');
-            const inputKota = document.getElementById('input-kota');
-            const inputProvinsi = document.getElementById('input-provinsi');
-            const inputKodepos = document.getElementById('input-kodepos');
+    if (primaryAddr) {
+        const inputNama = document.getElementById('input-nama');
+        const inputPhone = document.getElementById('input-phone');
+        const inputAlamat = document.getElementById('input-alamat');
+        const inputKota = document.getElementById('input-kota');
+        const inputProvinsi = document.getElementById('input-provinsi');
+        const inputKodepos = document.getElementById('input-kodepos');
 
-            if (inputNama && !inputNama.value) {
-                inputNama.value = (primaryAddr && primaryAddr.name) ? primaryAddr.name : (activeUser.name || '');
-            }
-            if (inputPhone && !inputPhone.value) {
-                inputPhone.value = (primaryAddr && primaryAddr.phone) ? primaryAddr.phone : (activeUser.phone || '');
-            }
-            if (inputAlamat && !inputAlamat.value && primaryAddr && primaryAddr.address) {
-                inputAlamat.value = primaryAddr.address;
-            }
-            if (inputKota && !inputKota.value && primaryAddr && primaryAddr.city) {
-                inputKota.value = primaryAddr.city;
-            }
-            if (inputProvinsi && !inputProvinsi.value && primaryAddr && primaryAddr.province) {
-                inputProvinsi.value = primaryAddr.province;
-            }
-            if (inputKodepos && !inputKodepos.value && primaryAddr && primaryAddr.postal_code) {
-                inputKodepos.value = primaryAddr.postal_code;
-            }
-        }
+        if (inputNama && !inputNama.value) inputNama.value = primaryAddr.name || '';
+        if (inputPhone && !inputPhone.value) inputPhone.value = primaryAddr.phone || '';
+        if (inputAlamat && !inputAlamat.value) inputAlamat.value = primaryAddr.address || '';
+        if (inputKota && !inputKota.value) inputKota.value = primaryAddr.city || '';
+        if (inputProvinsi && !inputProvinsi.value) inputProvinsi.value = primaryAddr.province || '';
+        if (inputKodepos && !inputKodepos.value) inputKodepos.value = primaryAddr.postal_code || '';
     }
 
     function validateCheckoutForm() {
@@ -992,7 +981,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function renderCheckoutSummary() {
-        items = window.SweetDreamsCart ? window.SweetDreamsCart.getCart() : [];
+       
 
         if (!items || items.length === 0) {
             if (itemsContainer) {
@@ -1044,12 +1033,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Voucher Calculation
         let discount = 0;
-        if (appliedVoucher === 'SWEETDREAM10') {
-            discount = Math.round(subtotal * 0.10);
-            if (discountLabel) discountLabel.textContent = 'Promo SWEETDREAM10 (10%)';
-        } else if (appliedVoucher === 'SWEETDREAM50') {
-            discount = Math.min(50000, subtotal);
-            if (discountLabel) discountLabel.textContent = 'Promo SWEETDREAM50';
+                if (appliedVoucher && window._appliedVoucherLabel) {
+            if (discountLabel) discountLabel.textContent = `Promo ${window._appliedVoucherLabel}`;
+        }
         } else {
             discount = 0;
             if (discountLabel) discountLabel.textContent = 'Tanpa Voucher';
@@ -1103,45 +1089,42 @@ document.addEventListener('DOMContentLoaded', function() {
     // Voucher apply
     const btnVoucher = document.getElementById('btn-checkout-voucher');
     const inputVoucher = document.getElementById('voucher-checkout-input');
-    if (btnVoucher && inputVoucher) {
+        if (btnVoucher && inputVoucher) {
         btnVoucher.addEventListener('click', function() {
-            const val = inputVoucher.value.trim().toUpperCase();
-            if (val === 'SWEETDREAM10' || val === 'SWEETDREAM50') {
-                appliedVoucher = val;
-                btnVoucher.textContent = 'Terpasang';
-                btnVoucher.style.background = '#10b981';
-            } else if (val === '') {
-                appliedVoucher = '';
-                btnVoucher.textContent = 'Terapkan';
-                btnVoucher.style.background = '#d44d6e';
-            } else {
-                alert('Voucher ' + val + ' tidak valid.');
-                appliedVoucher = '';
-                btnVoucher.textContent = 'Terapkan';
-                btnVoucher.style.background = '#d44d6e';
-            }
-            renderCheckoutSummary();
+            const code = inputVoucher.value.trim();
+            if (!code) return;
+
+            fetch('/api/checkout/validate-voucher', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ code: code, subtotal: items.reduce((sum, i) => sum + (i.price * i.qty), 0) })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.valid) {
+                    appliedVoucher = code;
+                    window._appliedVoucherLabel = data.label;
+                } else {
+                    appliedVoucher = '';
+                    alert(data.message);
+                }
+                renderCheckoutSummary();
+            });
         });
     }
 
-    // Pay Now Modal & Form Validation
+        // Pay Now Modal & Form Validation
     const modal = document.getElementById('order-modal');
 
     if (btnPayNow && modal) {
         btnPayNow.addEventListener('click', function(e) {
             e.preventDefault();
 
-            // 1. Cek isi keranjang belanja
-            const currentCart = window.SweetDreamsCart ? window.SweetDreamsCart.getCart() : [];
-            if (!currentCart || currentCart.length === 0) {
-                showCheckoutAlert(
-                    'Keranjang Belanja Masih Kosong',
-                    'Anda belum memiliki item di keranjang belanja. Silakan pilih produk dari katalog terlebih dahulu!'
-                );
-                return;
-            }
-
-            // 2. Cek validasi kelengkapan data pengiriman
+            // 1. Cek validasi kelengkapan data pengiriman
             const isFormValid = validateCheckoutForm();
             if (!isFormValid) {
                 showCheckoutAlert(
@@ -1151,26 +1134,60 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // 3. Jika valid, proses pembayaran
-            const namaInput = document.getElementById('input-nama').value.trim();
-            const nameDisplay = document.getElementById('customer-name-display');
-            if (nameDisplay) {
-                nameDisplay.textContent = namaInput;
-            }
+                        // 2. Ambil metode pengiriman & pembayaran yang lagi dipilih
+            const selectedShipping = document.querySelector('.radio-card-item[data-type="shipping"].active');
+            const selectedPayment = document.querySelector('.radio-card-item[data-type="payment"].active');
 
-            // Generate realistic invoice number
-            const randId = Math.floor(100 + Math.random() * 900);
-            const invoiceDisplay = document.getElementById('invoice-display');
-            if (invoiceDisplay) {
-                invoiceDisplay.textContent = `INVOICE: #SD-20240908-${randId}`;
-            }
+            btnPayNow.disabled = true;
+            btnPayNow.textContent = 'Memproses...';
 
-            // Clear cart completely
-            if (window.SweetDreamsCart) {
-                window.SweetDreamsCart.clearCart();
-            }
+            // 3. Kirim pesanan ke server
+            fetch('/api/checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    name: document.getElementById('input-nama').value.trim(),
+                    phone: document.getElementById('input-phone').value.trim(),
+                    address: document.getElementById('input-alamat').value.trim(),
+                    city: document.getElementById('input-kota').value.trim(),
+                    province: document.getElementById('input-provinsi').value.trim(),
+                    postal_code: document.getElementById('input-kodepos').value.trim(),
+                                        shipping_id: selectedShipping ? selectedShipping.getAttribute('data-id') : null,
+                    payment_id: selectedPayment ? selectedPayment.getAttribute('data-id') : null,
+                    voucher: appliedVoucher || null
+                })
+            })
+            .then(res => res.json().then(data => ({ status: res.status, body: data })))
+            .then(({ status, body }) => {
+                btnPayNow.disabled = false;
+                btnPayNow.textContent = 'Bayar Sekarang';
 
-            modal.classList.add('open');
+                if (status === 201) {
+                    const nameDisplay = document.getElementById('customer-name-display');
+                    if (nameDisplay) nameDisplay.textContent = document.getElementById('input-nama').value.trim();
+
+                    const invoiceDisplay = document.getElementById('invoice-display');
+                    if (invoiceDisplay) invoiceDisplay.textContent = `INVOICE: #${body.order_number}`;
+                    const viewOrderBtn = document.getElementById('btn-view-order');
+                    if (viewOrderBtn) viewOrderBtn.href = `/pesanan/${body.order_number}`;
+
+                    modal.classList.add('open');
+                } else {
+                    showCheckoutAlert(
+                        'Gagal Membuat Pesanan',
+                        body.message || 'Terjadi kesalahan, silakan coba lagi.'
+                    );
+                }
+            })
+            .catch(() => {
+                btnPayNow.disabled = false;
+                btnPayNow.textContent = 'Bayar Sekarang';
+                showCheckoutAlert('Gagal Membuat Pesanan', 'Tidak bisa menghubungi server, coba lagi.');
+            });
         });
     }
 

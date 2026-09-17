@@ -1000,7 +1000,7 @@
     {{-- Header --}}
     <div class="profile-header">
         <span class="profile-eyebrow">MY SWEET DREAM</span>
-        <h1 id="page-user-greeting">Selamat datang, Alya</h1>
+        <h1 id="page-user-greeting">Selamat datang, {{ explode(' ', $user['name'])[0] }}</h1>
         <p>Kelola profil, pantau pesanan, dan temukan kembali koleksi favoritmu.</p>
     </div>
 
@@ -1198,31 +1198,29 @@
             </div>
 
             {{-- 4. TAB WISHLIST --}}
-            <div class="profile-tab-panel" id="tab-panel-wishlist">
+                       <div class="profile-tab-panel" id="tab-panel-wishlist">
                 <div class="profile-content-card">
                     <div class="card-header-row">
-                        <h2 class="card-heading-title">Wishlist Saya (12)</h2>
+                        <h2 class="card-heading-title">Wishlist Saya ({{ count($wishlistItems) }})</h2>
                         <a href="/katalog" class="link-view-all-pink">Lihat Katalog</a>
                     </div>
                     <p style="font-size:0.9rem; color:#8a6a72; margin:0 0 1.5rem 0;">Simpan busana tidur favorit Anda untuk dibeli kapan saja.</p>
-                    <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem;">
-                        <div style="display:flex; gap:1rem; padding:1rem; border:1px solid #fbd5df; border-radius:14px; align-items:center;">
-                            <img src="{{ asset('images/sailor-rabbit-main.jpg') }}" style="width:64px; height:64px; border-radius:10px; object-fit:cover;" alt="Sailor Rabbit Set">
-                            <div style="flex:1;">
-                                <h4 style="margin:0 0 0.25rem; font-size:0.92rem; color:#3a2a2e;">Sailor Rabbit Set</h4>
-                                <span style="font-size:0.88rem; font-weight:700; color:#d44d6e;">Rp 280.000</span>
-                            </div>
-                            <a href="/produk/sailor-rabbit-set" class="btn-edit-pill">Lihat</a>
+                    @if(count($wishlistItems) === 0)
+                        <p style="font-size:0.9rem; color:#8a6a72;">Belum ada produk di wishlist kamu.</p>
+                    @else
+                        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem;">
+                            @foreach($wishlistItems as $item)
+                                <div style="display:flex; gap:1rem; padding:1rem; border:1px solid #fbd5df; border-radius:14px; align-items:center;">
+                                    <img src="{{ asset($item['image']) }}" style="width:64px; height:64px; border-radius:10px; object-fit:cover;" alt="{{ $item['title'] }}">
+                                    <div style="flex:1;">
+                                        <h4 style="margin:0 0 0.25rem; font-size:0.92rem; color:#3a2a2e;">{{ $item['title'] }}</h4>
+                                        <span style="font-size:0.88rem; font-weight:700; color:#d44d6e;">{{ $item['price'] }}</span>
+                                    </div>
+                                    <a href="/produk/{{ $item['slug'] }}" class="btn-edit-pill">Lihat</a>
+                                </div>
+                            @endforeach
                         </div>
-                        <div style="display:flex; gap:1rem; padding:1rem; border:1px solid #fbd5df; border-radius:14px; align-items:center;">
-                            <img src="{{ asset('images/product-kimono-silk.jpg') }}" style="width:64px; height:64px; border-radius:10px; object-fit:cover;" alt="Kimono Silk Premium">
-                            <div style="flex:1;">
-                                <h4 style="margin:0 0 0.25rem; font-size:0.92rem; color:#3a2a2e;">Kimono Silk Premium</h4>
-                                <span style="font-size:0.88rem; font-weight:700; color:#d44d6e;">Rp 450.000</span>
-                            </div>
-                            <a href="/produk/kimono-silk-premium" class="btn-edit-pill">Lihat</a>
-                        </div>
-                    </div>
+                    @endif
                 </div>
             </div>
 
@@ -1323,7 +1321,7 @@
                 </div>
                 <div class="modal-form-group">
                     <label for="edit-input-birthdate">Tanggal Lahir</label>
-                    <input type="text" id="edit-input-birthdate" class="modal-input" placeholder="Contoh: 17 Mei 1997">
+                    <input type="date" id="edit-input-birthdate" class="modal-input">
                 </div>
             </div>
 
@@ -1523,6 +1521,7 @@
 </div>
 
 <script>
+window.initialAddresses = @json($addresses);
 document.addEventListener('DOMContentLoaded', function() {
     // Re-init Lucide Icons
     lucide.createIcons();
@@ -1622,7 +1621,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('edit-input-nama').value = '{{ $user['name'] }}';
             document.getElementById('edit-input-email').value = '{{ $user['email'] }}';
             document.getElementById('edit-input-phone').value = '{{ $user['phone'] }}';
-            document.getElementById('edit-input-birthdate').value = '{{ $user['birthdate'] }}';
+            document.getElementById('edit-input-birthdate').value = '{{ $user['birthdate_raw'] }}';
             document.getElementById('edit-input-city').value = '{{ $user['city'] }}';
         }
         profileModal.classList.add('open');
@@ -1637,12 +1636,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnCloseProfileModal) btnCloseProfileModal.addEventListener('click', closeProfileModal);
     if (btnCancelProfile) btnCancelProfile.addEventListener('click', closeProfileModal);
 
-    if (formProfile) {
+        if (formProfile) {
         formProfile.addEventListener('submit', function() {
             const newName = document.getElementById('edit-input-nama').value.trim();
             const newEmail = document.getElementById('edit-input-email').value.trim();
             const newPhone = document.getElementById('edit-input-phone').value.trim();
-            const newBirthdate = document.getElementById('edit-input-birthdate').value.trim();
+            const newBirthdate = document.getElementById('edit-input-birthdate').value;
             const newCity = document.getElementById('edit-input-city').value.trim();
 
             if (!newName) {
@@ -1650,20 +1649,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            if (window.SweetDreamsAuth) {
-                window.SweetDreamsAuth.updateUserProfile({
-                    name: newName,
-                    email: newEmail,
-                    phone: newPhone,
-                    birthdate: newBirthdate,
-                    city: newCity
-                });
-            }
-
-            // Sync UI instantly
-            syncActiveUserData();
-            closeProfileModal();
-            showProfileToast('Perubahan data profil berhasil disimpan!');
+            fetch('/api/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    name: newName, email: newEmail, phone: newPhone,
+                    birthdate: newBirthdate, city: newCity
+                })
+            })
+            .then(res => res.json().then(data => ({ status: res.status, body: data })))
+            .then(({ status, body }) => {
+                if (status === 200) {
+                    showProfileToast('Perubahan data profil berhasil disimpan!');
+                    setTimeout(() => window.location.reload(), 800);
+                } else {
+                    const msg = body.message || (body.errors ? Object.values(body.errors)[0][0] : 'Gagal menyimpan perubahan.');
+                    alert(msg);
+                }
+            })
+            .catch(() => alert('Tidak bisa menghubungi server, coba lagi.'));
         });
     }
 
@@ -1681,15 +1689,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnCloseAddressModal) btnCloseAddressModal.addEventListener('click', closeAddressModal);
     if (btnCancelAddress) btnCancelAddress.addEventListener('click', closeAddressModal);
 
-    function openAddAddressModal() {
-        const user = window.SweetDreamsAuth ? window.SweetDreamsAuth.getCurrentUser() : null;
+       function openAddAddressModal() {
         document.getElementById('address-modal-title').textContent = 'Tambah Alamat Pengiriman';
         document.getElementById('address-edit-id').value = '';
         document.getElementById('address-input-label').value = 'Rumah';
-        document.getElementById('address-input-name').value = user ? user.name : '';
-        document.getElementById('address-input-phone').value = user ? (user.phone || '') : '';
+        document.getElementById('address-input-name').value = '{{ $user['name'] }}';
+        document.getElementById('address-input-phone').value = '{{ $user['phone'] === 'Belum diisi' ? '' : $user['phone'] }}';
         document.getElementById('address-input-address').value = '';
-        document.getElementById('address-input-city').value = user ? (user.city || '') : '';
+        document.getElementById('address-input-city').value = '{{ $user['city'] === 'Belum diisi' ? '' : $user['city'] }}';
         document.getElementById('address-input-province').value = '';
         document.getElementById('address-input-postal').value = '';
         document.getElementById('address-input-primary').checked = false;
@@ -1701,8 +1708,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnAddNewAddress) btnAddNewAddress.addEventListener('click', openAddAddressModal);
 
     function openEditAddressModal(addrId) {
-        const addresses = window.SweetDreamsAuth ? window.SweetDreamsAuth.getUserAddresses() : [];
-        const addr = addresses.find(a => a.id === addrId);
+                const addresses = window.initialAddresses || [];
+        const addr = addresses.find(a => String(a.id) === String(addrId));
         if (!addr) {
             openAddAddressModal();
             return;
@@ -1723,7 +1730,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('address-input-address').focus();
     }
 
-    if (formAddress) {
+        if (formAddress) {
         formAddress.addEventListener('submit', function() {
             const addrId = document.getElementById('address-edit-id').value.trim();
             const label = document.getElementById('address-input-label').value.trim();
@@ -1746,7 +1753,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const addrData = {
                 label: label || 'Alamat',
-                name: name,
+                recipient_name: name,
                 phone: phone,
                 address: address,
                 city: city,
@@ -1755,13 +1762,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 is_primary: is_primary
             };
 
-            if (window.SweetDreamsAuth) {
-                window.SweetDreamsAuth.saveUserAddress(addrData, addrId || null);
-            }
+            const url = addrId ? `/api/addresses/${addrId}` : '/api/addresses';
+            const method = addrId ? 'PUT' : 'POST';
 
-            closeAddressModal();
-            renderAddressList();
-            showProfileToast(addrId ? 'Alamat pengiriman berhasil diubah!' : 'Alamat baru berhasil ditambahkan!');
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify(addrData)
+            })
+            .then(res => res.json().then(data => ({ status: res.status, body: data })))
+            .then(({ status, body }) => {
+                if (status === 200 || status === 201) {
+                    closeAddressModal();
+                    showProfileToast(addrId ? 'Alamat pengiriman berhasil diubah!' : 'Alamat baru berhasil ditambahkan!');
+                    setTimeout(() => window.location.reload(), 800);
+                } else {
+                    const msg = body.message || (body.errors ? Object.values(body.errors)[0][0] : 'Gagal menyimpan alamat.');
+                    alert(msg);
+                }
+            })
+            .catch(() => alert('Tidak bisa menghubungi server, coba lagi.'));
         });
     }
 
@@ -1770,7 +1794,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const container = document.getElementById('address-list-container');
         if (!container) return;
 
-        const addresses = window.SweetDreamsAuth ? window.SweetDreamsAuth.getUserAddresses() : [];
+               const addresses = window.initialAddresses || [];
 
         if (addresses.length === 0) {
             container.innerHTML = `
@@ -1825,27 +1849,51 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        container.querySelectorAll('.btn-set-primary').forEach(btn => {
+             container.querySelectorAll('.btn-set-primary').forEach(btn => {
             btn.addEventListener('click', function() {
                 const id = this.getAttribute('data-id');
-                if (window.SweetDreamsAuth) {
-                    window.SweetDreamsAuth.setPrimaryAddress(id);
-                    renderAddressList();
-                    showProfileToast('Alamat utama berhasil diubah!');
-                }
+                fetch(`/api/addresses/${id}/primary`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(res => res.json().then(data => ({ status: res.status, body: data })))
+                .then(({ status, body }) => {
+                    if (status === 200) {
+                        showProfileToast('Alamat utama berhasil diubah!');
+                        setTimeout(() => window.location.reload(), 600);
+                    } else {
+                        alert(body.message || 'Gagal mengubah alamat utama.');
+                    }
+                })
+                .catch(() => alert('Tidak bisa menghubungi server, coba lagi.'));
             });
         });
 
-        container.querySelectorAll('.btn-delete-addr-item').forEach(btn => {
+                container.querySelectorAll('.btn-delete-addr-item').forEach(btn => {
             btn.addEventListener('click', function() {
                 const id = this.getAttribute('data-id');
-                if (confirm('Apakah Anda yakin ingin menghapus alamat pengiriman ini?')) {
-                    if (window.SweetDreamsAuth) {
-                        window.SweetDreamsAuth.deleteUserAddress(id);
-                        renderAddressList();
-                        showProfileToast('Alamat berhasil dihapus.');
+                if (!confirm('Apakah Anda yakin ingin menghapus alamat pengiriman ini?')) return;
+
+                fetch(`/api/addresses/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     }
-                }
+                })
+                .then(res => res.json().then(data => ({ status: res.status, body: data })))
+                .then(({ status, body }) => {
+                    if (status === 200) {
+                        showProfileToast('Alamat berhasil dihapus.');
+                        setTimeout(() => window.location.reload(), 600);
+                    } else {
+                        alert(body.message || 'Gagal menghapus alamat.');
+                    }
+                })
+                .catch(() => alert('Tidak bisa menghubungi server, coba lagi.'));
             });
         });
     }
@@ -1854,49 +1902,49 @@ document.addEventListener('DOMContentLoaded', function() {
     function syncActiveUserData() {
         if (!window.SweetDreamsAuth) return;
         const activeUser = window.SweetDreamsAuth.getCurrentUser();
-        if (activeUser) {
-            const firstName = (activeUser.name || 'Pengguna').split(' ')[0];
-            const greetingEl = document.getElementById('page-user-greeting');
-            const sideNameEl = document.getElementById('sidebar-user-name');
-            const sideEmailEl = document.getElementById('sidebar-user-email');
-            const dispNameEl = document.getElementById('disp-user-name');
-            const dispEmailEl = document.getElementById('disp-user-email');
-            const dispPhoneEl = document.getElementById('disp-user-phone');
-            const dispBirthEl = document.getElementById('disp-user-birthdate');
+        // if (activeUser) {
+        //     const firstName = (activeUser.name || 'Pengguna').split(' ')[0];
+        //     const greetingEl = document.getElementById('page-user-greeting');
+        //     const sideNameEl = document.getElementById('sidebar-user-name');
+        //     const sideEmailEl = document.getElementById('sidebar-user-email');
+        //     const dispNameEl = document.getElementById('disp-user-name');
+        //     const dispEmailEl = document.getElementById('disp-user-email');
+        //     const dispPhoneEl = document.getElementById('disp-user-phone');
+        //     const dispBirthEl = document.getElementById('disp-user-birthdate');
 
-            if (greetingEl) greetingEl.textContent = 'Selamat datang, ' + firstName;
-            if (sideNameEl) sideNameEl.textContent = activeUser.name;
-            if (sideEmailEl) sideEmailEl.textContent = activeUser.email;
-            if (dispNameEl) dispNameEl.textContent = activeUser.name;
-            if (dispEmailEl) dispEmailEl.textContent = activeUser.email;
-            if (dispPhoneEl) dispPhoneEl.textContent = activeUser.phone || '-';
-            if (dispBirthEl) dispBirthEl.textContent = activeUser.birthdate || '-';
+        //     if (greetingEl) greetingEl.textContent = 'Selamat datang, ' + firstName;
+        //     if (sideNameEl) sideNameEl.textContent = activeUser.name;
+        //     if (sideEmailEl) sideEmailEl.textContent = activeUser.email;
+        //     if (dispNameEl) dispNameEl.textContent = activeUser.name;
+        //     if (dispEmailEl) dispEmailEl.textContent = activeUser.email;
+        //     if (dispPhoneEl) dispPhoneEl.textContent = activeUser.phone || '-';
+        //     if (dispBirthEl) dispBirthEl.textContent = activeUser.birthdate || '-';
 
-            // Sync Avatars Across All Profile Containers
-            if (activeUser.avatar) {
-                const avatarSrc = activeUser.avatar.startsWith('data:') || activeUser.avatar.startsWith('http') || activeUser.avatar.startsWith('/') 
-                    ? activeUser.avatar 
-                    : '/' + activeUser.avatar;
+        //     // Sync Avatars Across All Profile Containers
+        //     if (activeUser.avatar) {
+        //         const avatarSrc = activeUser.avatar.startsWith('data:') || activeUser.avatar.startsWith('http') || activeUser.avatar.startsWith('/') 
+        //             ? activeUser.avatar 
+        //             : '/' + activeUser.avatar;
 
-                const sideImg = document.getElementById('sidebar-avatar-img');
-                const modalImg = document.getElementById('modal-avatar-preview');
-                const setImg = document.getElementById('settings-avatar-preview');
-                const spotImg = document.getElementById('avatar-spotlight-img');
+        //         const sideImg = document.getElementById('sidebar-avatar-img');
+        //         const modalImg = document.getElementById('modal-avatar-preview');
+        //         const setImg = document.getElementById('settings-avatar-preview');
+        //         const spotImg = document.getElementById('avatar-spotlight-img');
 
-                if (sideImg) sideImg.src = avatarSrc;
-                if (modalImg) modalImg.src = avatarSrc;
-                if (setImg) setImg.src = avatarSrc;
-                if (spotImg) spotImg.src = avatarSrc;
-            }
+        //         if (sideImg) sideImg.src = avatarSrc;
+        //         if (modalImg) modalImg.src = avatarSrc;
+        //         if (setImg) setImg.src = avatarSrc;
+        //         if (spotImg) spotImg.src = avatarSrc;
+        //     }
 
-            // Admin badge
-            if (activeUser.role === 'admin') {
-                const badge = document.createElement('span');
-                badge.textContent = 'ADMIN';
-                badge.style.cssText = 'background:#d44d6e;color:#fff;font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:6px;vertical-align:middle;';
-                if (sideNameEl) sideNameEl.appendChild(badge);
-            }
-        }
+        //     // Admin badge
+        //     if (activeUser.role === 'admin') {
+        //         const badge = document.createElement('span');
+        //         badge.textContent = 'ADMIN';
+        //         badge.style.cssText = 'background:#d44d6e;color:#fff;font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:6px;vertical-align:middle;';
+        //         if (sideNameEl) sideNameEl.appendChild(badge);
+        //     }
+        // }
 
         renderAddressList();
     }
@@ -2080,13 +2128,7 @@ document.addEventListener('DOMContentLoaded', function() {
         delete window._pendingTab;
     }
 
-    // 6. Check Authentication on Profile Page
-    const currentAuthedUser = window.SweetDreamsAuth ? window.SweetDreamsAuth.getCurrentUser() : null;
-    if (!currentAuthedUser) {
-        // Not logged in, redirect to login page
-        window.location.replace('/login');
-        return;
-    }
+   
 
     // 7. Logout Handlers with Custom Confirmation Modal
     const logoutModal = document.getElementById('modal-logout-confirm');
@@ -2104,18 +2146,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (logoutModal) logoutModal.classList.remove('open');
     }
 
-    function executeLogout() {
-        try {
-            if (window.SweetDreamsAuth) {
-                window.SweetDreamsAuth.logout();
-            } else {
-                localStorage.removeItem('sweetdreams_auth_user');
-                sessionStorage.clear();
-                window.location.replace('/logout');
-            }
-        } catch(e) {
-            window.location.replace('/logout');
-        }
+       function executeLogout() {
+        window.location.href = '/logout';
     }
 
     if (btnSidebarLogout) btnSidebarLogout.addEventListener('click', openLogoutModal);

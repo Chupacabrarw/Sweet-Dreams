@@ -5,13 +5,13 @@
 @section('content')
     {{-- HERO SECTION --}}
     <section class="hero" id="hero-section">
-        <img src="{{ asset('images/hero-banner.jpg') }}" alt="Sweet Dreams - Koleksi Sleepwear Premium" class="hero-img" loading="eager">
+               <img src="{{ asset($banner->image) }}" alt="Sweet Dreams" class="hero-img" loading="eager">
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <h1>Sweet Dreams<br>Start Here</h1>
-            <p>Koleksi sleepwear & lingerie premium untuk kenyamanan dan kepercayaan dirimu.</p>
-            <a href="/katalog" class="btn-shop-now" id="btn-shop-hero">
-                Shop Now
+            <h1>{!! nl2br(e($banner->title)) !!}</h1>
+            <p>{{ $banner->subtitle }}</p>
+            <a href="{{ $banner->link }}" class="btn-shop-now" id="btn-shop-hero">
+                {{ $banner->button_text }}
                 <i data-lucide="arrow-right" style="width:18px;height:18px;"></i>
             </a>
         </div>
