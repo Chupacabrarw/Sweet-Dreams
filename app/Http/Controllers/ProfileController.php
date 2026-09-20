@@ -62,13 +62,13 @@ class ProfileController extends Controller
                     'date' => $order->created_at->translatedFormat('d M Y'),
                     'status' => $this->statusLabel($order->status),
                     'status_type' => $this->statusType($order->status),
-                    'title' => $firstItem->product_title ?? 'Produk',
+                    'title' => $firstItem?->product_title ?? 'Produk',
                     'variant' => ($firstItem ? "{$firstItem->color} · Size {$firstItem->size}" : '')
                         . ($extraCount > 0 ? " (+{$extraCount} produk lainnya)" : ''),
-                    'qty' => $firstItem->quantity ?? 0,
-                    'price' => 'Rp ' . number_format($firstItem->price ?? 0, 0, ',', '.'),
+                    'qty' => $firstItem?->quantity ?? 0,
+                    'price' => 'Rp ' . number_format($firstItem?->price ?? 0, 0, ',', '.'),
                     'total' => 'Rp ' . number_format($order->total, 0, ',', '.'),
-                    'image' => $firstItem->product_image ?? 'images/alya-avatar.jpg',
+                    'image' => $firstItem?->product_image ?? 'images/alya-avatar.jpg',
                 ];
             })
             ->toArray();

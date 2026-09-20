@@ -21,10 +21,9 @@
         position: absolute;
         inset: 0;
         background: linear-gradient(135deg,
-            rgba(212,77,110,0.82) 0%,
-            rgba(184,58,88,0.70) 40%,
-            rgba(212,77,110,0.45) 70%,
-            rgba(244,141,168,0.30) 100%
+            rgba(30,16,20,0.75) 0%,
+            rgba(30,16,20,0.55) 40%,
+            rgba(30,16,20,0.30) 100%
         );
         display: flex;
         align-items: center;
@@ -32,12 +31,12 @@
         flex-direction: column;
     }
     .tentang-hero-overlay h1 {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 3rem;
-        font-weight: 700;
+        font-weight: 400;
+        font-style: italic;
         color: #fff;
         margin: 0 0 0.75rem 0;
-        text-shadow: 0 2px 16px rgba(0,0,0,0.12);
         opacity: 0;
         transform: translateY(20px);
         animation: tentangFadeUp 0.8s ease 0.2s forwards;
@@ -82,7 +81,7 @@
 
     /* ===== STORY SECTION ===== */
     .tentang-story {
-        max-width: 1280px;
+        max-width: 1320px;
         margin: 0 auto;
         padding: 4rem 2rem;
         display: grid;
@@ -91,9 +90,9 @@
         align-items: center;
     }
     .tentang-story-img {
-        border-radius: 20px;
+        border-radius: var(--radius-lg);
         overflow: hidden;
-        box-shadow: 0 12px 40px rgba(212,77,110,0.10);
+        box-shadow: 0 12px 40px rgba(201,122,140,0.10);
         position: relative;
     }
     .tentang-story-img img {
@@ -109,49 +108,49 @@
         right: -8px;
         width: 60%;
         height: 60%;
-        border: 3px solid #fbd5df;
-        border-radius: 20px;
+        border: 3px solid var(--blush-pale);
+        border-radius: var(--radius-lg);
         z-index: -1;
     }
     .tentang-story-text .label {
         display: inline-block;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.72rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.12em;
-        color: #d44d6e;
-        background: #fef5f7;
+        color: var(--blush);
+        background: var(--bg-warm);
         padding: 6px 14px;
-        border-radius: 50px;
+        border-radius: 8px;
         margin-bottom: 1.25rem;
     }
     .tentang-story-text h2 {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 2rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         line-height: 1.25;
         margin: 0 0 1.25rem 0;
     }
     .tentang-story-text p {
         font-size: 0.92rem;
-        color: #5a3a42;
+        color: var(--ink-muted);
         line-height: 1.8;
         margin: 0 0 1rem 0;
     }
     .tentang-story-text .highlight {
         font-weight: 600;
-        color: #d44d6e;
+        color: var(--blush);
     }
 
     /* ===== VALUES SECTION ===== */
     .tentang-values {
-        background: #fef5f7;
+        background: var(--bg-warm);
         padding: 4.5rem 0;
     }
     .tentang-values-inner {
-        max-width: 1280px;
+        max-width: 1320px;
         margin: 0 auto;
         padding: 0 2rem;
     }
@@ -160,15 +159,15 @@
         margin-bottom: 3rem;
     }
     .tentang-values-header h2 {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 2rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 0.5rem 0;
     }
     .tentang-values-header p {
         font-size: 0.92rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
         margin: 0;
     }
     .tentang-values-grid {
@@ -178,9 +177,9 @@
     }
     .value-card {
         background: #fff;
-        border-radius: 20px;
+        border-radius: var(--radius-lg);
         padding: 2.5rem 2rem;
-        border: 1.5px solid #fbd5df;
+        border: 1px solid var(--border);
         text-align: center;
         transition: all 0.4s ease;
         position: relative;
@@ -194,13 +193,13 @@
         transform: translateX(-50%);
         width: 60px;
         height: 4px;
-        background: linear-gradient(90deg, #d44d6e, #f48da8);
+        background: linear-gradient(90deg, var(--blush), #f48da8);
         border-radius: 0 0 4px 4px;
     }
     .value-card:hover {
         transform: translateY(-6px);
-        box-shadow: 0 12px 36px rgba(212,77,110,0.12);
-        border-color: #f48da8;
+        box-shadow: 0 12px 36px rgba(201,122,140,0.12);
+        border-color: var(--blush);
     }
     .value-card .icon-wrap {
         width: 64px;
@@ -211,31 +210,31 @@
         align-items: center;
         justify-content: center;
         margin: 0 auto 1.25rem;
-        color: #d44d6e;
+        color: var(--blush);
         transition: all 0.3s ease;
     }
     .value-card:hover .icon-wrap {
-        background: linear-gradient(135deg, #d44d6e, #f48da8);
+        background: linear-gradient(135deg, var(--blush), #f48da8);
         color: #fff;
         transform: scale(1.08);
     }
     .value-card h3 {
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 1.05rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 0.75rem 0;
     }
     .value-card p {
         font-size: 0.85rem;
-        color: #7a5a62;
+        color: var(--ink-muted);
         line-height: 1.7;
         margin: 0;
     }
 
     /* ===== STATS SECTION ===== */
     .tentang-stats {
-        max-width: 1280px;
+        max-width: 1320px;
         margin: 0 auto;
         padding: 4rem 2rem;
     }
@@ -247,36 +246,36 @@
     .stat-item {
         text-align: center;
         padding: 2rem 1rem;
-        border-radius: 16px;
+        border-radius: var(--radius);
         background: #fff;
-        border: 1.5px solid #fbd5df;
+        border: 1px solid var(--border);
         transition: all 0.3s ease;
     }
     .stat-item:hover {
         transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(212,77,110,0.10);
-        border-color: #f48da8;
+        box-shadow: 0 8px 24px rgba(201,122,140,0.10);
+        border-color: var(--blush);
     }
     .stat-item .stat-number {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 2.5rem;
         font-weight: 700;
-        color: #d44d6e;
+        color: var(--blush);
         line-height: 1;
         margin-bottom: 0.5rem;
     }
     .stat-item .stat-label {
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.82rem;
         font-weight: 500;
-        color: #8a6a72;
+        color: var(--ink-muted);
         text-transform: uppercase;
         letter-spacing: 0.06em;
     }
 
     /* ===== VISION MISSION ===== */
     .tentang-vimi {
-        background: linear-gradient(135deg, #3a2a2e 0%, #5a3a42 100%);
+        background: linear-gradient(135deg, var(--ink) 0%, #5a3a42 100%);
         padding: 4.5rem 0;
         position: relative;
         overflow: hidden;
@@ -289,7 +288,7 @@
         width: 400px;
         height: 400px;
         border-radius: 50%;
-        background: rgba(212,77,110,0.08);
+        background: rgba(201,122,140,0.08);
     }
     .tentang-vimi::after {
         content: '';
@@ -302,7 +301,7 @@
         background: rgba(244,141,168,0.06);
     }
     .tentang-vimi-inner {
-        max-width: 1280px;
+        max-width: 1320px;
         margin: 0 auto;
         padding: 0 2rem;
         display: grid;
@@ -315,7 +314,7 @@
         background: rgba(255,255,255,0.06);
         backdrop-filter: blur(12px);
         border: 1px solid rgba(255,255,255,0.10);
-        border-radius: 20px;
+        border-radius: var(--radius-lg);
         padding: 2.5rem;
         transition: all 0.4s ease;
     }
@@ -327,7 +326,7 @@
         width: 48px;
         height: 48px;
         border-radius: 12px;
-        background: linear-gradient(135deg, #d44d6e, #f48da8);
+        background: linear-gradient(135deg, var(--blush), #f48da8);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -335,7 +334,7 @@
         margin-bottom: 1.25rem;
     }
     .vimi-card h3 {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 1.5rem;
         font-weight: 700;
         color: #fff;
@@ -350,7 +349,7 @@
 
     /* ===== CTA SECTION ===== */
     .tentang-cta {
-        max-width: 1280px;
+        max-width: 1320px;
         margin: 0 auto;
         padding: 4rem 2rem 5rem;
         text-align: center;
@@ -359,7 +358,7 @@
         background: linear-gradient(135deg, #fef5f7, #fdedf1);
         border-radius: 24px;
         padding: 3.5rem 2rem;
-        border: 1.5px solid #fbd5df;
+        border: 1px solid var(--border);
         position: relative;
         overflow: hidden;
     }
@@ -371,7 +370,7 @@
         width: 200px;
         height: 200px;
         border-radius: 50%;
-        background: rgba(212,77,110,0.06);
+        background: rgba(201,122,140,0.06);
     }
     .tentang-cta-card::after {
         content: '';
@@ -384,17 +383,17 @@
         background: rgba(244,141,168,0.08);
     }
     .tentang-cta-card h2 {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 2rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 0.75rem 0;
         position: relative;
         z-index: 1;
     }
     .tentang-cta-card p {
         font-size: 0.95rem;
-        color: #7a5a62;
+        color: var(--ink-muted);
         line-height: 1.7;
         margin: 0 0 2rem 0;
         max-width: 520px;
@@ -407,24 +406,24 @@
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        background: #d44d6e;
+        background: var(--blush);
         color: #fff;
         padding: 14px 36px;
-        border-radius: 50px;
+        border-radius: 8px;
         font-size: 0.95rem;
         font-weight: 600;
         text-decoration: none;
         border: none;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 16px rgba(212,77,110,0.25);
+        box-shadow: 0 4px 16px rgba(201,122,140,0.25);
         position: relative;
         z-index: 1;
     }
     .tentang-cta-btn:hover {
-        background: #b83a58;
+        background: var(--blush-dark);
         transform: translateY(-2px);
-        box-shadow: 0 8px 28px rgba(212,77,110,0.35);
+        box-shadow: 0 8px 28px rgba(201,122,140,0.35);
     }
     .tentang-cta-btn svg {
         transition: transform 0.3s ease;

@@ -29,7 +29,8 @@ class CartController extends Controller
             })
             ->toArray();
 
-        $recommendedProducts = Product::inRandomOrder()
+        $recommendedProducts = Product::where('is_active', true)
+            ->inRandomOrder()
             ->limit(4)
             ->get()
             ->map(function ($p) {

@@ -1,11 +1,11 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Wishlist Saya - Sweet Dreams')
 
 @section('content')
 <style>
     .wishlist-page-wrapper {
-        max-width: 1280px;
+        max-width: 1320px;
         margin: 0 auto;
         padding: 2.5rem 2rem 5rem;
     }
@@ -18,24 +18,24 @@
         margin-bottom: 2rem;
     }
     .wishlist-page-header h1 {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 2.25rem;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 0.35rem;
     }
     .wishlist-page-header p {
-        color: #8a6a72;
+        color: var(--ink-muted);
         font-size: 0.95rem;
         margin: 0;
     }
     .wishlist-page-header p strong {
-        color: #3a2a2e;
+        color: var(--ink);
     }
     .btn-add-all-cart {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        background: #d44d6e;
+        background: var(--blush);
         color: #fff;
         border: none;
         border-radius: 12px;
@@ -58,12 +58,12 @@
 
     .wishlist-card {
         background: #fff;
-        border: 1px solid #fbd5df;
-        border-radius: 16px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
         overflow: hidden;
         transition: box-shadow 0.2s ease;
     }
-    .wishlist-card:hover { box-shadow: 0 8px 24px rgba(212,77,110,0.12); }
+    .wishlist-card:hover { box-shadow: 0 8px 24px rgba(201,122,140,0.12); }
 
     .wishlist-card-img-box {
         position: relative;
@@ -82,9 +82,9 @@
         border: none;
         display: flex; align-items: center; justify-content: center;
         cursor: pointer;
-        color: #3a2a2e;
+        color: var(--ink);
     }
-    .btn-remove-wishlist:hover { background: #fff; color: #d44d6e; }
+    .btn-remove-wishlist:hover { background: #fff; color: var(--blush); }
 
     .wishlist-card-body { padding: 1rem 1.1rem 1.2rem; }
     .wishlist-card-tag-row {
@@ -96,19 +96,19 @@
     .wishlist-card-tag {
         font-size: 0.72rem;
         font-weight: 600;
-        color: #d44d6e;
+        color: var(--blush);
         background: #fdeef1;
         padding: 0.25rem 0.6rem;
-        border-radius: 20px;
+        border-radius: var(--radius-lg);
     }
     .wishlist-card-heart {
         background: none; border: none; cursor: pointer;
-        color: #d44d6e;
+        color: var(--blush);
     }
     .wishlist-card-title {
         font-size: 0.98rem;
         font-weight: 600;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 0.4rem;
     }
     .wishlist-card-price-row {
@@ -116,10 +116,10 @@
         justify-content: space-between;
         align-items: center;
     }
-    .wishlist-card-price { font-weight: 700; color: #3a2a2e; }
+    .wishlist-card-price { font-weight: 700; color: var(--ink); }
     .btn-wishlist-beli {
         display: flex; align-items: center; gap: 0.4rem;
-        background: #d44d6e; color: #fff;
+        background: var(--blush); color: #fff;
         border: none; border-radius: 10px;
         padding: 0.5rem 0.9rem;
         font-size: 0.85rem; font-weight: 600;
@@ -130,10 +130,10 @@
     .wishlist-empty-state {
         text-align: center;
         padding: 4rem 1rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
     }
     .wishlist-empty-state a {
-        color: #d44d6e;
+        color: var(--blush);
         font-weight: 600;
     }
 </style>
@@ -165,7 +165,7 @@
                         <div class="wishlist-card-tag-row">
                             <span class="wishlist-card-tag">{{ $item['category_name'] }}</span>
                             <button class="wishlist-card-heart" data-action="remove" aria-label="Hapus dari wishlist">
-                                <i data-lucide="heart" style="width:18px;height:18px;fill:#d44d6e;"></i>
+                                <i data-lucide="heart" style="width:18px;height:18px;fill:var(--blush);"></i>
                             </button>
                         </div>
                         <h4 class="wishlist-card-title">{{ $item['title'] }}</h4>

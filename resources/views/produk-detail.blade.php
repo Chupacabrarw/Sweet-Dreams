@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', $product['title'] . ' - Sweet Dreams')
 
@@ -6,7 +6,7 @@
 <style>
     /* ===== BREADCRUMB ===== */
     .breadcrumb-nav {
-        max-width: 1280px;
+        max-width: 1320px;
         margin: 0 auto;
         padding: 1.5rem 2rem 1rem;
     }
@@ -15,29 +15,29 @@
         align-items: center;
         gap: 0.5rem;
         font-size: 0.82rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
     }
     .breadcrumb-container a {
-        color: #8a6a72;
+        color: var(--ink-muted);
         text-decoration: none;
         transition: color 0.2s ease;
     }
     .breadcrumb-container a:hover {
-        color: #d44d6e;
+        color: var(--blush);
     }
     .breadcrumb-container svg {
         width: 14px;
         height: 14px;
-        color: #d4b8c0;
+        color: rgba(180,140,150,0.35);
     }
     .breadcrumb-container span.active {
-        color: #3a2a2e;
+        color: var(--ink);
         font-weight: 600;
     }
 
     /* ===== PRODUCT MAIN SECTION ===== */
     .product-main-section {
-        max-width: 1280px;
+        max-width: 1320px;
         margin: 0 auto;
         padding: 0.5rem 2rem 3rem;
     }
@@ -82,24 +82,24 @@
         transition: transform 0.3s ease;
     }
     .gallery-thumb-btn:hover {
-        border-color: #d44d6e;
+        border-color: var(--blush);
     }
     .gallery-thumb-btn:hover img {
         transform: scale(1.05);
     }
     .gallery-thumb-btn.active {
-        border-color: #d44d6e;
-        box-shadow: 0 0 0 2px rgba(212, 77, 110, 0.2);
+        border-color: var(--blush);
+        box-shadow: 0 0 0 2px rgba(201,122,140, 0.2);
     }
 
     /* Main Product Image */
     .product-main-img-box {
         flex: 1;
         position: relative;
-        border-radius: 20px;
+        border-radius: var(--radius-lg);
         overflow: hidden;
         background: #f7f6f5;
-        border: 1px solid #fbd5df;
+        border: 1px solid var(--border);
         aspect-ratio: 3/4;
         display: flex;
         align-items: center;
@@ -123,14 +123,14 @@
         top: 1.25rem;
         left: 1.25rem;
         background: #ffffff;
-        color: #5a3a42;
-        font-family: 'Inter', sans-serif;
+        color: var(--ink-muted);
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.72rem;
         font-weight: 700;
         letter-spacing: 0.05em;
         text-transform: uppercase;
         padding: 6px 14px;
-        border-radius: 50px;
+        border-radius: 8px;
         box-shadow: 0 4px 14px rgba(0,0,0,0.08);
         z-index: 2;
         border: 1px solid #f0e6e8;
@@ -143,12 +143,12 @@
         height: 42px;
         border-radius: 50%;
         background: #ffffff;
-        border: 1px solid #fbd5df;
+        border: 1px solid var(--border);
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        color: #d44d6e;
+        color: var(--blush);
         box-shadow: 0 4px 14px rgba(0,0,0,0.08);
         transition: all 0.25s ease;
         z-index: 2;
@@ -156,12 +156,12 @@
     .btn-wishlist-float:hover {
         transform: scale(1.1);
         background: #fff5f7;
-        box-shadow: 0 6px 18px rgba(212, 77, 110, 0.2);
+        box-shadow: 0 6px 18px rgba(201,122,140, 0.2);
     }
     .btn-wishlist-float.active {
-        background: #d44d6e;
+        background: var(--blush);
         color: #fff;
-        border-color: #d44d6e;
+        border-color: var(--blush);
     }
 
     /* Product Info (Right) */
@@ -185,12 +185,12 @@
     }
     .rating-text {
         font-size: 0.85rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
         font-weight: 500;
     }
     .collection-tag {
         display: inline-block;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.72rem;
         font-weight: 700;
         letter-spacing: 0.08em;
@@ -205,10 +205,10 @@
 
     /* Title & Price */
     .product-title {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 2.35rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         line-height: 1.2;
         margin: 0 0 0.75rem 0;
     }
@@ -219,14 +219,14 @@
         margin-bottom: 1.25rem;
     }
     .product-current-price {
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 1.75rem;
         font-weight: 700;
-        color: #d44d6e;
+        color: var(--blush);
     }
     .product-original-price {
         font-size: 1.05rem;
-        color: #b48a92;
+        color: var(--ink-faint);
         text-decoration: line-through;
     }
 
@@ -259,21 +259,21 @@
     .option-title {
         font-size: 0.9rem;
         font-weight: 600;
-        color: #3a2a2e;
+        color: var(--ink);
     }
     .option-value-name {
         font-weight: 400;
-        color: #8a6a72;
+        color: var(--ink-muted);
     }
     .link-size-guide {
         font-size: 0.82rem;
-        color: #d44d6e;
+        color: var(--blush);
         text-decoration: underline;
         cursor: pointer;
         transition: color 0.2s;
     }
     .link-size-guide:hover {
-        color: #a82e4e;
+        color: var(--blush-dark);
     }
 
     .color-swatch-list {
@@ -300,7 +300,7 @@
         transition: all 0.2s ease;
     }
     .color-swatch-item.active::after {
-        border-color: #d44d6e;
+        border-color: var(--blush);
     }
 
     /* Size Buttons */
@@ -314,10 +314,10 @@
         border-radius: 10px;
         border: 1.5px solid #e8d0d6;
         background: #fff;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.9rem;
         font-weight: 600;
-        color: #3a2a2e;
+        color: var(--ink);
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -326,8 +326,8 @@
         transition: all 0.2s ease;
     }
     .size-pill-btn:hover {
-        border-color: #d44d6e;
-        color: #d44d6e;
+        border-color: var(--blush);
+        color: var(--blush);
     }
     .size-pill-btn.active {
         background: #e06b88;
@@ -347,7 +347,7 @@
         display: flex;
         align-items: center;
         border: 1.5px solid #e8d0d6;
-        border-radius: 50px;
+        border-radius: 8px;
         background: #fff;
         height: 52px;
         padding: 0 6px;
@@ -362,30 +362,30 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #5a3a42;
+        color: var(--ink-muted);
         font-size: 1.1rem;
         transition: all 0.2s ease;
     }
     .qty-btn:hover {
         background: #fce7ee;
-        color: #d44d6e;
+        color: var(--blush);
     }
     .qty-display {
         min-width: 32px;
         text-align: center;
         font-weight: 600;
         font-size: 0.95rem;
-        color: #3a2a2e;
+        color: var(--ink);
         user-select: none;
     }
     .btn-add-to-cart {
         flex: 1;
         height: 52px;
         border: none;
-        border-radius: 50px;
-        background: linear-gradient(135deg, #e87b94 0%, #d44d6e 100%);
+        border-radius: 8px;
+        background: linear-gradient(135deg, #e87b94 0%, var(--blush) 100%);
         color: #ffffff;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.98rem;
         font-weight: 600;
         cursor: pointer;
@@ -393,13 +393,13 @@
         align-items: center;
         justify-content: center;
         gap: 0.65rem;
-        box-shadow: 0 6px 20px rgba(212, 77, 110, 0.35);
+        box-shadow: 0 6px 20px rgba(201,122,140, 0.35);
         transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .btn-add-to-cart:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(212, 77, 110, 0.45);
-        background: linear-gradient(135deg, #d44d6e 0%, #ba3253 100%);
+        box-shadow: 0 8px 24px rgba(201,122,140, 0.45);
+        background: linear-gradient(135deg, var(--blush) 0%, #ba3253 100%);
     }
     .btn-add-to-cart:active {
         transform: translateY(0);
@@ -418,7 +418,7 @@
         align-items: center;
         gap: 0.45rem;
         font-size: 0.8rem;
-        color: #5a3a42;
+        color: var(--ink-muted);
         font-weight: 500;
     }
     .trust-badge-item svg {
@@ -430,27 +430,27 @@
 
     /* ===== PANDUAN UKURAN (CM) ===== */
     .size-guide-section {
-        max-width: 1280px;
+        max-width: 1320px;
         margin: 1.5rem auto 3.5rem;
         padding: 0 2rem;
     }
     .size-guide-title {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 1.65rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 1.25rem 0;
     }
     .size-table-container {
         background: #ffffff;
-        border: 1.5px solid #fbd5df;
-        border-radius: 18px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
         overflow: hidden;
-        box-shadow: 0 4px 20px rgba(212, 77, 110, 0.04);
+        box-shadow: 0 4px 20px rgba(201,122,140, 0.04);
         transition: box-shadow 0.3s ease;
     }
     .size-table-container.highlight {
-        box-shadow: 0 0 0 3px #d44d6e;
+        box-shadow: 0 0 0 3px var(--blush);
     }
     .size-table {
         width: 100%;
@@ -462,10 +462,10 @@
     }
     .size-table th {
         padding: 1.1rem 1.5rem;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.88rem;
         font-weight: 600;
-        color: #3a2a2e;
+        color: var(--ink);
     }
     .size-table tbody tr {
         border-top: 1px solid #fae6ec;
@@ -477,16 +477,16 @@
     .size-table td {
         padding: 1rem 1.5rem;
         font-size: 0.88rem;
-        color: #5a3a42;
+        color: var(--ink-muted);
     }
     .size-table td:first-child {
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
     }
 
     /* ===== TABS & CARE SECTION ===== */
     .tabs-and-care-section {
-        max-width: 1280px;
+        max-width: 1320px;
         margin: 0 auto 4rem;
         padding: 0 2rem;
         display: grid;
@@ -506,20 +506,20 @@
     .tab-nav-btn {
         background: none;
         border: none;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 1.05rem;
         font-weight: 600;
-        color: #8a6a72;
+        color: var(--ink-muted);
         padding: 0.75rem 0.25rem 1rem;
         cursor: pointer;
         position: relative;
         transition: all 0.2s ease;
     }
     .tab-nav-btn:hover {
-        color: #d44d6e;
+        color: var(--blush);
     }
     .tab-nav-btn.active {
-        color: #3a2a2e;
+        color: var(--ink);
     }
     .tab-nav-btn.active::after {
         content: '';
@@ -528,7 +528,7 @@
         left: 0;
         right: 0;
         height: 2.5px;
-        background: #d44d6e;
+        background: var(--blush);
         border-radius: 2px;
     }
 
@@ -545,10 +545,10 @@
         to { opacity: 1; transform: translateY(0); }
     }
     .tab-content-title {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 1.35rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 1rem 0;
     }
     .tab-content-text {
@@ -558,10 +558,10 @@
         margin: 0 0 1.5rem 0;
     }
     .tab-features-title {
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.95rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 0.85rem 0;
     }
     .tab-features-list {
@@ -578,11 +578,11 @@
         gap: 0.65rem;
         font-size: 0.88rem;
         line-height: 1.6;
-        color: #5a3a42;
+        color: var(--ink-muted);
     }
     .tab-features-list li::before {
         content: '•';
-        color: #d44d6e;
+        color: var(--blush);
         font-size: 1.2rem;
         line-height: 1;
         margin-top: 0.1rem;
@@ -596,14 +596,14 @@
         padding: 1.5rem;
         background: #fdf5f7;
         border-radius: 14px;
-        border: 1px solid #fbd5df;
+        border: 1px solid var(--border);
         margin-bottom: 1.5rem;
     }
     .reviews-score {
         font-size: 2.75rem;
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         line-height: 1;
     }
     .review-item-card {
@@ -622,7 +622,7 @@
     .reviewer-name {
         font-weight: 600;
         font-size: 0.9rem;
-        color: #3a2a2e;
+        color: var(--ink);
     }
     .review-date {
         font-size: 0.78rem;
@@ -631,17 +631,17 @@
 
     /* Care Instructions Card (Right) */
     .care-instructions-card {
-        background: #fef5f7;
-        border: 1.5px solid #fbd5df;
-        border-radius: 20px;
+        background: var(--bg-warm);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
         padding: 1.75rem 2rem;
-        box-shadow: 0 4px 18px rgba(212, 77, 110, 0.04);
+        box-shadow: 0 4px 18px rgba(201,122,140, 0.04);
     }
     .care-card-title {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 1.25rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 1.5rem 0;
     }
     .care-items-list {
@@ -659,23 +659,23 @@
         height: 44px;
         border-radius: 50%;
         background: #ffffff;
-        border: 1.5px solid #fbd5df;
+        border: 1px solid var(--border);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #d44d6e;
+        color: var(--blush);
         flex-shrink: 0;
     }
     .care-item-text {
         font-size: 0.88rem;
-        color: #5a3a42;
+        color: var(--ink-muted);
         line-height: 1.5;
         margin: 0;
     }
 
     /* ===== PRODUK SERUPA ===== */
     .related-products-section {
-        max-width: 1280px;
+        max-width: 1320px;
         margin: 0 auto 5rem;
         padding: 0 2rem;
     }
@@ -686,21 +686,21 @@
         margin-bottom: 2rem;
     }
     .related-section-title {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 1.85rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0;
     }
     .related-view-all {
         font-size: 0.88rem;
         font-weight: 600;
-        color: #d44d6e;
+        color: var(--blush);
         text-decoration: none;
         transition: color 0.2s;
     }
     .related-view-all:hover {
-        color: #a82e4e;
+        color: var(--blush-dark);
     }
 
     .related-products-grid {
@@ -710,8 +710,8 @@
     }
     .related-card {
         background: #ffffff;
-        border: 1.5px solid #fbd5df;
-        border-radius: 18px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
         overflow: hidden;
         text-decoration: none;
         display: flex;
@@ -721,8 +721,8 @@
     }
     .related-card:hover {
         transform: translateY(-6px);
-        box-shadow: 0 12px 28px rgba(212, 77, 110, 0.12);
-        border-color: #d44d6e;
+        box-shadow: 0 12px 28px rgba(201,122,140, 0.12);
+        border-color: var(--blush);
     }
     .related-card-img-box {
         width: 100%;
@@ -747,7 +747,7 @@
         left: 0.85rem;
         background: #f43f5e;
         color: #fff;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.75rem;
         font-weight: 700;
         padding: 4px 10px;
@@ -762,11 +762,11 @@
         height: 34px;
         border-radius: 50%;
         background: rgba(255, 255, 255, 0.9);
-        border: 1px solid #fbd5df;
+        border: 1px solid var(--border);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #d44d6e;
+        color: var(--blush);
         cursor: pointer;
         z-index: 2;
         transition: all 0.2s ease;
@@ -782,10 +782,10 @@
         flex: 1;
     }
     .related-card-title {
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.92rem;
         font-weight: 600;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 0.5rem 0;
         line-height: 1.4;
     }
@@ -797,12 +797,12 @@
     }
     .related-price-current {
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         font-size: 0.98rem;
     }
     .related-price-original {
         font-size: 0.82rem;
-        color: #b48a92;
+        color: var(--ink-faint);
         text-decoration: line-through;
     }
 
@@ -811,7 +811,7 @@
         position: fixed;
         bottom: 2rem;
         right: 2rem;
-        background: #3a2a2e;
+        background: var(--ink);
         color: #fff;
         padding: 1rem 1.5rem;
         border-radius: 12px;
@@ -1102,7 +1102,7 @@
                         <i data-lucide="star" style="width:18px;height:18px;fill:#eab308;"></i>
                     </div>
                 </div>
-                <div style="font-size: 0.88rem; color: #5a3a42; line-height: 1.5;">
+                <div style="font-size: 0.88rem; color: var(--ink-muted); line-height: 1.5;">
                     <strong>98% Pembeli Puas</strong><br>
                     Berdasarkan {{ $product['review_count'] }} ulasan dari pelanggan yang telah berbelanja produk ini.
                 </div>
@@ -1120,7 +1120,7 @@
                     <i data-lucide="star" style="width:14px;height:14px;fill:#eab308;"></i>
                     <i data-lucide="star" style="width:14px;height:14px;fill:#eab308;"></i>
                 </div>
-                <p style="font-size: 0.88rem; color: #5a3a42; margin: 0; line-height: 1.5;">
+                <p style="font-size: 0.88rem; color: var(--ink-muted); margin: 0; line-height: 1.5;">
                     Bagus banget! Bahannya jatuh dan adem parah. Warnanya mewah seperti di foto, ukurannya pas banget sesuai tabel panduan ukuran.
                 </p>
             </div>
@@ -1137,7 +1137,7 @@
                     <i data-lucide="star" style="width:14px;height:14px;fill:#eab308;"></i>
                     <i data-lucide="star" style="width:14px;height:14px;fill:#eab308;"></i>
                 </div>
-                <p style="font-size: 0.88rem; color: #5a3a42; margin: 0; line-height: 1.5;">
+                <p style="font-size: 0.88rem; color: var(--ink-muted); margin: 0; line-height: 1.5;">
                     Packaging-nya niat dan wangi sekali saat dibuka. Bordir kelincinya manis dan rapi. Bakalan langganan di Sweet Dreams!
                 </p>
             </div>

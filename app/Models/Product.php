@@ -13,7 +13,7 @@ class Product extends Model
         'review_count', 'sizes', 'colors', 'badge',
         'short_desc', 'image', 'sales_count',
         'gallery', 'long_desc_title', 'long_desc', 'features',
-        'sku', 'stock',
+        'sku', 'stock', 'is_active'
     ];
 
     protected $casts = [

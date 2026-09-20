@@ -44,6 +44,7 @@ class ProductController extends Controller
         $activeCategory = in_array($category, $validCategories) ? $category : null;
 
         $products = Product::with('category')
+            ->where('is_active', true)
             ->get()
             ->map(fn ($p) => $this->mapForCatalog($p))
             ->toArray();
@@ -61,7 +62,7 @@ class ProductController extends Controller
 
     public function show(Request $request, $slug)
     {
-        $product = Product::with('category')->where('slug', $slug)->firstOrFail();
+        $product = Product::with('category')->where('slug', $slug)->where('is_active', true)->firstOrFail();
 
         $hexMap = [
             'pink' => '#e8a0b0', 'gold' => '#d4a854', 'white' => '#f5f0ec',
@@ -108,6 +109,7 @@ class ProductController extends Controller
         ];
 
         $relatedProducts = Product::where('id', '!=', $product->id)
+            ->where('is_active', true)
             ->inRandomOrder()
             ->limit(4)
             ->get()

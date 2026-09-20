@@ -10,12 +10,29 @@
     {{-- Google Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet">
 
     {{-- Lucide Icons --}}
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
+        :root {
+            --ink:        #2a1f22;
+            --ink-muted:  #6e5a60;
+            --ink-faint:  #a8939a;
+            --blush:      #c97a8c;
+            --blush-dark: #a85e72;
+            --blush-pale: #f2dce3;
+            --bg:         #faf8f6;
+            --bg-warm:    #f4ede9;
+            --white:      #ffffff;
+            --border:     rgba(180,140,150,0.18);
+            --shadow-sm:  0 1px 4px rgba(42,31,34,0.06);
+            --shadow-md:  0 4px 20px rgba(42,31,34,0.09);
+            --shadow-lg:  0 12px 48px rgba(42,31,34,0.12);
+            --radius:     12px;
+            --radius-lg:  20px;
+        }
         * {
             box-sizing: border-box;
             margin: 0;
@@ -23,18 +40,18 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             background: #f4ecee;
             background-image: 
                 radial-gradient(at 0% 0%, rgba(244, 141, 168, 0.18) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(212, 77, 110, 0.12) 0px, transparent 50%);
+                radial-gradient(at 100% 100%, rgba(201,122,140, 0.12) 0px, transparent 50%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 2rem 1.25rem;
-            color: #3a2a2e;
+            color: var(--ink);
         }
 
         /* Top Bar Navigation */
@@ -52,22 +69,22 @@
             align-items: center;
             gap: 0.5rem;
             text-decoration: none;
-            color: #5a3a42;
+            color: var(--ink-muted);
             font-size: 0.88rem;
             font-weight: 500;
             transition: all 0.2s ease;
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(8px);
             padding: 8px 16px;
-            border-radius: 50px;
+            border-radius: 8px;
             border: 1px solid rgba(244, 141, 168, 0.2);
         }
 
         .btn-back-home:hover {
-            color: #d44d6e;
+            color: var(--blush);
             background: #ffffff;
             transform: translateX(-3px);
-            box-shadow: 0 4px 12px rgba(212, 77, 110, 0.1);
+            box-shadow: 0 4px 12px rgba(201,122,140, 0.1);
         }
 
         /* Main Auth Card */
@@ -77,7 +94,7 @@
             background: #ffffff;
             border-radius: 28px;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(58, 42, 46, 0.12), 0 4px 20px rgba(212, 77, 110, 0.06);
+            box-shadow: 0 20px 60px rgba(42,31,34, 0.12), 0 4px 20px rgba(201,122,140, 0.06);
             display: grid;
             grid-template-columns: 1fr 1.08fr;
             min-height: 590px;
@@ -124,7 +141,7 @@
         }
 
         .hero-quote {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Cormorant Garamond', serif;
             font-size: 1.65rem;
             font-weight: 500;
             line-height: 1.35;
@@ -154,7 +171,7 @@
         }
 
         .auth-brand-title {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Cormorant Garamond', serif;
             font-size: 2.15rem;
             font-weight: 700;
             color: #8B263E;
@@ -184,7 +201,7 @@
         .auth-field-label {
             font-size: 0.82rem;
             font-weight: 600;
-            color: #3a2a2e;
+            color: var(--ink);
         }
 
         .auth-input-wrapper {
@@ -196,7 +213,7 @@
         .auth-input-icon {
             position: absolute;
             left: 1rem;
-            color: #8a6a72;
+            color: var(--ink-muted);
             width: 18px;
             height: 18px;
             pointer-events: none;
@@ -210,9 +227,9 @@
             border: 1.5px solid #e8d5da;
             border-radius: 12px;
             background: #ffffff;
-            font-family: 'Inter', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-size: 0.88rem;
-            color: #3a2a2e;
+            color: var(--ink);
             outline: none;
             transition: all 0.25s ease;
         }
@@ -222,13 +239,13 @@
         }
 
         .auth-input-field:focus {
-            border-color: #d44d6e;
-            box-shadow: 0 0 0 3px rgba(212, 77, 110, 0.1);
+            border-color: var(--blush);
+            box-shadow: 0 0 0 3px rgba(201,122,140, 0.1);
         }
 
         .auth-input-field:focus + .auth-input-icon,
         .auth-input-wrapper:focus-within .auth-input-icon {
-            color: #d44d6e;
+            color: var(--blush);
         }
 
         .auth-input-field.is-invalid {
@@ -242,7 +259,7 @@
             right: 0.85rem;
             background: transparent;
             border: none;
-            color: #8a6a72;
+            color: var(--ink-muted);
             cursor: pointer;
             padding: 4px;
             display: flex;
@@ -252,7 +269,7 @@
         }
 
         .btn-toggle-pwd:hover {
-            color: #d44d6e;
+            color: var(--blush);
         }
 
         /* Meta Row: Remember me & Forgot Password */
@@ -268,7 +285,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            color: #5a3a42;
+            color: var(--ink-muted);
             cursor: pointer;
             user-select: none;
         }
@@ -301,7 +318,7 @@
             border-radius: 12px;
             background: linear-gradient(135deg, #f28da5 0%, #eb708e 100%);
             color: #ffffff;
-            font-family: 'Inter', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
@@ -316,7 +333,7 @@
         .btn-auth-submit:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 26px rgba(235, 112, 142, 0.45);
-            background: linear-gradient(135deg, #eb708e 0%, #d44d6e 100%);
+            background: linear-gradient(135deg, #eb708e 0%, var(--blush) 100%);
         }
 
         .btn-auth-submit:active {
@@ -330,7 +347,7 @@
         }
 
         .link-admin {
-            color: #5a3a42;
+            color: var(--ink-muted);
             font-size: 0.82rem;
             text-decoration: underline;
             font-weight: 500;
@@ -341,7 +358,7 @@
         }
 
         .link-admin:hover {
-            color: #d44d6e;
+            color: var(--blush);
         }
 
         /* Switch Mode (Register / Login) */
@@ -390,7 +407,7 @@
             background: #ffffff;
             border-left: 4px solid #f43f5e;
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(58, 42, 46, 0.16);
+            box-shadow: 0 10px 30px rgba(42,31,34, 0.16);
             padding: 1rem 1.25rem;
             display: flex;
             align-items: flex-start;
@@ -433,7 +450,7 @@
             margin: 0 0 0.2rem 0;
             font-size: 0.9rem;
             font-weight: 700;
-            color: #3a2a2e;
+            color: var(--ink);
         }
 
         .auth-toast-content p {
@@ -447,8 +464,8 @@
         .reg-avatar-section {
             margin-bottom: 1.35rem;
             background: #fff8fa;
-            border: 1.5px dashed #fbd5df;
-            border-radius: 18px;
+            border: 1.5px dashed var(--blush-pale);
+            border-radius: var(--radius);
             padding: 1rem 1.15rem;
             text-align: center;
         }
@@ -460,11 +477,11 @@
             margin-bottom: 0.25rem;
             font-size: 0.88rem;
             font-weight: 700;
-            color: #5a3a42;
+            color: var(--ink-muted);
         }
         .reg-avatar-subtitle {
             font-size: 0.76rem;
-            color: #8a6a72;
+            color: var(--ink-muted);
             margin-bottom: 0.85rem;
         }
         .reg-avatar-preview-wrapper {
@@ -478,8 +495,8 @@
             width: 72px;
             height: 72px;
             border-radius: 50%;
-            border: 3px solid #d44d6e;
-            box-shadow: 0 4px 14px rgba(212, 77, 110, 0.22);
+            border: 3px solid var(--blush);
+            box-shadow: 0 4px 14px rgba(201,122,140, 0.22);
             object-fit: cover;
             background: #fff;
             transition: transform 0.25s ease;
@@ -489,12 +506,12 @@
         }
         .reg-avatar-badge {
             margin-top: 0.35rem;
-            background: #d44d6e;
+            background: var(--blush);
             color: #fff;
             font-size: 0.68rem;
             font-weight: 700;
             padding: 2px 10px;
-            border-radius: 50px;
+            border-radius: 8px;
             letter-spacing: 0.02em;
         }
         .reg-avatar-options-grid {
@@ -525,25 +542,25 @@
         .reg-avatar-option-btn span {
             font-size: 0.68rem;
             font-weight: 600;
-            color: #5a3a42;
+            color: var(--ink-muted);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 100%;
         }
         .reg-avatar-option-btn:hover {
-            border-color: #f48da8;
+            border-color: var(--blush);
             transform: translateY(-2px);
             background: #fff;
         }
         .reg-avatar-option-btn.selected {
-            border-color: #d44d6e;
+            border-color: var(--blush);
             background: #fdf0f4;
-            box-shadow: 0 0 0 3px rgba(212, 77, 110, 0.2);
+            box-shadow: 0 0 0 3px rgba(201,122,140, 0.2);
             transform: translateY(-2px);
         }
         .reg-avatar-option-btn.selected span {
-            color: #d44d6e;
+            color: var(--blush);
             font-weight: 700;
         }
 
@@ -574,7 +591,7 @@
             border-radius: 24px;
             width: 100%;
             max-width: 460px;
-            box-shadow: 0 24px 80px rgba(58, 42, 46, 0.22), 0 4px 24px rgba(212, 77, 110, 0.1);
+            box-shadow: 0 24px 80px rgba(42,31,34, 0.22), 0 4px 24px rgba(201,122,140, 0.1);
             overflow: hidden;
             transform: scale(0.92) translateY(20px);
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -599,8 +616,8 @@
             height: 34px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.7);
-            border: 1px solid rgba(212, 77, 110, 0.15);
-            color: #5a3a42;
+            border: 1px solid rgba(201,122,140, 0.15);
+            color: var(--ink-muted);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -610,7 +627,7 @@
 
         .fp-modal-close-btn:hover {
             background: #fff;
-            color: #d44d6e;
+            color: var(--blush);
             transform: rotate(90deg);
         }
 
@@ -634,10 +651,10 @@
         }
 
         .fp-modal-header h2 {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Cormorant Garamond', serif;
             font-size: 1.45rem;
             font-weight: 700;
-            color: #3a2a2e;
+            color: var(--ink);
             margin: 0 0 0.3rem 0;
         }
 
@@ -668,7 +685,7 @@
         .fp-step-dot.active {
             background: linear-gradient(135deg, #f28da5, #eb708e);
             width: 28px;
-            border-radius: 50px;
+            border-radius: 8px;
             box-shadow: 0 2px 8px rgba(235, 112, 142, 0.35);
         }
 
@@ -716,7 +733,7 @@
             display: block;
             font-size: 0.82rem;
             font-weight: 600;
-            color: #3a2a2e;
+            color: var(--ink);
             margin-bottom: 0.4rem;
         }
 
@@ -729,7 +746,7 @@
         .fp-input-wrapper .fp-input-icon {
             position: absolute;
             left: 1rem;
-            color: #8a6a72;
+            color: var(--ink-muted);
             width: 18px;
             height: 18px;
             pointer-events: none;
@@ -743,9 +760,9 @@
             border: 1.5px solid #e8d5da;
             border-radius: 12px;
             background: #ffffff;
-            font-family: 'Inter', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-size: 0.88rem;
-            color: #3a2a2e;
+            color: var(--ink);
             outline: none;
             transition: all 0.25s ease;
         }
@@ -755,13 +772,13 @@
         }
 
         .fp-input-field:focus {
-            border-color: #d44d6e;
-            box-shadow: 0 0 0 3px rgba(212, 77, 110, 0.1);
+            border-color: var(--blush);
+            box-shadow: 0 0 0 3px rgba(201,122,140, 0.1);
         }
 
         .fp-input-field:focus ~ .fp-input-icon,
         .fp-input-wrapper:focus-within .fp-input-icon {
-            color: #d44d6e;
+            color: var(--blush);
         }
 
         .fp-input-field.is-invalid {
@@ -783,18 +800,18 @@
             border: 2px solid #e8d5da;
             border-radius: 14px;
             text-align: center;
-            font-family: 'Inter', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-size: 1.35rem;
             font-weight: 700;
-            color: #3a2a2e;
+            color: var(--ink);
             outline: none;
             transition: all 0.25s ease;
             background: #fdfbfc;
         }
 
         .fp-otp-input:focus {
-            border-color: #d44d6e;
-            box-shadow: 0 0 0 3px rgba(212, 77, 110, 0.15);
+            border-color: var(--blush);
+            box-shadow: 0 0 0 3px rgba(201,122,140, 0.15);
             background: #fff;
         }
 
@@ -813,7 +830,7 @@
         }
 
         .fp-otp-info strong {
-            color: #d44d6e;
+            color: var(--blush);
             font-weight: 600;
         }
 
@@ -825,8 +842,8 @@
         .fp-otp-resend button {
             background: none;
             border: none;
-            color: #8a6a72;
-            font-family: 'Inter', sans-serif;
+            color: var(--ink-muted);
+            font-family: 'DM Sans', sans-serif;
             font-size: 0.78rem;
             cursor: pointer;
             text-decoration: underline;
@@ -834,7 +851,7 @@
         }
 
         .fp-otp-resend button:hover {
-            color: #d44d6e;
+            color: var(--blush);
         }
 
         .fp-otp-resend button:disabled {
@@ -881,7 +898,7 @@
             border-radius: 12px;
             background: linear-gradient(135deg, #f28da5 0%, #eb708e 100%);
             color: #ffffff;
-            font-family: 'Inter', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-size: 0.92rem;
             font-weight: 600;
             cursor: pointer;
@@ -897,7 +914,7 @@
         .fp-btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 26px rgba(235, 112, 142, 0.45);
-            background: linear-gradient(135deg, #eb708e 0%, #d44d6e 100%);
+            background: linear-gradient(135deg, #eb708e 0%, var(--blush) 100%);
         }
 
         .fp-btn-primary:active {
@@ -939,8 +956,8 @@
             border: 1.5px solid #e8d5da;
             border-radius: 12px;
             background: transparent;
-            color: #5a3a42;
-            font-family: 'Inter', sans-serif;
+            color: var(--ink-muted);
+            font-family: 'DM Sans', sans-serif;
             font-size: 0.85rem;
             font-weight: 500;
             cursor: pointer;
@@ -953,8 +970,8 @@
         }
 
         .fp-btn-secondary:hover {
-            border-color: #d44d6e;
-            color: #d44d6e;
+            border-color: var(--blush);
+            color: var(--blush);
             background: #fdf0f4;
         }
 
@@ -991,10 +1008,10 @@
         }
 
         .fp-success-title {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Cormorant Garamond', serif;
             font-size: 1.3rem;
             font-weight: 700;
-            color: #3a2a2e;
+            color: var(--ink);
             margin-bottom: 0.4rem;
         }
 
@@ -1010,7 +1027,7 @@
             right: 0.85rem;
             background: transparent;
             border: none;
-            color: #8a6a72;
+            color: var(--ink-muted);
             cursor: pointer;
             padding: 4px;
             display: flex;
@@ -1020,7 +1037,7 @@
         }
 
         .fp-toggle-pwd:hover {
-            color: #d44d6e;
+            color: var(--blush);
         }
 
         /* Responsive */
@@ -1050,7 +1067,7 @@
             <i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
             <span>Kembali ke Beranda</span>
         </a>
-        <a href="/" style="font-family:'Playfair Display', serif; font-size:1.3rem; font-weight:700; color:#d44d6e; text-decoration:none;">
+        <a href="/" style="font-family:'Playfair Display', serif; font-size:1.3rem; font-weight:700; color:var(--blush); text-decoration:none;">
             Sweet Dreams
         </a>
     </div>
@@ -1136,7 +1153,7 @@
                     {{-- Avatar Selection for Registration --}}
                     <div class="reg-avatar-section">
                         <div class="reg-avatar-header">
-                            <i data-lucide="sparkles" style="width:16px;height:16px;color:#d44d6e;"></i>
+                            <i data-lucide="sparkles" style="width:16px;height:16px;color:var(--blush);"></i>
                             <span>Pilih Avatar Akun Anda</span>
                         </div>
                         <p class="reg-avatar-subtitle">Pilih avatar manis untuk foto profil akun Anda</p>
@@ -1297,8 +1314,8 @@
                             </div>
                         </div>
 
-                        <div style="background:#fff7f9; border:1px dashed #fbd5df; border-radius:12px; padding:10px 12px; margin-bottom:1rem; font-size:0.78rem; color:#7a5f67; display:flex; align-items:flex-start; gap:8px;">
-                            <i data-lucide="info" style="width:16px;height:16px;color:#d44d6e;flex-shrink:0;margin-top:2px;"></i>
+                        <div style="background:#fff7f9; border:1px dashed var(--blush-pale); border-radius:12px; padding:10px 12px; margin-bottom:1rem; font-size:0.78rem; color:#7a5f67; display:flex; align-items:flex-start; gap:8px;">
+                            <i data-lucide="info" style="width:16px;height:16px;color:var(--blush);flex-shrink:0;margin-top:2px;"></i>
                             <div>
                                 <strong>Tips Demo:</strong> Gunakan akun demo <code>alya.putri@email.com</code> atau akun yang telah Anda daftarkan.
                             </div>

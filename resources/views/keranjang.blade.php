@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Keranjang Belanja - Sweet Dreams')
 
@@ -14,12 +14,12 @@
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: #5a3a42;
+        color: var(--ink-muted);
     }
 
     /* ===== CART CONTAINER ===== */
     .cart-page-wrapper {
-        max-width: 1280px;
+        max-width: 1320px;
         margin: 0 auto;
         padding: 2.5rem 2rem 5rem;
     }
@@ -29,15 +29,15 @@
         margin-bottom: 2.25rem;
     }
     .cart-header h1 {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 2.4rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 0.4rem 0;
     }
     .cart-header p {
         font-size: 0.95rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
         margin: 0;
     }
 
@@ -81,7 +81,7 @@
         height: 86px;
         border-radius: 14px;
         overflow: hidden;
-        border: 1.5px solid #fbd5df;
+        border: 1px solid var(--border);
         background: #faf6f7;
         flex-shrink: 0;
     }
@@ -97,26 +97,26 @@
         gap: 0.35rem;
     }
     .cart-item-title {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 1.15rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0;
         text-decoration: none;
         transition: color 0.2s;
     }
     .cart-item-title:hover {
-        color: #d44d6e;
+        color: var(--blush);
     }
     .cart-item-variant {
         font-size: 0.85rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
         margin: 0;
     }
     .btn-cart-remove {
         background: none;
         border: none;
-        color: #d44d6e;
+        color: var(--blush);
         font-size: 0.82rem;
         font-weight: 600;
         display: inline-flex;
@@ -129,7 +129,7 @@
         width: fit-content;
     }
     .btn-cart-remove:hover {
-        color: #a82e4e;
+        color: var(--blush-dark);
         transform: translateY(-1px);
     }
 
@@ -142,7 +142,7 @@
         display: flex;
         align-items: center;
         border: 1.5px solid #e8d0d6;
-        border-radius: 50px;
+        border-radius: 8px;
         background: #fff;
         height: 40px;
         padding: 0 4px;
@@ -157,27 +157,27 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #5a3a42;
+        color: var(--ink-muted);
         font-size: 1rem;
         transition: all 0.2s ease;
     }
     .cart-qty-btn:hover {
         background: #fce7ee;
-        color: #d44d6e;
+        color: var(--blush);
     }
     .cart-qty-val {
         min-width: 28px;
         text-align: center;
         font-weight: 600;
         font-size: 0.9rem;
-        color: #3a2a2e;
+        color: var(--ink);
         user-select: none;
     }
     .cart-item-price {
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 1.15rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         min-width: 110px;
         text-align: right;
     }
@@ -188,21 +188,21 @@
         text-align: center;
         padding: 4rem 2rem;
         background: #fff;
-        border: 1.5px solid #fbd5df;
-        border-radius: 20px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
     }
     .cart-empty-state svg {
-        color: #d4b8c0;
+        color: rgba(180,140,150,0.35);
         margin-bottom: 1rem;
     }
     .cart-empty-state h3 {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 1.5rem;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 0.5rem 0;
     }
     .cart-empty-state p {
-        color: #8a6a72;
+        color: var(--ink-muted);
         font-size: 0.92rem;
         margin: 0 0 1.5rem 0;
     }
@@ -210,35 +210,35 @@
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        background: #d44d6e;
+        background: var(--blush);
         color: #fff;
         padding: 12px 28px;
-        border-radius: 50px;
+        border-radius: 8px;
         text-decoration: none;
         font-weight: 600;
         font-size: 0.92rem;
         transition: all 0.3s ease;
     }
     .btn-empty-shop:hover {
-        background: #b83a58;
+        background: var(--blush-dark);
         transform: translateY(-2px);
     }
 
     /* ===== ORDER SUMMARY CARD (RIGHT) ===== */
     .order-summary-card {
-        background: #fef5f7;
-        border: 1.5px solid #fbd5df;
+        background: var(--bg-warm);
+        border: 1px solid var(--border);
         border-radius: 24px;
         padding: 2.25rem 2rem;
         position: sticky;
         top: 88px;
-        box-shadow: 0 6px 24px rgba(212, 77, 110, 0.05);
+        box-shadow: 0 6px 24px rgba(201,122,140, 0.05);
     }
     .summary-title {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 1.45rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 1.5rem 0;
     }
     .summary-row {
@@ -251,7 +251,7 @@
     }
     .summary-row .value {
         font-weight: 600;
-        color: #3a2a2e;
+        color: var(--ink);
     }
     .summary-row .value.free {
         color: #10b981;
@@ -272,7 +272,7 @@
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: #8a6a72;
+        color: var(--ink-muted);
         margin-bottom: 0.5rem;
     }
     .voucher-input-group {
@@ -286,16 +286,16 @@
         border: 1.5px solid #e8d0d6;
         border-radius: 10px;
         background: #ffffff;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.88rem;
         font-weight: 600;
-        color: #3a2a2e;
+        color: var(--ink);
         outline: none;
         transition: border-color 0.2s;
         text-transform: uppercase;
     }
     .voucher-input-group input:focus {
-        border-color: #d44d6e;
+        border-color: var(--blush);
     }
     .btn-apply-voucher {
         height: 44px;
@@ -304,14 +304,14 @@
         border: none;
         border-radius: 10px;
         color: #ffffff;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.85rem;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.2s ease;
     }
     .btn-apply-voucher:hover {
-        background: #d44d6e;
+        background: var(--blush);
     }
     .voucher-msg {
         font-size: 0.78rem;
@@ -334,16 +334,16 @@
         margin-bottom: 1.5rem;
     }
     .total-label {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 1.25rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
     }
     .total-price {
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 1.65rem;
         font-weight: 800;
-        color: #d44d6e;
+        color: var(--blush);
     }
 
     /* Checkout Button */
@@ -351,24 +351,24 @@
         width: 100%;
         height: 52px;
         border: none;
-        border-radius: 50px;
-        background: linear-gradient(135deg, #e87b94 0%, #d44d6e 100%);
+        border-radius: 8px;
+        background: linear-gradient(135deg, #e87b94 0%, var(--blush) 100%);
         color: #ffffff;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 6px 20px rgba(212, 77, 110, 0.35);
+        box-shadow: 0 6px 20px rgba(201,122,140, 0.35);
         transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         margin-bottom: 1.5rem;
     }
     .btn-checkout:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(212, 77, 110, 0.45);
-        background: linear-gradient(135deg, #d44d6e 0%, #ba3253 100%);
+        box-shadow: 0 8px 24px rgba(201,122,140, 0.45);
+        background: linear-gradient(135deg, var(--blush) 0%, #ba3253 100%);
     }
 
     /* Trust row */
@@ -384,13 +384,13 @@
         align-items: center;
         gap: 0.35rem;
         font-size: 0.76rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
         font-weight: 500;
     }
     .summary-trust-item svg {
         width: 14px;
         height: 14px;
-        color: #b48a92;
+        color: var(--ink-faint);
     }
 
     /* Payment Badges */
@@ -404,7 +404,7 @@
         font-size: 0.68rem;
         font-weight: 700;
         letter-spacing: 0.04em;
-        color: #7a5a62;
+        color: var(--ink-muted);
         background: #ffffff;
         border: 1px solid #f0d5dc;
         padding: 4px 10px;
@@ -416,10 +416,10 @@
         margin-top: 1rem;
     }
     .recommendations-title {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 1.85rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 2rem 0;
     }
     .recommendations-grid {
@@ -429,8 +429,8 @@
     }
     .rec-product-card {
         background: #ffffff;
-        border: 1.5px solid #fbd5df;
-        border-radius: 18px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
         overflow: hidden;
         text-decoration: none;
         display: flex;
@@ -440,8 +440,8 @@
     }
     .rec-product-card:hover {
         transform: translateY(-6px);
-        box-shadow: 0 12px 28px rgba(212, 77, 110, 0.12);
-        border-color: #d44d6e;
+        box-shadow: 0 12px 28px rgba(201,122,140, 0.12);
+        border-color: var(--blush);
     }
     .rec-card-img-box {
         width: 100%;
@@ -466,7 +466,7 @@
         left: 0.85rem;
         background: #f43f5e;
         color: #fff;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.75rem;
         font-weight: 700;
         padding: 4px 10px;
@@ -481,11 +481,11 @@
         height: 34px;
         border-radius: 50%;
         background: rgba(255, 255, 255, 0.9);
-        border: 1px solid #fbd5df;
+        border: 1px solid var(--border);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #d44d6e;
+        color: var(--blush);
         cursor: pointer;
         z-index: 2;
         transition: all 0.2s ease;
@@ -501,10 +501,10 @@
         flex: 1;
     }
     .rec-card-title {
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.92rem;
         font-weight: 600;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 0.5rem 0;
         line-height: 1.4;
     }
@@ -516,12 +516,12 @@
     }
     .rec-price-current {
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         font-size: 0.98rem;
     }
     .rec-price-original {
         font-size: 0.82rem;
-        color: #b48a92;
+        color: var(--ink-faint);
         text-decoration: line-through;
     }
 
@@ -530,7 +530,7 @@
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(58, 42, 46, 0.45);
+        background: rgba(42,31,34, 0.45);
         backdrop-filter: blur(4px);
         z-index: 1000;
         align-items: center;
@@ -559,17 +559,17 @@
         height: 64px;
         border-radius: 50%;
         background: #fdf2f5;
-        color: #d44d6e;
+        color: var(--blush);
         display: flex;
         align-items: center;
         justify-content: center;
         margin: 0 auto 1.25rem;
     }
     .checkout-modal-title {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 1.5rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 0.6rem 0;
     }
     .checkout-modal-text {
@@ -581,18 +581,18 @@
     .btn-modal-close {
         width: 100%;
         height: 48px;
-        background: #d44d6e;
+        background: var(--blush);
         color: #fff;
         border: none;
-        border-radius: 50px;
-        font-family: 'Inter', sans-serif;
+        border-radius: 8px;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.95rem;
         font-weight: 600;
         cursor: pointer;
         transition: background 0.2s;
     }
     .btn-modal-close:hover {
-        background: #b83a58;
+        background: var(--blush-dark);
     }
 
     /* ===== RESPONSIVE ===== */
@@ -640,8 +640,14 @@
     <div class="cart-layout-grid" id="cart-content-area">
         
         {{-- Left: Cart Items List --}}
-        <div class="cart-items-list" id="cart-items-container">
-            {{-- Content will be rendered dynamically by JavaScript --}}
+        <div>
+            <div id="cart-select-all-container" style="display:none; margin-bottom: 1rem; align-items: center; gap: 0.5rem;">
+                <input type="checkbox" id="cart-select-all" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--blush);">
+                <label for="cart-select-all" style="font-weight: 600; cursor: pointer; color:var(--ink);">Pilih Semua</label>
+            </div>
+            <div class="cart-items-list" id="cart-items-container">
+                {{-- Content will be rendered dynamically by JavaScript --}}
+            </div>
         </div>
 
         {{-- Empty Cart Box (Initially hidden) --}}
@@ -678,10 +684,10 @@
             <div class="voucher-section">
                 <label class="voucher-label" for="input-voucher">KODE VOUCHER</label>
                 <div class="voucher-input-group">
-                    <input type="text" id="input-voucher" value="SWEETDREAM50" placeholder="MASUKKAN KODE">
+                    <input type="text" id="input-voucher" value="" placeholder="MASUKKAN KODE">
                     <button class="btn-apply-voucher" id="btn-apply-voucher">Terapkan</button>
                 </div>
-                <div class="voucher-msg" id="voucher-msg">Voucher diskon Rp50.000 berhasil dipasang!</div>
+                <div class="voucher-msg" id="voucher-msg"></div>
             </div>
 
             <hr class="summary-total-divider">
@@ -691,7 +697,7 @@
                 <span class="total-price" id="summary-total">Rp0</span>
             </div>
 
-            <a href="/checkout" class="btn-checkout" id="btn-checkout" style="text-decoration: none;">
+            <a href="#" class="btn-checkout" id="btn-checkout" style="text-decoration: none;">
                 Lanjut ke Checkout
             </a>
 
@@ -760,9 +766,10 @@
 
 <script>
  window.initialCartItems = @json($cartItems);
+ window.selectedItemIds = new Set(window.initialCartItems.map(i => i.id));
 document.addEventListener('DOMContentLoaded', function() {
-    let discountAmount = 50000;
-    let isVoucherApplied = true;
+    let discountAmount = 0;
+    let isVoucherApplied = false;
 
     const subtotalEl = document.getElementById('summary-subtotal');
     const shippingEl = document.getElementById('summary-shipping');
@@ -770,9 +777,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const totalEl = document.getElementById('summary-total');
     const subtitleEl = document.getElementById('cart-count-subtitle');
     const itemsContainer = document.getElementById('cart-items-container');
+    const selectAllContainer = document.getElementById('cart-select-all-container');
+    const selectAllCheckbox = document.getElementById('cart-select-all');
     const emptyState = document.getElementById('cart-empty-state');
     const summaryCard = document.getElementById('order-summary-card');
     const announcementBar = document.getElementById('cart-announcement');
+    const btnCheckout = document.getElementById('btn-checkout');
 
     function formatRupiah(num) {
         return 'Rp' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -787,6 +797,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 itemsContainer.innerHTML = '';
                 itemsContainer.style.display = 'none';
             }
+            if (selectAllContainer) selectAllContainer.style.display = 'none';
             if (summaryCard) summaryCard.style.display = 'none';
             if (emptyState) emptyState.style.display = 'block';
             if (subtitleEl) subtitleEl.textContent = '0 items in your cart';
@@ -797,6 +808,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (emptyState) emptyState.style.display = 'none';
         if (itemsContainer) itemsContainer.style.display = 'flex';
+        if (selectAllContainer) selectAllContainer.style.display = 'flex';
         if (summaryCard) summaryCard.style.display = 'block';
 
         let html = '';
@@ -807,12 +819,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const itemQty = parseInt(item.qty) || 1;
             const itemPrice = parseInt(item.price) || 0;
             const itemSubtotal = itemQty * itemPrice;
-            subtotal += itemSubtotal;
-            totalCount += itemQty;
+            const isSelected = window.selectedItemIds.has(item.id);
+            
+            if (isSelected) {
+                subtotal += itemSubtotal;
+                totalCount += itemQty;
+            }
 
             html += `
                 <div class="cart-item-row" id="cart-row-${item.id}" data-id="${item.id}">
                     <div class="cart-item-info">
+                        <input type="checkbox" class="cart-item-checkbox" data-id="${item.id}" ${isSelected ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--blush);">
                         <div class="cart-item-img-box">
                             <img src="${item.image}" alt="${item.title}">
                         </div>
@@ -842,6 +859,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
         itemsContainer.innerHTML = html;
         lucide.createIcons();
+
+        // Update Select All Checkbox state
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = items.length > 0 && window.selectedItemIds.size === items.length;
+        }
+
+        // Checkbox listeners
+        itemsContainer.querySelectorAll('.cart-item-checkbox').forEach(cb => {
+            cb.addEventListener('change', function() {
+                const id = parseInt(this.getAttribute('data-id'));
+                if (this.checked) {
+                    window.selectedItemIds.add(id);
+                } else {
+                    window.selectedItemIds.delete(id);
+                }
+                renderCart();
+            });
+        });
 
                 function updateCartQty(id, newQty) {
             fetch(`/api/cart/${id}`, {
@@ -886,7 +921,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     }
-                }).then(() => setTimeout(() => window.location.reload(), 250));
+                }).then(() => {
+                    window.selectedItemIds.delete(parseInt(id));
+                    setTimeout(() => window.location.reload(), 250);
+                });
             });
         });
 
@@ -985,6 +1023,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error:', error);
                 alert('Terjadi kesalahan saat mengecek voucher.');
             });
+        });
+    }
+
+    // Select All functionality
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                window.initialCartItems.forEach(i => window.selectedItemIds.add(i.id));
+            } else {
+                window.selectedItemIds.clear();
+            }
+            renderCart();
+        });
+    }
+
+    if (btnCheckout) {
+        btnCheckout.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (window.selectedItemIds.size === 0) {
+                alert('Pilih minimal satu produk untuk di-checkout.');
+                return;
+            }
+            window.location.href = '/checkout?items=' + Array.from(window.selectedItemIds).join(',');
         });
     }
 

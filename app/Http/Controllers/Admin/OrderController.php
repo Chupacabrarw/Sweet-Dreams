@@ -58,22 +58,53 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load('items');
+        $order->load(['items', 'user']);
 
         return response()->json([
-            'order_number' => $order->order_number,
-            'payment_status' => $order->payment_status,
-            'status' => $order->status,
-            'tracking_number' => $order->tracking_number,
+            'order_number'   => $order->order_number,
+            'created_at'     => $order->created_at->translatedFormat('d M Y, H:i'),
+
+            // Customer
+            'customer_name'  => $order->user?->name,
+            'customer_email' => $order->user?->email,
+
+            // Shipping info
+            'shipping_recipient_name' => $order->shipping_recipient_name,
+            'shipping_phone'          => $order->shipping_phone,
+            'shipping_address'        => $order->shipping_address,
+            'shipping_city'           => $order->shipping_city,
+            'shipping_province'       => $order->shipping_province,
+            'shipping_postal_code'    => $order->shipping_postal_code,
+            'shipping_courier'        => $order->shipping_courier,
+            'shipping_cost'           => 'Rp ' . number_format($order->shipping_cost, 0, ',', '.'),
+
+            // Payment
+            'payment_method'    => $order->payment_method,
+            'payment_status'    => $order->payment_status,
+            'payment_reference' => $order->payment_reference,
+
+            // Status & tracking
+            'status'           => $order->status,
+            'status_label'     => $this->statusLabel($order->status),
+            'tracking_number'  => $order->tracking_number,
+            'voucher_code'     => $order->voucher_code,
+
+            // Items
             'items' => $order->items->map(fn ($i) => [
-                'title' => $i->product_title,
-                'variant' => "{$i->color} / {$i->size}",
-                'qty' => $i->quantity,
-                'price' => 'Rp ' . number_format($i->price, 0, ',', '.'),
+                'title'    => $i->product_title,
+                'image'    => $i->product_image,
+                'color'    => $i->color,
+                'size'     => $i->size,
+                'variant'  => trim("{$i->color} / {$i->size}", ' / '),
+                'qty'      => $i->quantity,
+                'price'    => 'Rp ' . number_format($i->price, 0, ',', '.'),
+                'subtotal' => 'Rp ' . number_format($i->price * $i->quantity, 0, ',', '.'),
             ]),
-            'subtotal' => 'Rp ' . number_format($order->subtotal, 0, ',', '.'),
-            'discount' => 'Rp ' . number_format($order->discount, 0, ',', '.'),
-            'total' => 'Rp ' . number_format($order->total, 0, ',', '.'),
+
+            // Totals
+            'subtotal'    => 'Rp ' . number_format($order->subtotal, 0, ',', '.'),
+            'discount'    => 'Rp ' . number_format($order->discount, 0, ',', '.'),
+            'total'       => 'Rp ' . number_format($order->total, 0, ',', '.'),
         ]);
     }
 

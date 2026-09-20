@@ -6,35 +6,30 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
-    --font-serif: 'Playfair Display', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-serif: 'Cormorant Garamond', ui-serif, Georgia, serif;
 
-    /* Sweet Dreams Pink Palette */
-    --color-pink-50: #fef5f7;
-    --color-pink-100: #fdedf1;
-    --color-pink-200: #fbd5df;
-    --color-pink-300: #f8b0c3;
-    --color-pink-400: #f48da8;
-    --color-pink-500: #e86b8a;
-    --color-pink-600: #d44d6e;
-    --color-pink-700: #b83a58;
-    --color-pink-800: #9a3249;
-    --color-pink-900: #812d41;
+    /* Sweet Dreams — Muted Blush Palette */
+    --color-blush-50:  #fdf5f7;
+    --color-blush-100: #f9e8ed;
+    --color-blush-200: #f2d0da;
+    --color-blush-300: #e6adb9;
+    --color-blush-400: #d68496;
+    --color-blush-500: #c97a8c;
+    --color-blush-600: #a85e72;
+    --color-blush-700: #8c4a5c;
+    --color-blush-800: #74404f;
+    --color-blush-900: #5e3742;
 
-    /* Rose Gold Accent */
-    --color-rosegold-50: #fdf8f5;
-    --color-rosegold-100: #f9ede5;
-    --color-rosegold-200: #f0d5c4;
-    --color-rosegold-300: #e4b89d;
-    --color-rosegold-400: #d49a78;
-    --color-rosegold-500: #c4815e;
-    --color-rosegold-600: #b46d4d;
-
-    /* Cream / Neutral */
-    --color-cream-50: #fefdfb;
-    --color-cream-100: #fdf9f3;
-    --color-cream-200: #f9f0e2;
-    --color-cream-300: #f3e3cc;
-    --color-cream-400: #ead0ae;
+    /* Ink / Warm Near-Black */
+    --color-ink-50:  #faf8f6;
+    --color-ink-100: #f4ede9;
+    --color-ink-200: #e8d8d0;
+    --color-ink-300: #d4b8ac;
+    --color-ink-400: #b89080;
+    --color-ink-500: #8c6a60;
+    --color-ink-600: #6e5a60;
+    --color-ink-700: #4a3a3e;
+    --color-ink-800: #342830;
+    --color-ink-900: #2a1f22;
 }

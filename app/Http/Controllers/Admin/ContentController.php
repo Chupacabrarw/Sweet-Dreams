@@ -39,12 +39,43 @@ class ContentController extends Controller
 
     public function index()
     {
+        $categories = \App\Models\Category::orderBy('name')->get();
+        $products    = \App\Models\Product::orderBy('title')->get();
+
+        $featuredCategories = json_decode(
+            SiteContent::where('key', 'home_categories')->value('body') ?? '[]', true
+        ) ?: [];
+
+        $featuredProducts = json_decode(
+            SiteContent::where('key', 'home_products')->value('body') ?? '[]', true
+        ) ?: [];
+
         return view('admin.content', [
-            'banner' => $this->getOrCreate('banner_homepage'),
-            'infoToko' => $this->getOrCreate('info_toko'),
-            'kebijakanRetur' => $this->getOrCreate('kebijakan_retur'),
-            'panduanUkuran' => $this->getOrCreate('panduan_ukuran'),
+            'banner'             => $this->getOrCreate('banner_homepage'),
+            'categories'         => $categories,
+            'products'           => $products,
+            'featuredCategories' => $featuredCategories,
+            'featuredProducts'   => $featuredProducts,
         ]);
+    }
+
+    public function updateFeatured(Request $request)
+    {
+        $request->validate([
+            'categories' => 'nullable|array',
+            'products'   => 'nullable|array',
+        ]);
+
+        $this->getOrCreate('home_categories')->update([
+            'body' => json_encode($request->input('categories', [])),
+        ]);
+
+        $this->getOrCreate('home_products')->update([
+            'body' => json_encode($request->input('products', [])),
+        ]);
+
+        return redirect()->route('admin.content')
+            ->with('success', 'Pengaturan landing page berhasil disimpan.');
     }
 
     public function updateBanner(Request $request)

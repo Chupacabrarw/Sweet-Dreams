@@ -41,7 +41,18 @@ class CheckoutController extends Controller
 
     public function index(Request $request)
     {
-        $cartItems = $request->user()->cartItems()->with('product')->get();
+        $cartQuery = $request->user()->cartItems()->with('product');
+        if ($request->has('items')) {
+            $selectedIds = array_filter(explode(',', $request->query('items')));
+            if (!empty($selectedIds)) {
+                $cartQuery->whereIn('id', $selectedIds);
+            }
+        }
+        $cartItems = $cartQuery->get();
+
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('keranjang');
+        }
        
         $checkoutItems = $cartItems->map(function ($item) {
             return [
@@ -97,13 +108,18 @@ class CheckoutController extends Controller
             'shipping_id' => 'required|string',
             'payment_id' => 'required|string',
             'voucher' => 'nullable|string',
+            'item_ids' => 'nullable|array',
         ]);
 
         $user = $request->user();
-        $cartItems = $user->cartItems()->with('product')->get();
+        $cartQuery = $user->cartItems()->with('product');
+        if (!empty($data['item_ids'])) {
+            $cartQuery->whereIn('id', $data['item_ids']);
+        }
+        $cartItems = $cartQuery->get();
 
         if ($cartItems->isEmpty()) {
-            return response()->json(['message' => 'Keranjang belanja masih kosong.'], 422);
+            return response()->json(['message' => 'Keranjang belanja masih kosong atau tidak ada produk yang dipilih.'], 422);
         }
 
         $shipping = collect($this->shippingMethods())->firstWhere('id', $data['shipping_id']);
@@ -164,7 +180,10 @@ class CheckoutController extends Controller
                 ]);
             }
 
-            $user->cartItems()->delete();
+            // Hapus hanya item yang di-checkout
+            foreach ($cartItems as $item) {
+                $item->delete();
+            }
 
             return $newOrder;
         });

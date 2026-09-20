@@ -6,27 +6,27 @@
 <style>
     /* ===== KATALOG PAGE ===== */
     .katalog-header {
-        max-width: 1280px;
+        max-width: 1320px;
         margin: 0 auto;
         padding: 2.25rem 2rem 1rem;
     }
     .katalog-header h1 {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 2.25rem;
-        font-weight: 700;
-        color: #3a2a2e;
+        font-weight: 500;
+        color: var(--ink);
         margin: 0 0 0.35rem 0;
         letter-spacing: -0.01em;
     }
     .katalog-header p {
         font-size: 0.95rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
         margin: 0;
     }
 
     /* ===== KATALOG LAYOUT ===== */
     .katalog-layout {
-        max-width: 1280px;
+        max-width: 1320px;
         margin: 0 auto;
         padding: 1rem 2rem 4rem;
         display: grid;
@@ -38,12 +38,12 @@
     /* ===== FILTER SIDEBAR ===== */
     .filter-sidebar {
         background: #fff;
-        border: 1.5px solid #fbd5df;
-        border-radius: 18px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
         padding: 1.75rem;
         position: sticky;
         top: 88px;
-        box-shadow: 0 8px 24px rgba(212, 77, 110, 0.04);
+        box-shadow: 0 8px 24px rgba(201,122,140, 0.04);
         transition: all 0.3s ease;
     }
     .filter-header-row {
@@ -53,29 +53,29 @@
         margin-bottom: 0.25rem;
     }
     .filter-title {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 1.25rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0;
     }
     .filter-quick-clear {
         background: none;
         border: none;
-        color: #d44d6e;
+        color: var(--blush);
         font-size: 0.78rem;
         font-weight: 600;
         cursor: pointer;
         padding: 0;
         text-decoration: underline;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
     }
     .filter-quick-clear:hover {
-        color: #a82e4e;
+        color: var(--blush-dark);
     }
     .filter-subtitle {
         font-size: 0.8rem;
-        color: #b48a92;
+        color: var(--ink-faint);
         margin: 0 0 1.5rem 0;
         line-height: 1.5;
     }
@@ -84,7 +84,7 @@
     .filter-group {
         margin-bottom: 1.5rem;
         padding-bottom: 1.25rem;
-        border-bottom: 1px solid #fae4ea;
+        border-bottom: 1px solid var(--border);
     }
     .filter-group:last-of-type {
         border-bottom: none;
@@ -92,10 +92,10 @@
         padding-bottom: 0;
     }
     .filter-group-label {
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.88rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 0.85rem 0;
         display: flex;
         align-items: center;
@@ -103,11 +103,11 @@
     }
     .filter-group-label .filter-badge-count {
         font-size: 0.72rem;
-        color: #d44d6e;
-        background: #fef5f7;
-        border: 1px solid #fbd5df;
+        color: var(--blush);
+        background: var(--bg-warm);
+        border: 1px solid var(--border);
         padding: 1px 7px;
-        border-radius: 50px;
+        border-radius: 8px;
         font-weight: 600;
     }
 
@@ -119,19 +119,19 @@
         margin-bottom: 0.65rem;
         cursor: pointer;
         font-size: 0.86rem;
-        color: #5a3a42;
+        color: var(--ink-muted);
         user-select: none;
         transition: color 0.2s ease;
     }
     .filter-checkbox:hover {
-        color: #d44d6e;
+        color: var(--blush);
     }
     .filter-checkbox input[type="checkbox"] {
         appearance: none;
         -webkit-appearance: none;
         width: 19px;
         height: 19px;
-        border: 2px solid #d4b8c0;
+        border: 2px solid rgba(180,140,150,0.35);
         border-radius: 5px;
         cursor: pointer;
         display: flex;
@@ -142,8 +142,8 @@
         background: #fff;
     }
     .filter-checkbox input[type="checkbox"]:checked {
-        background: #d44d6e;
-        border-color: #d44d6e;
+        background: var(--blush);
+        border-color: var(--blush);
     }
     .filter-checkbox input[type="checkbox"]:checked::after {
         content: '';
@@ -156,7 +156,7 @@
         margin-top: -1px;
     }
     .filter-checkbox:hover input[type="checkbox"] {
-        border-color: #d44d6e;
+        border-color: var(--blush);
     }
 
     /* Size Filter */
@@ -168,10 +168,10 @@
     .size-btn {
         width: 40px;
         height: 40px;
-        border-radius: 50%;
-        border: 1.5px solid #d4b8c0;
+        border-radius: 6px;
+        border: 1px solid var(--border);
         background: #fff;
-        color: #5a3a42;
+        color: var(--ink-muted);
         font-size: 0.8rem;
         font-weight: 600;
         cursor: pointer;
@@ -179,18 +179,18 @@
         align-items: center;
         justify-content: center;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
     }
     .size-btn:hover {
-        border-color: #d44d6e;
-        color: #d44d6e;
+        border-color: var(--blush);
+        color: var(--blush);
         transform: translateY(-2px);
     }
     .size-btn.active {
-        background: #d44d6e;
-        border-color: #d44d6e;
+        background: var(--blush);
+        border-color: var(--blush);
         color: #fff;
-        box-shadow: 0 4px 10px rgba(212, 77, 110, 0.3);
+        box-shadow: 0 4px 10px rgba(201,122,140,0.25);
         transform: scale(1.05);
     }
 
@@ -215,8 +215,8 @@
         transform: scale(1.15);
     }
     .color-btn.active {
-        border-color: #d44d6e;
-        box-shadow: 0 0 0 3px rgba(212,77,110,0.3);
+        border-color: var(--blush);
+        box-shadow: 0 0 0 3px rgba(201,122,140,0.3);
         transform: scale(1.1);
     }
     .color-btn.active::after {
@@ -237,41 +237,41 @@
     }
     .price-input-group label {
         font-size: 0.72rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
         display: block;
         margin-bottom: 0.3rem;
         font-weight: 500;
     }
     .price-input-group input {
         width: 100%;
-        border: 1.5px solid #d4b8c0;
+        border: 1.5px solid rgba(180,140,150,0.35);
         border-radius: 8px;
         padding: 8px 10px;
         font-size: 0.82rem;
-        color: #3a2a2e;
-        background: #fef5f7;
+        color: var(--ink);
+        background: var(--bg-warm);
         outline: none;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-weight: 600;
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
     .price-input-group input:focus {
-        border-color: #d44d6e;
-        box-shadow: 0 0 0 3px rgba(212, 77, 110, 0.15);
+        border-color: var(--blush);
+        box-shadow: 0 0 0 3px rgba(201,122,140, 0.15);
     }
 
     /* Range Slider */
     .price-slider {
         position: relative;
         height: 6px;
-        background: #fbd5df;
+        background: var(--blush-pale);
         border-radius: 3px;
         margin: 0.75rem 0 0.5rem;
     }
     .price-slider-track {
         position: absolute;
         height: 100%;
-        background: linear-gradient(90deg, #d44d6e, #f48da8);
+        background: linear-gradient(90deg, var(--blush), #f48da8);
         border-radius: 3px;
         left: 0%;
         right: 0%;
@@ -294,9 +294,9 @@
         width: 18px;
         height: 18px;
         border-radius: 50%;
-        background: #d44d6e;
+        background: var(--blush);
         border: 2px solid #fff;
-        box-shadow: 0 2px 6px rgba(212,77,110,0.35);
+        box-shadow: 0 2px 6px rgba(201,122,140,0.35);
         cursor: pointer;
         pointer-events: all;
         transition: transform 0.15s ease;
@@ -308,16 +308,16 @@
         width: 18px;
         height: 18px;
         border-radius: 50%;
-        background: #d44d6e;
+        background: var(--blush);
         border: 2px solid #fff;
-        box-shadow: 0 2px 6px rgba(212,77,110,0.35);
+        box-shadow: 0 2px 6px rgba(201,122,140,0.35);
         cursor: pointer;
         pointer-events: all;
         transition: transform 0.15s ease;
     }
     .price-range-label {
         font-size: 0.78rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
         margin-top: 0.4rem;
         font-weight: 500;
         text-align: center;
@@ -327,14 +327,14 @@
     .btn-reset-filter {
         width: 100%;
         padding: 10px 16px;
-        border: 1.5px solid #d44d6e;
-        border-radius: 50px;
+        border: 1.5px solid var(--blush);
+        border-radius: 8px;
         background: transparent;
-        color: #d44d6e;
+        color: var(--blush);
         font-size: 0.88rem;
         font-weight: 600;
         cursor: pointer;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         transition: all 0.25s ease;
         margin-top: 0.75rem;
         display: inline-flex;
@@ -343,9 +343,9 @@
         gap: 0.5rem;
     }
     .btn-reset-filter:hover {
-        background: #d44d6e;
+        background: var(--blush);
         color: #fff;
-        box-shadow: 0 4px 14px rgba(212, 77, 110, 0.25);
+        box-shadow: 0 4px 14px rgba(201,122,140, 0.25);
     }
 
     /* ===== PRODUCT CONTENT AREA ===== */
@@ -361,15 +361,15 @@
         flex-wrap: wrap;
     }
     .products-content-header .category-title h2 {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 1.65rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0;
     }
     .products-content-header .category-title p {
         font-size: 0.85rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
         margin: 0.2rem 0 0 0;
     }
     .sort-dropdown {
@@ -379,7 +379,7 @@
     }
     .sort-dropdown label {
         font-size: 0.84rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
         white-space: nowrap;
         font-weight: 500;
     }
@@ -387,13 +387,13 @@
         appearance: none;
         -webkit-appearance: none;
         background: #fff;
-        border: 1.5px solid #d4b8c0;
+        border: 1.5px solid rgba(180,140,150,0.35);
         border-radius: 10px;
         padding: 9px 36px 9px 14px;
         font-size: 0.86rem;
         font-weight: 500;
-        color: #3a2a2e;
-        font-family: 'Inter', sans-serif;
+        color: var(--ink);
+        font-family: 'DM Sans', sans-serif;
         cursor: pointer;
         outline: none;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%233a2a2e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -403,8 +403,8 @@
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
     }
     .sort-dropdown select:focus {
-        border-color: #d44d6e;
-        box-shadow: 0 0 0 3px rgba(212, 77, 110, 0.12);
+        border-color: var(--blush);
+        box-shadow: 0 0 0 3px rgba(201,122,140, 0.12);
     }
 
     /* ===== ACTIVE FILTER CHIPS BAR ===== */
@@ -423,11 +423,11 @@
         display: inline-flex;
         align-items: center;
         gap: 0.35rem;
-        background: #fef5f7;
-        border: 1px solid #fbd5df;
-        color: #d44d6e;
+        background: var(--bg-warm);
+        border: 1px solid var(--border);
+        color: var(--blush);
         padding: 5px 11px;
-        border-radius: 50px;
+        border-radius: 8px;
         font-size: 0.78rem;
         font-weight: 600;
         transition: all 0.2s ease;
@@ -440,7 +440,7 @@
         background: none;
         border: none;
         cursor: pointer;
-        color: #d44d6e;
+        color: var(--blush);
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -456,16 +456,16 @@
     .clear-all-chips {
         background: none;
         border: none;
-        color: #8a6a72;
+        color: var(--ink-muted);
         font-size: 0.78rem;
         font-weight: 500;
         cursor: pointer;
         text-decoration: underline;
         padding: 4px 6px;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
     }
     .clear-all-chips:hover {
-        color: #d44d6e;
+        color: var(--blush);
     }
 
     /* ===== PRODUCT GRID (CATALOG) ===== */
@@ -479,9 +479,9 @@
     /* Catalog Product Card */
     .katalog-product-card {
         background: #fff;
-        border-radius: 16px;
+        border-radius: var(--radius);
         overflow: hidden;
-        border: 1.5px solid #fbd5df;
+        border: 1px solid var(--border);
         transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.35s ease;
         text-decoration: none;
         color: inherit;
@@ -492,14 +492,14 @@
     }
     .katalog-product-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 14px 34px rgba(212,77,110,0.12);
-        border-color: #f48da8;
+        box-shadow: 0 14px 34px rgba(201,122,140,0.12);
+        border-color: var(--blush);
     }
     .katalog-product-card-img {
         width: 100%;
         aspect-ratio: 3/4;
         overflow: hidden;
-        background: #fef5f7;
+        background: var(--bg-warm);
         position: relative;
     }
     .katalog-product-card-img img {
@@ -527,20 +527,20 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        color: #8a6a72;
+        color: var(--ink-muted);
         box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 2;
     }
     .card-wishlist-btn:hover {
         transform: scale(1.12);
-        color: #d44d6e;
+        color: var(--blush);
     }
     .card-wishlist-btn.active {
-        background: #d44d6e;
+        background: var(--blush);
         color: #fff;
-        border-color: #d44d6e;
-        box-shadow: 0 3px 10px rgba(212, 77, 110, 0.35);
+        border-color: var(--blush);
+        box-shadow: 0 3px 10px rgba(201,122,140, 0.35);
     }
 
     /* Discount Badge */
@@ -548,7 +548,7 @@
         position: absolute;
         top: 12px;
         left: 12px;
-        background: #d44d6e;
+        background: var(--blush);
         color: #fff;
         font-size: 0.72rem;
         font-weight: 700;
@@ -556,7 +556,7 @@
         border-radius: 6px;
         z-index: 2;
         letter-spacing: 0.02em;
-        box-shadow: 0 2px 8px rgba(212, 77, 110, 0.3);
+        box-shadow: 0 2px 8px rgba(201,122,140, 0.3);
     }
 
     /* Tags row */
@@ -569,18 +569,18 @@
     }
     .product-tag-badge {
         display: inline-block;
-        background: #3a2a2e;
+        background: var(--ink);
         color: #fff;
         font-size: 0.68rem;
         font-weight: 600;
         padding: 3px 9px;
-        border-radius: 50px;
+        border-radius: 8px;
         letter-spacing: 0.02em;
         white-space: nowrap;
     }
     .product-tag-size {
         font-size: 0.75rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
         white-space: nowrap;
     }
 
@@ -595,7 +595,7 @@
         align-items: center;
         gap: 0.3rem;
         font-size: 0.75rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
         margin-bottom: 0.35rem;
     }
     .product-rating svg {
@@ -604,19 +604,19 @@
     }
     .product-rating-score {
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
     }
     .katalog-product-card-body h3 {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 0.98rem;
         font-weight: 600;
         margin: 0 0 0.35rem 0;
-        color: #3a2a2e;
+        color: var(--ink);
         line-height: 1.35;
     }
     .katalog-product-card-body .product-desc {
         font-size: 0.78rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
         line-height: 1.5;
         margin: 0 0 0.85rem 0;
         flex: 1;
@@ -637,14 +637,14 @@
         flex-direction: column;
     }
     .katalog-product-card-footer .price {
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 1rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
     }
     .katalog-product-card-footer .original-price {
         font-size: 0.75rem;
-        color: #b48a92;
+        color: var(--ink-faint);
         text-decoration: line-through;
         font-weight: 400;
     }
@@ -652,7 +652,7 @@
         display: inline-flex;
         align-items: center;
         gap: 0.3rem;
-        background: #d44d6e;
+        background: var(--blush);
         color: #fff;
         padding: 8px 16px;
         border-radius: 8px;
@@ -662,13 +662,13 @@
         border: none;
         cursor: pointer;
         transition: all 0.25s ease;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         white-space: nowrap;
     }
     .btn-detail:hover {
-        background: #b83a58;
+        background: var(--blush-dark);
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(212,77,110,0.25);
+        box-shadow: 0 4px 12px rgba(201,122,140,0.25);
     }
 
     /* ===== EMPTY STATE ===== */
@@ -677,8 +677,8 @@
         text-align: center;
         padding: 4.5rem 2rem;
         background: #fff;
-        border: 1.5px dashed #fbd5df;
-        border-radius: 20px;
+        border: 1.5px dashed var(--blush-pale);
+        border-radius: var(--radius-lg);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -688,24 +688,24 @@
         width: 76px;
         height: 76px;
         border-radius: 50%;
-        background: #fef5f7;
-        color: #d44d6e;
+        background: var(--bg-warm);
+        color: var(--blush);
         display: flex;
         align-items: center;
         justify-content: center;
         margin-bottom: 1.25rem;
-        border: 1px solid #fbd5df;
+        border: 1px solid var(--border);
     }
     .catalog-empty-state h3 {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 1.45rem;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 0.5rem 0;
         font-weight: 700;
     }
     .catalog-empty-state p {
         font-size: 0.9rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
         max-width: 420px;
         margin: 0 0 1.5rem 0;
         line-height: 1.55;
@@ -724,16 +724,16 @@
         gap: 0.5rem;
         width: 100%;
         padding: 11px;
-        border: 1.5px solid #d44d6e;
-        border-radius: 50px;
+        border: 1.5px solid var(--blush);
+        border-radius: 8px;
         background: #fff;
-        color: #d44d6e;
+        color: var(--blush);
         font-size: 0.88rem;
         font-weight: 600;
         cursor: pointer;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         margin-bottom: 1rem;
-        box-shadow: 0 2px 8px rgba(212,77,110,0.08);
+        box-shadow: 0 2px 8px rgba(201,122,140,0.08);
     }
 
     /* ===== RESPONSIVE ===== */
@@ -773,7 +773,7 @@
             position: fixed;
             inset: 0;
             z-index: 199;
-            background: rgba(58,42,46,0.45);
+            background: rgba(42,31,34,0.45);
             backdrop-filter: blur(4px);
         }
         .filter-overlay.open {
@@ -817,7 +817,7 @@
         border: none;
         background: transparent;
         cursor: pointer;
-        color: #3a2a2e;
+        color: var(--ink);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -825,8 +825,8 @@
         transition: background 0.2s;
     }
     .filter-sidebar-close button:hover {
-        background: #fef5f7;
-        color: #d44d6e;
+        background: var(--bg-warm);
+        color: var(--blush);
     }
 
     .katalog-pagination {
@@ -840,9 +840,9 @@
     min-width: 40px;
     height: 40px;
     padding: 0 0.75rem;
-    border: 1px solid #fbd5df;
+    border: 1px solid var(--border);
     background: #fff;
-    color: #3a2a2e;
+    color: var(--ink);
     border-radius: 10px;
     font-size: 0.9rem;
     font-weight: 600;
@@ -851,11 +851,11 @@
 }
 .pagination-btn:hover:not(:disabled) {
     background: #fff0f4;
-    border-color: #d44d6e;
+    border-color: var(--blush);
 }
 .pagination-btn.active {
-    background: #d44d6e;
-    border-color: #d44d6e;
+    background: var(--blush);
+    border-color: var(--blush);
     color: #fff;
 }
 .pagination-btn:disabled {
@@ -866,6 +866,7 @@
 
 {{-- PAGE HEADER --}}
 <div class="katalog-header" id="katalog-header">
+    <p class="section-eyebrow" style="margin-bottom:0.6rem;">Koleksi Sweet Dreams</p>
     <h1>Katalog Produk</h1>
     <p>Temukan busana tidur dan pakaian dalam premium untuk kenyamanan malam terbaikmu</p>
 </div>
@@ -937,7 +938,7 @@
             <div class="color-options" id="color-options-container">
                 <button type="button" class="color-btn" data-color="pink" data-color-name="Pink" style="background: #e8a0b0;" title="Pink" aria-label="Pink"></button>
                 <button type="button" class="color-btn" data-color="gold" data-color-name="Gold" style="background: #d4a854;" title="Gold" aria-label="Gold"></button>
-                <button type="button" class="color-btn" data-color="white" data-color-name="White" style="background: #f5f0ec; border: 1.5px solid #d4b8c0;" title="White" aria-label="White"></button>
+                <button type="button" class="color-btn" data-color="white" data-color-name="White" style="background: #f5f0ec; border: 1.5px solid rgba(180,140,150,0.35);" title="White" aria-label="White"></button>
                 <button type="button" class="color-btn" data-color="cream" data-color-name="Cream" style="background: #eedfc8;" title="Cream" aria-label="Cream"></button>
                 <button type="button" class="color-btn" data-color="grey" data-color-name="Grey" style="background: #6a6a7a;" title="Grey" aria-label="Grey"></button>
             </div>

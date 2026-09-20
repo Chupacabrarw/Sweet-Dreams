@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Checkout - Sweet Dreams')
 
@@ -23,27 +23,27 @@
         display: flex;
         align-items: center;
         gap: 0.45rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
         font-weight: 500;
         text-decoration: none;
     }
     .stepper-step.completed {
-        color: #d44d6e;
+        color: var(--blush);
     }
     .stepper-step.completed .step-circle {
         background: #fce7ee;
-        color: #d44d6e;
-        border-color: #fbd5df;
+        color: var(--blush);
+        border-color: var(--border);
     }
     .stepper-step.active {
-        color: #3a2a2e;
+        color: var(--ink);
         font-weight: 700;
     }
     .stepper-step.active .step-pill {
         background: #e06b88;
         color: #ffffff;
         padding: 4px 14px;
-        border-radius: 50px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         gap: 0.4rem;
@@ -53,7 +53,7 @@
         width: 22px;
         height: 22px;
         border-radius: 50%;
-        border: 1px solid #d4b8c0;
+        border: 1px solid rgba(180,140,150,0.35);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -61,14 +61,14 @@
         font-weight: 700;
     }
     .stepper-arrow {
-        color: #d4b8c0;
+        color: rgba(180,140,150,0.35);
         width: 14px;
         height: 14px;
     }
 
     /* ===== CHECKOUT MAIN LAYOUT ===== */
     .checkout-page-container {
-        max-width: 1280px;
+        max-width: 1320px;
         margin: 0 auto;
         padding: 2.5rem 2rem 5rem;
     }
@@ -94,10 +94,10 @@
         flex-shrink: 0;
     }
     .section-accent-heading h2 {
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 1.15rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0;
     }
 
@@ -112,7 +112,7 @@
         display: block;
         font-size: 0.8rem;
         font-weight: 600;
-        color: #5a3a42;
+        color: var(--ink-muted);
         margin-bottom: 0.4rem;
     }
     .form-group label .required {
@@ -125,16 +125,16 @@
         border: 1.5px solid #f2e2e6;
         border-radius: 12px;
         background: #ffffff;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.88rem;
-        color: #3a2a2e;
+        color: var(--ink);
         outline: none;
         transition: all 0.2s ease;
         box-sizing: border-box;
     }
     .form-control:focus {
-        border-color: #d44d6e;
-        box-shadow: 0 0 0 3px rgba(212, 77, 110, 0.1);
+        border-color: var(--blush);
+        box-shadow: 0 0 0 3px rgba(201,122,140, 0.1);
     }
     .form-control.is-invalid {
         border-color: #f43f5e !important;
@@ -167,7 +167,7 @@
         background: #ffffff;
         border-left: 4px solid #f43f5e;
         border-radius: 14px;
-        box-shadow: 0 10px 30px rgba(58, 42, 46, 0.16);
+        box-shadow: 0 10px 30px rgba(42,31,34, 0.16);
         padding: 1rem 1.25rem;
         display: flex;
         align-items: flex-start;
@@ -196,10 +196,10 @@
     }
     .checkout-alert-content h4 {
         margin: 0 0 0.2rem 0;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.92rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
     }
     .checkout-alert-content p {
         margin: 0;
@@ -210,7 +210,7 @@
     .checkout-alert-close {
         background: none;
         border: none;
-        color: #b48a92;
+        color: var(--ink-faint);
         cursor: pointer;
         padding: 0;
         margin-left: auto;
@@ -219,7 +219,7 @@
         transition: color 0.2s;
     }
     .checkout-alert-close:hover {
-        color: #3a2a2e;
+        color: var(--ink);
     }
     textarea.form-control {
         height: auto;
@@ -252,12 +252,12 @@
         position: relative;
     }
     .radio-card-item:hover {
-        border-color: #d44d6e;
+        border-color: var(--blush);
     }
     .radio-card-item.active {
         background: #fffbfa;
         border-color: #e88b9e;
-        box-shadow: 0 2px 12px rgba(212, 77, 110, 0.08);
+        box-shadow: 0 2px 12px rgba(201,122,140, 0.08);
     }
     .radio-card-left {
         display: flex;
@@ -268,7 +268,7 @@
         width: 20px;
         height: 20px;
         border-radius: 50%;
-        border: 2px solid #d4b8c0;
+        border: 2px solid rgba(180,140,150,0.35);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -276,14 +276,14 @@
         transition: all 0.2s ease;
     }
     .radio-card-item.active .custom-radio-circle {
-        border-color: #d44d6e;
+        border-color: var(--blush);
     }
     .custom-radio-circle::after {
         content: '';
         width: 10px;
         height: 10px;
         border-radius: 50%;
-        background: #d44d6e;
+        background: var(--blush);
         transform: scale(0);
         transition: transform 0.2s ease;
     }
@@ -296,47 +296,47 @@
         gap: 0.2rem;
     }
     .radio-card-title {
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.95rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
     }
     .radio-card-desc {
         font-size: 0.8rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
     }
     .radio-card-price {
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.95rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
     }
     .radio-card-item.active .radio-card-price {
-        color: #d44d6e;
+        color: var(--blush);
     }
     .radio-card-badges {
         font-size: 0.72rem;
         font-weight: 700;
         letter-spacing: 0.05em;
-        color: #8a6a72;
+        color: var(--ink-muted);
         text-transform: uppercase;
     }
 
     /* ===== RIGHT: ORDER SUMMARY CARD ===== */
     .checkout-summary-card {
-        background: #fef5f7;
-        border: 1.5px solid #fbd5df;
+        background: var(--bg-warm);
+        border: 1px solid var(--border);
         border-radius: 24px;
         padding: 2.25rem 2rem;
         position: sticky;
         top: 88px;
-        box-shadow: 0 6px 24px rgba(212, 77, 110, 0.05);
+        box-shadow: 0 6px 24px rgba(201,122,140, 0.05);
     }
     .summary-card-title {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 1.45rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 1.5rem 0;
     }
 
@@ -363,7 +363,7 @@
         height: 58px;
         border-radius: 10px;
         overflow: hidden;
-        border: 1.5px solid #fbd5df;
+        border: 1px solid var(--border);
         background: #ffffff;
         flex-shrink: 0;
     }
@@ -374,22 +374,22 @@
         display: block;
     }
     .summary-item-title {
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.88rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 0.2rem 0;
     }
     .summary-item-sub {
         font-size: 0.78rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
         margin: 0;
     }
     .summary-item-price {
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.92rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         white-space: nowrap;
     }
 
@@ -406,16 +406,16 @@
         border: 1.5px solid #e8d0d6;
         border-radius: 10px;
         background: #ffffff;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.88rem;
         font-weight: 600;
-        color: #3a2a2e;
+        color: var(--ink);
         outline: none;
         transition: border-color 0.2s;
         text-transform: uppercase;
     }
     .summary-voucher-group input:focus {
-        border-color: #d44d6e;
+        border-color: var(--blush);
     }
     .btn-summary-voucher {
         height: 44px;
@@ -424,14 +424,14 @@
         border: none;
         border-radius: 10px;
         color: #ffffff;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 0.85rem;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.2s ease;
     }
     .btn-summary-voucher:hover {
-        background: #d44d6e;
+        background: var(--blush);
     }
 
     /* Cost Breakdown */
@@ -445,7 +445,7 @@
     }
     .cost-row .cost-val {
         font-weight: 600;
-        color: #3a2a2e;
+        color: var(--ink);
     }
     .cost-row .cost-val.discount {
         color: #f43f5e;
@@ -465,13 +465,13 @@
         margin-bottom: 1.5rem;
     }
     .total-cost-label {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 1.15rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
     }
     .total-cost-val {
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 1.65rem;
         font-weight: 800;
         color: #e06b88;
@@ -482,10 +482,10 @@
         width: 100%;
         height: 52px;
         border: none;
-        border-radius: 50px;
+        border-radius: 8px;
         background: #e06b88;
         color: #ffffff;
-        font-family: 'Inter', sans-serif;
+        font-family: 'DM Sans', sans-serif;
         font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
@@ -497,9 +497,9 @@
         margin-bottom: 1.25rem;
     }
     .btn-pay-now:hover {
-        background: #d44d6e;
+        background: var(--blush);
         transform: translateY(-2px);
-        box-shadow: 0 6px 22px rgba(212, 77, 110, 0.45);
+        box-shadow: 0 6px 22px rgba(201,122,140, 0.45);
     }
 
     .ssl-trust-note {
@@ -508,12 +508,12 @@
         justify-content: center;
         gap: 0.4rem;
         font-size: 0.76rem;
-        color: #8a6a72;
+        color: var(--ink-muted);
     }
     .ssl-trust-note svg {
         width: 13px;
         height: 13px;
-        color: #8a6a72;
+        color: var(--ink-muted);
     }
 
     /* ===== CONFIRMATION MODAL ===== */
@@ -521,7 +521,7 @@
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(58, 42, 46, 0.5);
+        background: rgba(42,31,34, 0.5);
         backdrop-filter: blur(5px);
         z-index: 1000;
         align-items: center;
@@ -550,27 +550,27 @@
         height: 72px;
         border-radius: 50%;
         background: #fdf2f5;
-        color: #d44d6e;
+        color: var(--blush);
         display: flex;
         align-items: center;
         justify-content: center;
         margin: 0 auto 1.25rem;
     }
     .success-title {
-        font-family: 'Playfair Display', serif;
+        font-family: 'Cormorant Garamond', serif;
         font-size: 1.6rem;
         font-weight: 700;
-        color: #3a2a2e;
+        color: var(--ink);
         margin: 0 0 0.5rem 0;
     }
     .success-invoice-id {
         display: inline-block;
         font-size: 0.85rem;
         font-weight: 700;
-        color: #d44d6e;
+        color: var(--blush);
         background: #fce7ee;
         padding: 4px 12px;
-        border-radius: 50px;
+        border-radius: 8px;
         margin-bottom: 1rem;
     }
     .success-desc {
@@ -586,8 +586,8 @@
         gap: 0.5rem;
         width: 100%;
         height: 48px;
-        border-radius: 50px;
-        background: #d44d6e;
+        border-radius: 8px;
+        background: var(--blush);
         color: #ffffff;
         font-weight: 600;
         text-decoration: none;
@@ -595,7 +595,7 @@
         transition: background 0.2s;
     }
     .btn-home-return:hover {
-        background: #b83a58;
+        background: var(--blush-dark);
     }
 
     /* ===== RESPONSIVE ===== */
@@ -765,7 +765,7 @@
 
                 {{-- Voucher Input --}}
                 <div class="summary-voucher-group">
-                    <input type="text" id="voucher-checkout-input" value="SWEETDREAM10" placeholder="KODE VOUCHER">
+                    <input type="text" id="voucher-checkout-input" value="" placeholder="KODE VOUCHER">
                     <button class="btn-summary-voucher" id="btn-checkout-voucher">Terapkan</button>
                 </div>
 
@@ -833,7 +833,7 @@
             Lihat Pesanan Saya
             <i data-lucide="arrow-right" style="width:18px;height:18px;"></i>
         </a>
-        <a href="/" class="btn-home-return" style="background:transparent;color:#d44d6e;border:1px solid #fbd5df;margin-top:0.5rem;">
+        <a href="/" class="btn-home-return" style="background:transparent;color:var(--blush);border:1px solid var(--blush-pale);margin-top:0.5rem;">
             Kembali ke Beranda
         </a>
     </div>
@@ -846,7 +846,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let items = @json($checkoutItems);
     let currentShippingCost = 25000;
-    let appliedVoucher = 'SWEETDREAM10';
+    let appliedVoucher = '';
 
     const itemsContainer = document.getElementById('checkout-items-list');
     const subtotalEl = document.getElementById('checkout-subtotal');
@@ -988,7 +988,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 itemsContainer.innerHTML = `
                     <div style="text-align:center;padding:1.5rem 0.5rem;color:#8a6a72;">
                         <p style="margin-bottom:0.75rem;font-size:0.9rem;">Keranjang belanja Anda masih kosong.</p>
-                        <a href="/katalog" style="color:#d44d6e;font-weight:600;text-decoration:none;font-size:0.88rem;">+ Pilih Produk di Katalog</a>
+                        <a href="/katalog" style="color:var(--blush);font-weight:600;text-decoration:none;font-size:0.88rem;">+ Pilih Produk di Katalog</a>
                     </div>
                 `;
             }
@@ -1033,9 +1033,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Voucher Calculation
         let discount = 0;
-                if (appliedVoucher && window._appliedVoucherLabel) {
+        if (appliedVoucher && window._appliedVoucherLabel) {
             if (discountLabel) discountLabel.textContent = `Promo ${window._appliedVoucherLabel}`;
-        }
         } else {
             discount = 0;
             if (discountLabel) discountLabel.textContent = 'Tanpa Voucher';
@@ -1158,7 +1157,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     postal_code: document.getElementById('input-kodepos').value.trim(),
                                         shipping_id: selectedShipping ? selectedShipping.getAttribute('data-id') : null,
                     payment_id: selectedPayment ? selectedPayment.getAttribute('data-id') : null,
-                    voucher: appliedVoucher || null
+                    voucher: appliedVoucher || null,
+                    item_ids: items.map(i => i.id)
                 })
             })
             .then(res => res.json().then(data => ({ status: res.status, body: data })))
