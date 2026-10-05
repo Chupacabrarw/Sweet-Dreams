@@ -23,12 +23,11 @@
             position:fixed; top:0; left:0; bottom:0;
             overflow-y:auto;
         }
-        .admin-brand { display:flex; align-items:center; gap:0.7rem; padding:0 1.25rem 1.5rem; }
+        .admin-brand { display:flex; align-items:center; justify-content:center; gap:0.7rem; padding:0 1.25rem 1.5rem; }
         .admin-brand-logo {
-            width:36px; height:36px; border-radius:10px; background:#d44d6e;
-            display:flex; align-items:center; justify-content:center;
-            font-family:'Playfair Display',serif; font-weight:700; font-size:1.1rem;
+            width:100%; display:flex; align-items:center; justify-content:center;
         }
+        .admin-brand-logo img { height:120px; width:auto; object-fit:contain; filter: brightness(0) invert(1); }
         .admin-brand-text strong { display:block; font-size:0.95rem; }
         .admin-brand-text span { display:block; font-size:0.68rem; color:#a08a90; letter-spacing:0.04em; }
 
@@ -84,11 +83,7 @@
 <div class="admin-layout">
     <aside class="admin-sidebar">
         <div class="admin-brand">
-            <div class="admin-brand-logo">S</div>
-            <div class="admin-brand-text">
-                <strong>Sweet Dream</strong>
-                <span>ADMIN CONSOLE</span>
-            </div>
+            <div class="admin-brand-logo"><img src="/images/logo.png" alt="Sweet Dream Logo"></div>
         </div>
 
         <nav class="admin-nav">

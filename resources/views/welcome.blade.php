@@ -68,7 +68,10 @@
                     <img src="{{ asset($product->image) }}"
                          alt="{{ $product->title }}" loading="lazy"
                          onerror="this.onerror=null;this.src='{{ asset('images/placeholder.jpg') }}'">
-                    <button class="product-card-wishlist" aria-label="Tambah ke Wishlist">
+                    <button class="product-card-wishlist {{ in_array($product->id, $wishlistIds ?? []) ? 'active' : '' }}" 
+                            data-product-id="{{ $product->id }}" 
+                            aria-label="Tambah ke Wishlist" 
+                            onclick="toggleHomeWishlist(event, {{ $product->id }}, this);">
                         <i data-lucide="heart" style="width:15px;height:15px;"></i>
                     </button>
                 </div>
@@ -148,4 +151,96 @@
             </div>
         </div>
     </section>
+
+<style>
+.product-card-wishlist.active {
+    background: var(--blush);
+    color: #fff;
+    opacity: 1;
+    transform: scale(1);
+}
+.product-card-wishlist.active svg {
+    fill: currentColor;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const isLoggedIn = @json(auth()->check());
+    window.toggleHomeWishlist = function(e, productId, btn) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        if (!isLoggedIn) {
+            window.location.href = '/login';
+            return;
+        }
+        fetch('/api/wishlist/toggle', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ product_id: Number(productId) })
+        })
+        .then(res => {
+            if (res.status === 401) {
+                window.location.href = '/login';
+                return;
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (!data) return;
+            btn.classList.toggle('active', data.is_wishlisted);
+            const navBadge = document.querySelector('#btn-wishlist .badge');
+            if (navBadge && data.wishlist_count !== undefined) {
+                navBadge.textContent = data.wishlist_count;
+                navBadge.style.display = data.wishlist_count > 0 ? 'flex' : 'none';
+            }
+            try {
+                localStorage.setItem('sweetdreams_wishlist_sync', Date.now().toString());
+            } catch(e) {}
+        })
+        .catch(() => alert('Tidak bisa menghubungi server, coba lagi.'));
+    };
+
+    function syncHomeWishlist() {
+        if (!isLoggedIn) return;
+        fetch('/api/wishlist/ids', {
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+            if (data && Array.isArray(data.ids)) {
+                const ids = data.ids.map(Number);
+                const navBadge = document.querySelector('#btn-wishlist .badge');
+                if (navBadge && data.count !== undefined) {
+                    navBadge.textContent = data.count;
+                    navBadge.style.display = data.count > 0 ? 'flex' : 'none';
+                }
+                document.querySelectorAll('.product-card-wishlist').forEach(b => {
+                    const id = Number(b.getAttribute('data-product-id'));
+                    if (ids.includes(id)) {
+                        b.classList.add('active');
+                    } else {
+                        b.classList.remove('active');
+                    }
+                });
+            }
+        })
+        .catch(() => {});
+    }
+
+    window.addEventListener('pageshow', syncHomeWishlist);
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') syncHomeWishlist();
+    });
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'sweetdreams_wishlist_sync') syncHomeWishlist();
+    });
+});
+</script>
 @endsection

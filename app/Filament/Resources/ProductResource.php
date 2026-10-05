@@ -34,6 +34,8 @@ class ProductResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('sku')
                     ->label('SKU')
+                    ->default(fn () => 'PRD-' . strtoupper(\Illuminate\Support\Str::random(8)))
+                    ->readOnly()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('collection')
                     ->maxLength(255),
@@ -59,14 +61,8 @@ class ProductResource extends Resource
                     ->maxLength(255),
                 Forms\Components\Textarea::make('short_desc')
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('long_desc_title')
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('long_desc')
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('features'),
                 Forms\Components\FileUpload::make('image')
                     ->image(),
-                Forms\Components\TextInput::make('gallery'),
                 Forms\Components\TextInput::make('sales_count')
                     ->required()
                     ->numeric()
@@ -113,8 +109,7 @@ class ProductResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('badge')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('long_desc_title')
-                    ->searchable(),
+
                 Tables\Columns\ImageColumn::make('image'),
                 Tables\Columns\TextColumn::make('sales_count')
                     ->numeric()

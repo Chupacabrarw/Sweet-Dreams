@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Wishlist Saya - Sweet Dreams')
 
@@ -207,8 +207,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify({ product_id: productId })
             })
             .then(res => res.json())
-            .then(() => {
+            .then(data => {
                 card.remove();
+                const navBadge = document.querySelector('#btn-wishlist .badge');
+                if (navBadge && data.wishlist_count !== undefined) {
+                    navBadge.textContent = data.wishlist_count;
+                    navBadge.style.display = data.wishlist_count > 0 ? 'flex' : 'none';
+                }
+                try {
+                    localStorage.setItem('sweetdreams_wishlist_sync', Date.now().toString());
+                } catch(e) {}
                 if (document.querySelectorAll('.wishlist-card').length === 0) {
                     window.location.reload();
                 }

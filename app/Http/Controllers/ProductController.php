@@ -13,7 +13,7 @@ class ProductController extends Controller
         return $amount === null ? null : 'Rp ' . number_format($amount, 0, ',', '.');
     }
 
-    protected function mapForCatalog(Product $product): array
+    protected function mapForCatalog(Product $product, array $wishlistIds = []): array
     {
         return [
             'id' => $product->id,
@@ -35,6 +35,8 @@ class ProductController extends Controller
             'image' => $product->image,
             'created_at' => optional($product->created_at)->format('Y-m-d'),
             'sales_count' => $product->sales_count,
+            'stock' => $product->stock,
+            'is_wishlisted' => in_array($product->id, $wishlistIds),
         ];
     }
 
@@ -43,15 +45,15 @@ class ProductController extends Controller
         $validCategories = ['baju-tidur', 'lingerie', 'kimono', 'pakaian-dalam'];
         $activeCategory = in_array($category, $validCategories) ? $category : null;
 
+        $wishlistIds = $request->user()
+            ? $request->user()->wishlists()->pluck('product_id')->map(fn($id) => (int)$id)->toArray()
+            : [];
+
         $products = Product::with('category')
             ->where('is_active', true)
             ->get()
-            ->map(fn ($p) => $this->mapForCatalog($p))
+            ->map(fn ($p) => $this->mapForCatalog($p, $wishlistIds))
             ->toArray();
-
-                $wishlistIds = $request->user()
-            ? $request->user()->wishlists()->pluck('product_id')->toArray()
-            : [];
 
         return view('katalog', [
             'products' => $products,
@@ -73,10 +75,11 @@ class ProductController extends Controller
             return ['name' => ucfirst($c), 'hex' => $hexMap[$c] ?? '#e8a0b0', 'active' => $i === 0];
         })->toArray();
 
-        $gallery = $product->gallery ?: [$product->image, $product->image, $product->image];
-                $isWishlisted = $request->user()
-            ? $request->user()->wishlists()->where('product_id', $product->id)->exists()
-            : false;
+        $gallery = [$product->image, $product->image, $product->image];
+        $wishlistIds = $request->user()
+            ? $request->user()->wishlists()->pluck('product_id')->map(fn($id) => (int)$id)->toArray()
+            : [];
+        $isWishlisted = in_array($product->id, $wishlistIds);
         $data = [
              'id' => $product->id,
             'slug' => $product->slug,
@@ -97,9 +100,9 @@ class ProductController extends Controller
             'colors' => $colors,
             'sizes' => $product->sizes,
             'default_size' => $product->sizes[0] ?? 'M',
-            'long_desc_title' => $product->long_desc_title ?: 'Kemewahan & Kenyamanan Terbaik',
-            'long_desc' => $product->long_desc ?: ($product->short_desc . ' Dirancang dengan material terpilih berstandar internasional yang menjamin kenyamanan maksimal saat Anda beristirahat di rumah.'),
-            'features' => $product->features ?: [
+            'long_desc_title' => 'Kemewahan & Kenyamanan Terbaik',
+            'long_desc' => $product->short_desc . ' Dirancang dengan material terpilih berstandar internasional yang menjamin kenyamanan maksimal saat Anda beristirahat di rumah.',
+            'features' => [
                 'Bahan adem, lembut dan sangat ramah di kulit',
                 'Jahitan presisi dan kuat untuk daya tahan pemakaian harian',
                 'Warna tahan luntur meski dicuci berulang kali',
@@ -113,20 +116,23 @@ class ProductController extends Controller
             ->inRandomOrder()
             ->limit(4)
             ->get()
-            ->map(function ($p) {
+            ->map(function ($p) use ($wishlistIds) {
                 return [
+                    'id' => $p->id,
                     'slug' => $p->slug,
                     'name' => $p->title,
                     'image' => $p->image,
                     'discount' => $p->discount,
                     'price' => $this->formatRupiah($p->price),
                     'original_price' => $this->formatRupiah($p->original_price),
+                    'is_wishlisted' => in_array($p->id, $wishlistIds),
                 ];
             })->toArray();
 
         return view('produk-detail', [
             'product' => $data,
             'relatedProducts' => $relatedProducts,
+            'wishlistIds' => $wishlistIds,
         ]);
         
     }

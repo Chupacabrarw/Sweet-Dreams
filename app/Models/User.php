@@ -21,15 +21,12 @@ class User extends Authenticatable implements FilamentUser
      * @var list<string>
      */
     protected $fillable = [
-    'name',
-    'email',
-    'password',
-    'phone',
-    'birthdate',
-    'city',
-    'avatar',
-    'role', // tambahin ini
-];
+        'name',
+        'email',
+        'password',
+        'role',
+        'avatar',
+    ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -59,7 +56,19 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->role === 'admin';
     }
-        public function addresses()
+
+    public function getAvatarUrlAttribute(): string
+    {
+        if (empty($this->avatar)) {
+            return asset('images/avatars/avatar-1.svg');
+        }
+        if (str_starts_with($this->avatar, 'data:') || str_starts_with($this->avatar, 'http://') || str_starts_with($this->avatar, 'https://')) {
+            return $this->avatar;
+        }
+        return asset($this->avatar);
+    }
+
+    public function addresses()
     {
         return $this->hasMany(Address::class);
     }

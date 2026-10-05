@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Tracking Pesanan ' . $order['order_id'] . ' - Sweet Dreams')
 
@@ -558,6 +558,77 @@
         <h1>{{ $order['headline'] }}</h1>
         <p>{{ $order['subtitle'] }}</p>
     </div>
+
+    {{-- Payment Reminder Banner if Unpaid --}}
+    @if(($order['payment_status'] ?? '') === 'unpaid')
+        <div class="unpaid-payment-alert" style="background:#fff7f8;border:1.5px solid #f8c9d6;border-radius:18px;padding:1.5rem 1.75rem;margin-bottom:1.75rem;box-shadow:0 4px 20px rgba(224,107,136,0.08);">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1.25rem;flex-wrap:wrap;">
+                <div style="flex:1;min-width:280px;">
+                    <span style="font-size:0.75rem;font-weight:700;letter-spacing:0.08em;color:#e06b88;text-transform:uppercase;">Menunggu Pembayaran</span>
+                    <h3 style="font-family:'DM Sans',sans-serif;font-size:1.15rem;font-weight:700;color:#2a1f22;margin:0.25rem 0 0.5rem;">Selesaikan Pembayaran Pesananmu</h3>
+                    <p style="font-size:0.88rem;color:#7a5961;margin:0;line-height:1.5;">Total tagihan: <strong style="color:#2a1f22;font-size:1rem;">{{ $order['summary']['total'] }}</strong></p>
+                    
+                    @if(!empty($order['va_number']))
+                        <div style="margin-top:0.85rem;background:#ffffff;border:1px solid #ebd3da;border-radius:10px;padding:0.6rem 1rem;display:inline-flex;align-items:center;gap:1rem;">
+                            <div>
+                                <span style="font-size:0.72rem;color:#8c7379;display:block;">Nomor Virtual Account ({{ strtoupper($order['payment_method'] ?? 'VA') }}):</span>
+                                <strong style="font-family:'DM Mono',monospace;font-size:1.15rem;color:#2a1f22;letter-spacing:0.05em;" id="detail-va-num">{{ $order['va_number'] }}</strong>
+                            </div>
+                            <button type="button" onclick="navigator.clipboard.writeText('{{ $order['va_number'] }}'); this.textContent = 'Tersalin!'; setTimeout(() => this.textContent = 'Salin', 2000);" style="background:#fce7ee;border:none;color:#e06b88;font-weight:700;font-size:0.78rem;padding:6px 14px;border-radius:6px;cursor:pointer;">
+                                Salin
+                            </button>
+                        </div>
+                    @endif
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:0.5rem;align-self:center;">
+                    @if(!empty($order['payment_url']))
+                        <a href="{{ $order['payment_url'] }}" target="_blank" style="display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;background:#e06b88;color:#ffffff;font-weight:700;font-size:0.88rem;padding:10px 24px;border-radius:8px;text-decoration:none;box-shadow:0 3px 10px rgba(224,107,136,0.3);">
+                            Bayar Sekarang (Komerce)
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                        </a>
+                    @endif
+
+                    <button type="button" id="btn-sync-payment" onclick="checkLivePayment('{{ $order['raw_order_number'] ?? '' }}')" style="display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;background:#ffffff;border:1px solid #e06b88;color:#e06b88;font-weight:700;font-size:0.84rem;padding:9px 20px;border-radius:8px;cursor:pointer;">
+                        <svg xmlns="http://www.w3.org/2000/svg" id="sync-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                        <span id="sync-text">Cek Status Pembayaran</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function checkLivePayment(orderNum) {
+                if (!orderNum) return;
+                const btn = document.getElementById('btn-sync-payment');
+                const txt = document.getElementById('sync-text');
+                const ico = document.getElementById('sync-icon');
+                if (btn) btn.disabled = true;
+                if (txt) txt.textContent = 'Mengecek...';
+                if (ico) ico.style.animation = 'spin 0.8s linear infinite';
+
+                fetch('/api/payment/status/' + orderNum)
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res.payment_status === 'paid') {
+                            if (txt) txt.textContent = 'Pembayaran Lunas!';
+                            setTimeout(() => window.location.reload(), 800);
+                        } else {
+                            if (btn) btn.disabled = false;
+                            if (txt) txt.textContent = 'Cek Status Pembayaran';
+                            if (ico) ico.style.animation = 'none';
+                            alert('Pembayaran belum terdeteksi. Silakan selesaikan pembayaran terlebih dahulu.');
+                        }
+                    })
+                    .catch(() => {
+                        if (btn) btn.disabled = false;
+                        if (txt) txt.textContent = 'Cek Status Pembayaran';
+                        if (ico) ico.style.animation = 'none';
+                        alert('Gagal memeriksa status pembayaran.');
+                    });
+            }
+        </script>
+    @endif
 
     {{-- Tracking Card --}}
     <div class="tracking-card">

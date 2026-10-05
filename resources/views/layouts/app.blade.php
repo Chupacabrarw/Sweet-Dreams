@@ -82,16 +82,14 @@
             gap: 1.5rem;
         }
         .nav-logo {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.45rem;
-            font-weight: 500;
-            font-style: italic;
-            color: var(--ink);
-            letter-spacing: 0.01em;
+            display: flex;
+            align-items: center;
             flex-shrink: 0;
         }
-        .nav-logo span {
-            color: var(--blush);
+        .nav-logo img {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
         }
         .nav-links {
             display: flex;
@@ -193,6 +191,128 @@
             justify-content: center;
             border: 1.5px solid var(--bg);
         }
+
+        /* User Dropdown */
+        .nav-user-dropdown-wrapper {
+            position: relative;
+        }
+        .nav-user-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 260px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 12px 36px rgba(42,31,34,0.15);
+            border: 1px solid rgba(180,140,150,0.22);
+            padding: 1rem 0 0.5rem 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(8px);
+            transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+            z-index: 1000;
+        }
+        .nav-user-dropdown-wrapper:hover .nav-user-dropdown,
+        .nav-user-dropdown-wrapper:focus-within .nav-user-dropdown,
+        .nav-user-dropdown.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .user-dropdown-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0 1.15rem 0.85rem 1.15rem;
+            border-bottom: 1px solid rgba(180,140,150,0.15);
+        }
+        .user-dropdown-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--blush);
+            background: #fff8fa;
+            flex-shrink: 0;
+        }
+        .user-dropdown-info {
+            overflow: hidden;
+            text-align: left;
+        }
+        .user-dropdown-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.25;
+        }
+        .user-dropdown-email {
+            font-size: 0.75rem;
+            color: var(--ink-faint);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .user-dropdown-menu {
+            list-style: none;
+            padding: 0.5rem 0.5rem 0 0.5rem;
+            margin: 0;
+        }
+        .user-dropdown-menu li a,
+        .user-dropdown-menu li button {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.65rem 0.85rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            color: var(--ink-muted);
+            font-weight: 500;
+            text-align: left;
+            transition: all 0.2s;
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+        .user-dropdown-menu li a:hover,
+        .user-dropdown-menu li button:hover {
+            background: #fff3f6;
+            color: var(--blush-dark);
+        }
+        .user-dropdown-menu li a svg,
+        .user-dropdown-menu li button svg {
+            width: 17px;
+            height: 17px;
+            color: var(--ink-faint);
+            transition: color 0.2s;
+        }
+        .user-dropdown-menu li a:hover svg,
+        .user-dropdown-menu li button:hover svg {
+            color: var(--blush);
+        }
+        .user-dropdown-divider {
+            height: 1px;
+            background: rgba(180,140,150,0.15);
+            margin: 0.4rem 0.5rem;
+        }
+        .user-dropdown-menu li.logout-item a,
+        .user-dropdown-menu li.logout-item button {
+            color: #f43f5e;
+            font-weight: 600;
+        }
+        .user-dropdown-menu li.logout-item a:hover,
+        .user-dropdown-menu li.logout-item button:hover {
+            background: #fff1f2;
+            color: #e11d48;
+        }
+        .user-dropdown-menu li.logout-item svg {
+            color: #f43f5e !important;
+        }
         .mobile-menu-btn {
             display: none;
             width: 38px;
@@ -239,7 +359,7 @@
         .hero-eyebrow {
             display: inline-block;
             font-family: 'DM Sans', sans-serif;
-            font-size: 0.72rem;
+            font-size: 0.9rem;
             font-weight: 500;
             letter-spacing: 0.18em;
             text-transform: uppercase;
@@ -251,23 +371,23 @@
         }
         .hero-content h1 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(2.8rem, 5vw, 4.2rem);
+            font-size: clamp(3.8rem, 6.5vw, 5.5rem);
             font-weight: 400;
             font-style: italic;
             color: #fff;
-            line-height: 1.1;
-            margin: 0 0 1.25rem 0;
+            line-height: 1.08;
+            margin: 0 0 1.5rem 0;
             opacity: 0;
             transform: translateY(16px);
             animation: fadeUp 0.8s ease 0.2s forwards;
         }
         .hero-content p {
-            font-size: 0.95rem;
+            font-size: 1.2rem;
             font-weight: 300;
             color: rgba(255,255,255,0.80);
             line-height: 1.75;
             margin: 0 0 2rem 0;
-            max-width: 400px;
+            max-width: 480px;
             opacity: 0;
             transform: translateY(16px);
             animation: fadeUp 0.8s ease 0.35s forwards;
@@ -317,7 +437,7 @@
         }
         .section-eyebrow {
             font-family: 'DM Sans', sans-serif;
-            font-size: 0.7rem;
+            font-size: 0.9rem;
             font-weight: 500;
             letter-spacing: 0.15em;
             text-transform: uppercase;
@@ -325,7 +445,7 @@
             margin-bottom: 0.5rem;
         }
         .section-header h2 {
-            font-size: clamp(1.7rem, 3vw, 2.4rem);
+            font-size: clamp(2.2rem, 3.5vw, 3.2rem);
             font-weight: 400;
             color: var(--ink);
         }
@@ -738,7 +858,7 @@
                 width: 15px; height: 15px;
             }
             .hero { height: 75vh; min-height: 420px; }
-            .hero-content h1 { font-size: 2.4rem; }
+            .hero-content h1 { font-size: 3rem; }
             .hero-content { max-width: 90%; }
             .section { padding: 3.5rem 1.25rem; }
             .section-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
@@ -750,8 +870,9 @@
         }
         @media (max-width: 480px) {
             .hero { height: 70vh; min-height: 380px; }
-            .hero-content h1 { font-size: 2rem; }
-            .section-header h2 { font-size: 1.6rem; }
+            .hero-content h1 { font-size: 2.5rem; }
+            .hero-content p { font-size: 1rem; }
+            .section-header h2 { font-size: 2rem; }
         }
     </style>
 
@@ -760,7 +881,7 @@
     {{-- NAVBAR --}}
     <nav class="navbar" id="navbar">
         <div class="navbar-inner">
-            <a href="/" class="nav-logo" id="nav-logo"><em>Sweet</em> <span>Dreams</span></a>
+            <a href="/" class="nav-logo" id="nav-logo"><img src="/images/logo.png" alt="Sweet Dream Logo"></a>
 
             <ul class="nav-links" id="nav-links">
                 <li><a href="/" class="{{ request()->is('/') ? 'active' : '' }}" id="nav-home">Home</a></li>
@@ -776,21 +897,67 @@
 
             <div class="nav-icons">
                 @auth
-<a href="/profil" class="nav-icon-btn {{ request()->is('profil*') ? 'active' : '' }}" id="btn-user" title="Akun: {{ auth()->user()->name }}">
-    <img src="{{ auth()->user()->avatar ? asset(auth()->user()->avatar) : asset('images/alya-avatar.jpg') }}"
-         alt="{{ auth()->user()->name }}"
-         style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid #f48da8;display:block;">
-</a>
-@else
-<a href="/login" class="nav-icon-btn {{ request()->is('profil*') ? 'active' : '' }}" id="btn-user" aria-label="Akun" title="Masuk ke Akun Anda">
-    <i data-lucide="user" style="width:20px;height:20px;"></i>
-</a>
-@endauth    
-                                               <a href="/wishlist" class="nav-icon-btn" id="btn-wishlist" aria-label="Wishlist">
+                <div class="nav-user-dropdown-wrapper" id="user-dropdown-wrapper">
+                    <a href="/profil" class="nav-icon-btn {{ request()->is('profil*') ? 'active' : '' }}" id="btn-user" title="Akun: {{ auth()->user()->name }}">
+                        <img src="{{ auth()->user()->avatar_url }}"
+                             alt="{{ auth()->user()->name }}"
+                             style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid #f48da8;display:block;">
+                    </a>
+                    <div class="nav-user-dropdown" id="nav-user-dropdown">
+                        <div class="user-dropdown-header">
+                            <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}" class="user-dropdown-avatar">
+                            <div class="user-dropdown-info">
+                                <div class="user-dropdown-name">{{ auth()->user()->name }}</div>
+                                <div class="user-dropdown-email">{{ auth()->user()->email }}</div>
+                            </div>
+                        </div>
+                        <ul class="user-dropdown-menu">
+                            <li>
+                                <a href="/profil">
+                                    <i data-lucide="user"></i>
+                                    <span>Profil Saya</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/profil?tab=pesanan">
+                                    <i data-lucide="package"></i>
+                                    <span>Pesanan Saya</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/profil?tab=alamat">
+                                    <i data-lucide="map-pin"></i>
+                                    <span>Daftar Alamat</span>
+                                </a>
+                            </li>
+                            @if(auth()->user()->is_admin || auth()->user()->role === 'admin')
+                            <li>
+                                <a href="/admin/dashboard" style="color: #6366f1;">
+                                    <i data-lucide="shield" style="color: #6366f1 !important;"></i>
+                                    <span>Admin Panel</span>
+                                </a>
+                            </li>
+                            @endif
+                            <li class="user-dropdown-divider"></li>
+                            <li class="logout-item">
+                                <a href="/logout" onclick="try{localStorage.removeItem('sweetdreams_auth_user');}catch(e){}">
+                                    <i data-lucide="log-out"></i>
+                                    <span>Keluar (Logout)</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                @else
+                <a href="/login" class="nav-icon-btn {{ request()->is('login*') ? 'active' : '' }}" id="btn-user" aria-label="Akun" title="Masuk ke Akun Anda">
+                    <i data-lucide="user" style="width:20px;height:20px;"></i>
+                </a>
+                @endauth    
+                <a href="/wishlist" class="nav-icon-btn" id="btn-wishlist" aria-label="Wishlist">
                     <i data-lucide="heart" style="width:20px;height:20px;"></i>
                     <span class="badge">{{ auth()->check() ? auth()->user()->wishlists()->count() : 0 }}</span>
                 </a>
-                                <a href="/keranjang" class="nav-icon-btn" id="btn-cart" aria-label="Keranjang">
+                <a href="/keranjang" class="nav-icon-btn" id="btn-cart" aria-label="Keranjang">
                     <i data-lucide="shopping-bag" style="width:20px;height:20px;"></i>
                     <span class="badge">{{ auth()->check() ? auth()->user()->cartItems()->sum('quantity') : 0 }}</span>
                 </a>
@@ -813,7 +980,16 @@
                 <li><a href="/" class="{{ request()->is('/') ? 'active' : '' }}">Home</a></li>
                 <li><a href="/katalog" class="{{ request()->is('katalog*') ? 'active' : '' }}">Katalog</a></li>
                 <li><a href="/keranjang" class="{{ request()->is('keranjang*') ? 'active' : '' }}">Keranjang</a></li>
-                <li><a href="/profil" class="{{ request()->is('profil*') ? 'active' : '' }}">Akun Saya</a></li>
+                <li><a href="/wishlist" class="{{ request()->is('wishlist*') ? 'active' : '' }}">Wishlist</a></li>
+                @auth
+                    <li><a href="/profil" class="{{ request()->is('profil*') ? 'active' : '' }}">Akun Saya ({{ auth()->user()->name }})</a></li>
+                    @if(auth()->user()->is_admin || auth()->user()->role === 'admin')
+                        <li><a href="/admin/dashboard" style="color: #6366f1;">Admin Panel</a></li>
+                    @endif
+                    <li><a href="/logout" onclick="try{localStorage.removeItem('sweetdreams_auth_user');}catch(e){}" style="color: #f43f5e; font-weight: 600;">Keluar (Logout)</a></li>
+                @else
+                    <li><a href="/login" class="{{ request()->is('login*') ? 'active' : '' }}">Masuk / Daftar Akun</a></li>
+                @endauth
                 <li><a href="/tentang" class="{{ request()->is('tentang') ? 'active' : '' }}">Tentang</a></li>
                 <li><a href="/kontak" class="{{ request()->is('kontak') ? 'active' : '' }}">Kontak</a></li>
             </ul>
@@ -874,6 +1050,18 @@
     </footer>
 
     <script>
+        // Global HTML escape helper
+        window.escapeHtml = function(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        };
+        const escapeHtml = window.escapeHtml;
+
         // Initialize Lucide Icons
         lucide.createIcons();
 
@@ -896,6 +1084,24 @@
         }
         if (globalSearchInput) globalSearchInput.addEventListener('keydown', handleGlobalSearch);
         if (globalMobileSearch) globalMobileSearch.addEventListener('keydown', handleGlobalSearch);
+
+        // User Dropdown Click & Touch Toggle
+        const userDropdownWrapper = document.getElementById('user-dropdown-wrapper');
+        const navUserDropdown = document.getElementById('nav-user-dropdown');
+        const btnUser = document.getElementById('btn-user');
+        if (userDropdownWrapper && navUserDropdown && btnUser) {
+            btnUser.addEventListener('click', (e) => {
+                if (window.innerWidth <= 1024 || e.pointerType === 'touch') {
+                    e.preventDefault();
+                    navUserDropdown.classList.toggle('open');
+                }
+            });
+            document.addEventListener('click', (e) => {
+                if (!userDropdownWrapper.contains(e.target)) {
+                    navUserDropdown.classList.remove('open');
+                }
+            });
+        }
 
         // Mobile Menu
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
@@ -1230,7 +1436,11 @@
                 return user.addresses;
             },
 
-                        logout: function() {
+            logout: function() {
+                try {
+                    localStorage.removeItem(this.USER_KEY);
+                    localStorage.removeItem('sweetdreams_auth_user');
+                } catch(e) {}
                 window.location.href = '/logout';
             }
         };

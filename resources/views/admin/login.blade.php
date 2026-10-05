@@ -19,10 +19,11 @@
             width:100%; max-width:400px;
         }
         .admin-login-logo {
-            width:52px; height:52px; border-radius:14px; background:#d44d6e;
             display:flex; align-items:center; justify-content:center;
-            font-family:'Playfair Display',serif; color:#fff; font-size:1.5rem; font-weight:700;
             margin:0 auto 1.25rem;
+        }
+        .admin-login-logo img {
+            height:150px; width:auto; object-fit:contain;
         }
         .admin-login-title {
             text-align:center; font-family:'Playfair Display',serif;
@@ -50,7 +51,7 @@
 </head>
 <body>
     <div class="admin-login-card">
-        <div class="admin-login-logo">S</div>
+        <div class="admin-login-logo"><img src="/images/logo.png" alt="Sweet Dream Logo"></div>
         <h1 class="admin-login-title">Login Dashboard Admin</h1>
         <p class="admin-login-subtitle">Khusus untuk tim internal Sweet Dreams</p>
 

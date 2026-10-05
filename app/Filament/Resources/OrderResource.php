@@ -29,8 +29,6 @@ class OrderResource extends Resource
                 Forms\Components\Select::make('user_id')
                     ->relationship('user', 'name')
                     ->required(),
-                Forms\Components\TextInput::make('address_id')
-                    ->numeric(),
                 Forms\Components\TextInput::make('shipping_recipient_name')
                     ->required()
                     ->maxLength(255),
@@ -54,8 +52,6 @@ class OrderResource extends Resource
                     ->required()
                     ->numeric()
                     ->default(0),
-                Forms\Components\TextInput::make('tracking_number')
-                    ->maxLength(255),
                 Forms\Components\TextInput::make('subtotal')
                     ->required()
                     ->numeric(),
@@ -63,8 +59,6 @@ class OrderResource extends Resource
                     ->required()
                     ->numeric()
                     ->default(0),
-                Forms\Components\TextInput::make('voucher_code')
-                    ->maxLength(255),
                 Forms\Components\TextInput::make('total')
                     ->required()
                     ->numeric(),
@@ -78,8 +72,6 @@ class OrderResource extends Resource
                     ->required()
                     ->maxLength(255)
                     ->default('unpaid'),
-                Forms\Components\TextInput::make('payment_reference')
-                    ->maxLength(255),
             ]);
     }
 
@@ -90,9 +82,6 @@ class OrderResource extends Resource
                 Tables\Columns\TextColumn::make('order_number')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('user.name')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('address_id')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('shipping_recipient_name')
@@ -112,16 +101,12 @@ class OrderResource extends Resource
                 Tables\Columns\TextColumn::make('shipping_cost')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('tracking_number')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('subtotal')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('discount')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('voucher_code')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('total')
                     ->numeric()
                     ->sortable(),
@@ -130,8 +115,6 @@ class OrderResource extends Resource
                 Tables\Columns\TextColumn::make('payment_method')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('payment_status')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('payment_reference')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

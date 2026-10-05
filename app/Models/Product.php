@@ -7,20 +7,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Product extends Model
 {
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($product) {
+            if (empty($product->sku)) {
+                $product->sku = 'PRD-' . strtoupper(\Illuminate\Support\Str::random(8));
+            }
+        });
+    }
            protected $fillable = [
         'category_id', 'title', 'slug', 'collection',
         'price', 'original_price', 'discount', 'rating',
         'review_count', 'sizes', 'colors', 'badge',
         'short_desc', 'image', 'sales_count',
-        'gallery', 'long_desc_title', 'long_desc', 'features',
         'sku', 'stock', 'is_active'
     ];
 
     protected $casts = [
         'sizes' => 'array',
         'colors' => 'array',
-        'gallery' => 'array',
-        'features' => 'array',
     ];
     public function category(): BelongsTo
     {

@@ -22,7 +22,11 @@ Route::get('/', function () {
         ? \App\Models\Product::whereIn('id', $prodIds)->orderByRaw('FIELD(id,' . implode(',', $prodIds) . ')')->get()
         : collect();
 
-    return view('welcome', compact('banner', 'homeCategories', 'homeProducts'));
+    $wishlistIds = auth()->check()
+        ? auth()->user()->wishlists()->pluck('product_id')->map(fn($id) => (int)$id)->toArray()
+        : [];
+
+    return view('welcome', compact('banner', 'homeCategories', 'homeProducts', 'wishlistIds'));
 });
 
 Route::get('/tentang', function () {
@@ -99,6 +103,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/api/cart/{cartItem}', [App\Http\Controllers\CartController::class, 'destroy']);
 });
 
+Route::get('/api/wishlist/ids', [App\Http\Controllers\WishlistController::class, 'ids']);
+
 Route::middleware('auth')->group(function () {
     Route::post('/api/wishlist/toggle', [App\Http\Controllers\WishlistController::class, 'toggle']);
 });
@@ -121,6 +127,15 @@ Route::post('/api/checkout/validate-voucher', [App\Http\Controllers\CheckoutCont
 
 Route::post('/api/chatbot', [App\Http\Controllers\ChatbotController::class, 'chat']);
 
+// ===== SHIPPING (RAJAONGKIR) =====
+Route::get('/api/shipping/provinces', [App\Http\Controllers\ShippingController::class, 'provinces']);
+Route::get('/api/shipping/cities', [App\Http\Controllers\ShippingController::class, 'cities']);
+Route::post('/api/shipping/cost', [App\Http\Controllers\ShippingController::class, 'cost']);
+
+// ===== PAYMENT GATEWAY (KOMERCE) =====
+Route::get('/api/payment/status/{orderNumber}', [App\Http\Controllers\PaymentController::class, 'checkStatus']);
+Route::post('/api/payment/webhook', [App\Http\Controllers\PaymentController::class, 'handleWebhook']);
+
 // ===== ORDER TRACKING DETAIL =====//
 Route::get('/pesanan/{orderNumber}', [App\Http\Controllers\OrderController::class, 'show'])
     ->middleware('auth')
@@ -134,6 +149,15 @@ Route::get('/register', function () {
     return view('auth.login', ['initialMode' => 'register']);
 })->name('register');
 
-Route::get('/logout', function () {
-    return view('auth.logout');
+Route::match(['get', 'post'], '/logout', function (Illuminate\Http\Request $request) {
+    Auth::logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    if ($request->wantsJson() || $request->is('api/*')) {
+        return response()->json(['status' => 'success', 'message' => 'Berhasil keluar']);
+    }
+
+    return redirect('/login?status=logout');
 })->name('logout');
+

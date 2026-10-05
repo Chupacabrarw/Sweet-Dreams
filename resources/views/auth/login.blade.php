@@ -2263,6 +2263,9 @@
                 .then(res => res.json().then(data => ({ status: res.status, body: data })))
                 .then(({ status, body }) => {
                     if (status === 200) {
+                        try {
+                            localStorage.setItem('sweetdreams_auth_user', JSON.stringify(body.user));
+                        } catch(e) {}
                         showAuthToast('Masuk Berhasil!', `Selamat datang kembali, ${body.user.name}!`, true);
                         setTimeout(() => {
                             window.location.href = body.user.role === 'admin' ? '/admin/dashboard' : '/profil';
@@ -2344,6 +2347,9 @@
                 .then(res => res.json().then(data => ({ status: res.status, body: data })))
                 .then(({ status, body }) => {
                     if (status === 201) {
+                        try {
+                            localStorage.setItem('sweetdreams_auth_user', JSON.stringify(body.user));
+                        } catch(e) {}
                         showAuthToast('Pendaftaran Berhasil!', `Selamat datang di Sweet Dreams, ${body.user.name}!`, true);
                         setTimeout(() => {
                             window.location.href = '/profil';

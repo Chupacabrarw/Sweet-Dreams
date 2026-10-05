@@ -22,7 +22,8 @@ class AuthController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'avatar' => $validated['avatar'] ?? null,
+            'avatar' => !empty($validated['avatar']) ? $validated['avatar'] : 'images/avatars/avatar-1.svg',
+            'role' => 'customer',
         ]);
 
         Auth::login($user);
@@ -61,9 +62,14 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return response()->json([
-            'message' => 'Logout successful'
-        ]);
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Logout successful'
+            ]);
+        }
+
+        return redirect('/login?status=logout');
     }
 
     public function checkEmail(Request $request)

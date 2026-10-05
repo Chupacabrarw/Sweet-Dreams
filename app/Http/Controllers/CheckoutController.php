@@ -15,18 +15,24 @@ class CheckoutController extends Controller
     protected function shippingMethods(): array
     {
         return [
-            ['id' => 'jne', 'name' => 'JNE Regular', 'desc' => 'Estimasi pengiriman 3–5 hari kerja', 'cost' => 15000, 'active' => false],
-            ['id' => 'sicepat', 'name' => 'SiCepat Express', 'desc' => 'Estimasi pengiriman 1–2 hari kerja', 'cost' => 25000, 'active' => true],
-            ['id' => 'gosend', 'name' => 'GoSend Same Day', 'desc' => 'Estimasi tiba dalam 2–4 jam', 'cost' => 35000, 'active' => false],
+            ['id' => 'jnt', 'name' => 'J&T Express EZ', 'desc' => 'Estimasi pengiriman 2–3 hari kerja', 'cost' => 16000, 'active' => true],
+            ['id' => 'jne', 'name' => 'JNE Regular', 'desc' => 'Estimasi pengiriman 2–3 hari kerja', 'cost' => 17000, 'active' => false],
+            ['id' => 'spx', 'name' => 'Shopee Express (SPX)', 'desc' => 'Estimasi pengiriman 2–3 hari kerja', 'cost' => 16000, 'active' => false],
+            ['id' => 'sicepat', 'name' => 'SiCepat Express', 'desc' => 'Estimasi pengiriman 1–2 hari kerja', 'cost' => 20000, 'active' => false],
+            ['id' => 'pos', 'name' => 'POS Indonesia Reguler', 'desc' => 'Estimasi pengiriman 2–4 hari kerja', 'cost' => 18000, 'active' => false],
+            ['id' => 'gosend', 'name' => 'GoSend Instant / Same Day', 'desc' => 'Estimasi tiba dalam 2–4 jam (Area Terpilih)', 'cost' => 35000, 'active' => false],
         ];
     }
 
     protected function paymentMethods(): array
     {
         return [
-            ['id' => 'qris', 'name' => 'Qris', 'desc' => 'Mendukung pembayaran dari berbagai aplikasi', 'badges' => 'BCA MANDIRI BNI', 'active' => true],
-            ['id' => 'ewallet', 'name' => 'E-Wallet', 'desc' => 'Bayar instan pakai GoPay, OVO, atau DANA', 'badges' => 'GOPAY OVO DANA', 'active' => false],
-            ['id' => 'transfer', 'name' => 'Transfer Bank', 'desc' => 'Transfer via BCA, Mandiri, atau BNI', 'badges' => '', 'active' => false],
+            ['id' => 'qris', 'name' => 'QRIS (Scan & Bayar Instan)', 'desc' => 'Mendukung GoPay, OVO, DANA, ShopeePay, BCA Mobile, dll.', 'badges' => 'QRIS GOPAY OVO DANA', 'active' => true],
+            ['id' => 'bca', 'name' => 'BCA Virtual Account', 'desc' => 'Transfer instan via BCA Mobile / KlikBCA / myBCA / ATM', 'badges' => 'BCA VA', 'active' => false],
+            ['id' => 'bni', 'name' => 'BNI Virtual Account', 'desc' => 'Transfer instan via BNI Mobile Banking / ATM', 'badges' => 'BNI VA', 'active' => false],
+            ['id' => 'bri', 'name' => 'BRI Virtual Account (BRIVA)', 'desc' => 'Transfer instan via BRImo / ATM BRI', 'badges' => 'BRIVA', 'active' => false],
+            ['id' => 'mandiri', 'name' => 'Mandiri Virtual Account', 'desc' => 'Transfer instan via Livin by Mandiri / ATM Mandiri', 'badges' => 'MANDIRI', 'active' => false],
+            ['id' => 'permata', 'name' => 'Permata Virtual Account', 'desc' => 'Transfer instan via PermataMobile X / ATM', 'badges' => 'PERMATA', 'active' => false],
         ];
     }
 
@@ -66,7 +72,7 @@ class CheckoutController extends Controller
         })->toArray();
 
         $subtotal = $cartItems->sum(fn ($item) => $item->product->price * $item->quantity);
-        $shippingCost = 25000; // default: SiCepat (yang aktif duluan)
+        $shippingCost = 16000; // default: J&T EZ (yang aktif duluan)
 
         $addresses = $request->user()->addresses()
             ->orderByDesc('is_primary')
@@ -78,7 +84,9 @@ class CheckoutController extends Controller
                     'phone' => $addr->phone,
                     'address' => $addr->address,
                     'city' => $addr->city,
+                    'city_id' => $addr->city_id,
                     'province' => $addr->province,
+                    'province_id' => $addr->province_id,
                     'postal_code' => $addr->postal_code,
                     'is_primary' => $addr->is_primary,
                 ];
@@ -89,6 +97,7 @@ class CheckoutController extends Controller
             'shippingMethods' => $this->shippingMethods(),
             'paymentMethods' => $this->paymentMethods(),
             'addresses' => $addresses,
+            'provinces' => app(\App\Http\Controllers\ShippingController::class)->getProvincesList(),
             'subtotal' => $subtotal,
             'shippingCost' => $shippingCost,
             'discount' => 0,
@@ -99,16 +108,20 @@ class CheckoutController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'address' => 'required|string',
-            'city' => 'required|string|max:255',
-            'province' => 'required|string|max:255',
-            'postal_code' => 'required|string|max:10',
-            'shipping_id' => 'required|string',
-            'payment_id' => 'required|string',
-            'voucher' => 'nullable|string',
-            'item_ids' => 'nullable|array',
+            'name'             => 'required|string|max:255',
+            'phone'            => 'required|string|max:20',
+            'address'          => 'required|string',
+            'city'             => 'required|string|max:255',
+            'city_id'          => 'nullable',
+            'province'         => 'required|string|max:255',
+            'province_id'      => 'nullable',
+            'postal_code'      => 'required|string|max:10',
+            'shipping_id'      => 'required|string',
+            'shipping_courier' => 'nullable|string',
+            'shipping_cost'    => 'nullable|numeric',
+            'payment_id'       => 'required|string',
+            'voucher'          => 'nullable|string',
+            'item_ids'         => 'nullable|array',
         ]);
 
         $user = $request->user();
@@ -122,14 +135,23 @@ class CheckoutController extends Controller
             return response()->json(['message' => 'Keranjang belanja masih kosong atau tidak ada produk yang dipilih.'], 422);
         }
 
-        $shipping = collect($this->shippingMethods())->firstWhere('id', $data['shipping_id']);
         $payment = collect($this->paymentMethods())->firstWhere('id', $data['payment_id']);
 
-        if (!$shipping || !$payment) {
-            return response()->json(['message' => 'Metode pengiriman/pembayaran tidak valid.'], 422);
+        if (!$payment) {
+            return response()->json(['message' => 'Metode pembayaran tidak valid.'], 422);
         }
 
-                $subtotal = $cartItems->sum(fn ($item) => $item->product->price * $item->quantity);
+        // Resolusi tarif ongkir dan nama kurir (bisa dari live RajaOngkir atau preset)
+        $presetShipping = collect($this->shippingMethods())->firstWhere('id', $data['shipping_id']);
+        $shippingCourier = !empty($data['shipping_courier']) 
+            ? $data['shipping_courier'] 
+            : ($presetShipping['name'] ?? 'JNE Regular');
+        $shippingCost = isset($data['shipping_cost']) 
+            ? (int) $data['shipping_cost'] 
+            : ($presetShipping['cost'] ?? 15000);
+        $shippingService = $data['shipping_id'];
+
+        $subtotal = $cartItems->sum(fn ($item) => $item->product->price * $item->quantity);
 
         $voucher = null;
         $discount = 0;
@@ -142,9 +164,9 @@ class CheckoutController extends Controller
             }
         }
 
-        $total = max(0, $subtotal + $shipping['cost'] - $discount);
+        $total = max(0, $subtotal + $shippingCost - $discount);
 
-        $order = DB::transaction(function () use ($user, $data, $cartItems, $shipping, $payment, $subtotal, $discount, $total, $voucher) {
+        $order = DB::transaction(function () use ($user, $data, $cartItems, $shippingCourier, $shippingService, $shippingCost, $payment, $subtotal, $discount, $total, $voucher) {
             $newOrder = Order::create([
                 'order_number' => 'SD-' . now()->format('ymd') . '-' . strtoupper(Str::random(4)),
                 'user_id' => $user->id,
@@ -154,9 +176,9 @@ class CheckoutController extends Controller
                 'shipping_city' => $data['city'],
                 'shipping_province' => $data['province'],
                 'shipping_postal_code' => $data['postal_code'],
-                'shipping_courier' => $shipping['name'],
-                'shipping_service' => $shipping['id'],
-                'shipping_cost' => $shipping['cost'],
+                'shipping_courier' => $shippingCourier,
+                'shipping_service' => $shippingService,
+                'shipping_cost' => $shippingCost,
                 'subtotal' => $subtotal,
                 'discount' => $discount,
                 'voucher_code' => $voucher?->code,
@@ -187,13 +209,35 @@ class CheckoutController extends Controller
 
             return $newOrder;
         });
-                    if ($voucher) {
-                $voucher->increment('used_count');
-            }
+
+        if ($voucher) {
+            $voucher->increment('used_count');
+        }
+
+        // Buat tagihan pembayaran via Komerce Payment Gateway
+        $paymentResult = app(\App\Services\KomercePaymentService::class)->createPayment($order, $payment['id']);
+
+        if (!empty($paymentResult['success'])) {
+            $order->update([
+                'payment_reference'  => $paymentResult['payment_id'] ?? null,
+                'payment_url'        => $paymentResult['payment_url'] ?? null,
+                'va_number'          => $paymentResult['va_number'] ?? null,
+                'qr_string'          => $paymentResult['qr_string'] ?? null,
+                'payment_expired_at' => $paymentResult['expired_at'] ?? null,
+            ]);
+        }
+
         return response()->json([
-            'message' => 'Pesanan berhasil dibuat.',
-            'order_number' => $order->order_number,
-            'total' => $order->total,
+            'message'        => 'Pesanan berhasil dibuat.',
+            'order_number'   => $order->order_number,
+            'total'          => $order->total,
+            'payment_url'    => $order->payment_url,
+            'va_number'      => $order->va_number,
+            'qr_string'      => $order->qr_string,
+            'payment_id'     => $order->payment_reference,
+            'payment_method' => $payment['name'],
+            'bank_code'      => $paymentResult['bank_code'] ?? null,
+            'payment_status' => $order->payment_status,
         ], 201);
     }
 

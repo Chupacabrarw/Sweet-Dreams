@@ -52,17 +52,10 @@
     </style>
     
 <script>
-    fetch('/api/logout', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        }
-    })
-    .finally(() => {
-        window.location.replace('/login?status=logout');
-    });
+    try {
+        localStorage.removeItem('sweetdreams_auth_user');
+    } catch(e) {}
+    window.location.replace('/logout');
 </script>
 </head>
 <body>

@@ -39,4 +39,16 @@ return [
         'key' => env('GEMINI_API_KEY'),
     ],
 
+    'rajaongkir' => [
+        'key'            => env('RAJAONGKIR_API_KEY'),
+        'base_url'       => env('RAJAONGKIR_BASE_URL', 'https://rajaongkir.komerce.id/api/v1'),
+        'origin_city_id' => (int) env('RAJAONGKIR_ORIGIN_CITY_ID', 136),
+    ],
+
+    'komerce_payment' => [
+        'key'      => env('KOMERCE_PAYMENT_API_KEY'),
+        'env'      => env('KOMERCE_PAYMENT_ENV', 'sandbox'),
+        'base_url' => env('KOMERCE_PAYMENT_BASE_URL', 'https://api-sandbox.collaborator.komerce.id/user'),
+    ],
+
 ];

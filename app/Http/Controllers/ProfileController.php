@@ -14,15 +14,12 @@ class ProfileController extends Controller
          $user = [
             'name' => $authUser->name,
             'email' => $authUser->email,
-            'phone' => $authUser->phone ?? 'Belum diisi',
-            'birthdate' => $authUser->birthdate
-                ? Carbon::parse($authUser->birthdate)->translatedFormat('d F Y')
-                : 'Belum diisi',
-            'birthdate_raw' => $authUser->birthdate
-                ? Carbon::parse($authUser->birthdate)->format('Y-m-d')
-                : '',
-            'city' => $authUser->city ?? 'Belum diisi',
-            'avatar' => $authUser->avatar ?? 'images/alya-avatar.jpg',
+            'phone' => 'Belum diisi',
+            'birthdate' => 'Belum diisi',
+            'birthdate_raw' => '',
+            'city' => 'Belum diisi',
+            'avatar' => !empty($authUser->avatar) ? $authUser->avatar : 'images/avatars/avatar-1.svg',
+            'avatar_url' => $authUser->avatar_url,
         ];
 
                 $stats = [
@@ -85,7 +82,9 @@ class ProfileController extends Controller
                     'phone' => $addr->phone,
                     'address' => $addr->address,
                     'city' => $addr->city,
+                    'city_id' => $addr->city_id,
                     'province' => $addr->province,
+                    'province_id' => $addr->province_id,
                     'postal_code' => $addr->postal_code,
                     'is_primary' => $addr->is_primary,
                 ];
@@ -136,21 +135,30 @@ class ProfileController extends Controller
         public function update(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $request->user()->id,
-            'phone' => 'nullable|string|max:20',
-            'birthdate' => 'nullable|date',
-            'city' => 'nullable|string|max:255',
+            'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|email|unique:users,email,' . $request->user()->id,
+            'avatar' => 'nullable|string',
         ]);
 
-        $request->user()->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'birthdate' => $request->birthdate,
-            'city' => $request->city,
-        ]);
+        $updateData = [];
+        if ($request->filled('name')) {
+            $updateData['name'] = $request->name;
+        }
+        if ($request->filled('email')) {
+            $updateData['email'] = $request->email;
+        }
+        if ($request->filled('avatar')) {
+            $updateData['avatar'] = $request->avatar;
+        }
 
-        return response()->json(['message' => 'Profil berhasil diperbarui.']);
+        if (!empty($updateData)) {
+            $request->user()->update($updateData);
+        }
+
+        return response()->json([
+            'message' => 'Profil berhasil diperbarui.',
+            'avatar' => $request->user()->avatar,
+            'avatar_url' => $request->user()->avatar_url,
+        ]);
     }
 }

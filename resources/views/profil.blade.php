@@ -664,6 +664,20 @@
         transition: border-color 0.2s;
         box-sizing: border-box;
     }
+    select.modal-input {
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a6a72' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        padding-right: 2.5rem;
+    }
+    select.modal-input:disabled {
+        background-color: #faf5f6;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
     .modal-input:focus {
         border-color: var(--blush);
     }
@@ -1011,7 +1025,7 @@
         <aside class="profile-sidebar-card">
             <div class="sidebar-avatar-container">
                 <div class="sidebar-avatar-box" id="btn-sidebar-avatar-click" title="Klik untuk ganti avatar">
-                    <img id="sidebar-avatar-img" src="{{ asset($user['avatar']) }}" alt="{{ $user['name'] }}">
+                    <img id="sidebar-avatar-img" src="{{ $user['avatar_url'] ?? asset($user['avatar']) }}" alt="{{ $user['name'] }}">
                     <div class="sidebar-avatar-overlay">
                         <i data-lucide="camera" style="width:20px;height:20px;color:#fff;"></i>
                     </div>
@@ -1233,7 +1247,7 @@
                         <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:1rem; border-bottom:1px solid #fae6ec;">
                             <div style="display:flex; align-items:center; gap:1rem;">
                                 <div style="width:52px; height:52px; border-radius:50%; overflow:hidden; border:2px solid var(--blush-pale); flex-shrink:0; background:#fdf2f5; cursor:pointer;" id="btn-setting-avatar-click" title="Ganti Avatar">
-                                    <img id="settings-avatar-preview" src="{{ asset($user['avatar']) }}" alt="Avatar" style="width:100%; height:100%; object-fit:cover; display:block;">
+                                    <img id="settings-avatar-preview" src="{{ $user['avatar_url'] ?? asset($user['avatar']) }}" alt="Avatar" style="width:100%; height:100%; object-fit:cover; display:block;">
                                 </div>
                                 <div>
                                     <strong style="display:block; font-size:0.92rem; color:var(--ink);">Foto Profil & Avatar</strong>
@@ -1295,7 +1309,7 @@
         {{-- Avatar with Camera Icon --}}
         <div class="modal-avatar-wrapper" style="cursor:pointer;" id="btn-edit-modal-avatar-wrapper" title="Ganti Avatar">
             <div class="modal-avatar-img">
-                <img id="modal-avatar-preview" src="{{ asset($user['avatar']) }}" alt="Avatar">
+                <img id="modal-avatar-preview" src="{{ $user['avatar_url'] ?? asset($user['avatar']) }}" alt="Avatar">
             </div>
             <div class="avatar-camera-badge" id="btn-edit-modal-avatar-badge" title="Ganti Foto">
                 <i data-lucide="camera" style="width:14px;height:14px;"></i>
@@ -1314,21 +1328,7 @@
                 <input type="email" id="edit-input-email" class="modal-input" placeholder="email@domain.com" required>
             </div>
 
-            <div class="modal-row-2col">
-                <div class="modal-form-group">
-                    <label for="edit-input-phone">Nomor Telepon</label>
-                    <input type="tel" id="edit-input-phone" class="modal-input" placeholder="08xxxxxxxxxx">
-                </div>
-                <div class="modal-form-group">
-                    <label for="edit-input-birthdate">Tanggal Lahir</label>
-                    <input type="date" id="edit-input-birthdate" class="modal-input">
-                </div>
-            </div>
 
-            <div class="modal-form-group">
-                <label for="edit-input-city">Kota Domisili</label>
-                <input type="text" id="edit-input-city" class="modal-input" placeholder="Contoh: Jakarta Selatan">
-            </div>
 
             <div class="modal-btn-row">
                 <button type="button" class="btn-modal-cancel" id="btn-cancel-edit">Batal</button>
@@ -1374,12 +1374,20 @@
 
             <div class="modal-row-2col">
                 <div class="modal-form-group">
-                    <label for="address-input-city">Kota / Kabupaten</label>
-                    <input type="text" id="address-input-city" class="modal-input" placeholder="Kota atau Kabupaten" required>
+                    <label for="address-select-province">Provinsi <span style="color:#f43f5e;">*</span></label>
+                    <select id="address-select-province" class="modal-input" required>
+                        <option value="">-- Memuat Provinsi... --</option>
+                    </select>
+                    <input type="hidden" id="address-input-province" value="">
+                    <input type="hidden" id="address-input-province-id" value="">
                 </div>
                 <div class="modal-form-group">
-                    <label for="address-input-province">Provinsi</label>
-                    <input type="text" id="address-input-province" class="modal-input" placeholder="Provinsi" required>
+                    <label for="address-select-city">Kota / Kabupaten <span style="color:#f43f5e;">*</span></label>
+                    <select id="address-select-city" class="modal-input" required disabled>
+                        <option value="">-- Pilih Provinsi Dahulu --</option>
+                    </select>
+                    <input type="hidden" id="address-input-city" value="">
+                    <input type="hidden" id="address-input-city-id" value="">
                 </div>
             </div>
 
@@ -1418,7 +1426,7 @@
 
         {{-- Spotlight Active Preview --}}
         <div class="avatar-preview-spotlight">
-            <img id="avatar-spotlight-img" class="avatar-preview-spotlight-img" src="{{ asset($user['avatar']) }}" alt="Preview">
+            <img id="avatar-spotlight-img" class="avatar-preview-spotlight-img" src="{{ $user['avatar_url'] ?? asset($user['avatar']) }}" alt="Preview">
             <span class="avatar-preview-spotlight-badge" id="avatar-spotlight-badge">Avatar Saat Ini</span>
             <input type="hidden" id="active-selected-avatar-val" value="{{ $user['avatar'] }}">
         </div>
@@ -1636,13 +1644,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnCloseProfileModal) btnCloseProfileModal.addEventListener('click', closeProfileModal);
     if (btnCancelProfile) btnCancelProfile.addEventListener('click', closeProfileModal);
 
-        if (formProfile) {
         formProfile.addEventListener('submit', function() {
             const newName = document.getElementById('edit-input-nama').value.trim();
             const newEmail = document.getElementById('edit-input-email').value.trim();
-            const newPhone = document.getElementById('edit-input-phone').value.trim();
-            const newBirthdate = document.getElementById('edit-input-birthdate').value;
-            const newCity = document.getElementById('edit-input-city').value.trim();
 
             if (!newName) {
                 alert('Nama lengkap tidak boleh kosong.');
@@ -1657,8 +1661,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 },
                 body: JSON.stringify({
-                    name: newName, email: newEmail, phone: newPhone,
-                    birthdate: newBirthdate, city: newCity
+                    name: newName, email: newEmail
                 })
             })
             .then(res => res.json().then(data => ({ status: res.status, body: data })))
@@ -1689,17 +1692,154 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnCloseAddressModal) btnCloseAddressModal.addEventListener('click', closeAddressModal);
     if (btnCancelAddress) btnCancelAddress.addEventListener('click', closeAddressModal);
 
-       function openAddAddressModal() {
+    // RajaOngkir handlers for address modal
+    const addrSelectProv = document.getElementById('address-select-province');
+    const addrSelectCity = document.getElementById('address-select-city');
+    const addrInputProv = document.getElementById('address-input-province');
+    const addrInputProvId = document.getElementById('address-input-province-id');
+    const addrInputCity = document.getElementById('address-input-city');
+    const addrInputCityId = document.getElementById('address-input-city-id');
+
+    let profileProvincesCache = null;
+
+    function loadProfileAddressProvinces(targetProvIdOrName = null, targetCityIdOrName = null) {
+        if (!addrSelectProv) return;
+
+        const populateProvs = (provs) => {
+            let options = '<option value="">-- Pilih Provinsi --</option>';
+            let matchedProv = null;
+
+            provs.forEach(p => {
+                const isSelected = targetProvIdOrName && (
+                    String(p.id) === String(targetProvIdOrName) ||
+                    p.name.toLowerCase().includes(String(targetProvIdOrName).toLowerCase())
+                );
+                if (isSelected && !matchedProv) matchedProv = p;
+                options += `<option value="${p.id}" ${isSelected ? 'selected' : ''}>${escapeHtml(p.name)}</option>`;
+            });
+
+            addrSelectProv.innerHTML = options;
+
+            if (matchedProv) {
+                addrSelectProv.value = matchedProv.id;
+                addrInputProv.value = matchedProv.name;
+                addrInputProvId.value = matchedProv.id;
+                loadProfileAddressCities(matchedProv.id, targetCityIdOrName);
+            } else {
+                addrSelectCity.innerHTML = '<option value="">-- Pilih Provinsi Dahulu --</option>';
+                addrSelectCity.disabled = true;
+            }
+        };
+
+        const FALLBACK_PROVINCES = [
+            { id: 15, name: 'BALI' }, { id: 24, name: 'BANGKA BELITUNG' }, { id: 11, name: 'BANTEN' },
+            { id: 6, name: 'BENGKULU' }, { id: 19, name: 'DI YOGYAKARTA' }, { id: 10, name: 'DKI JAKARTA' },
+            { id: 17, name: 'GORONTALO' }, { id: 13, name: 'JAMBI' }, { id: 5, name: 'JAWA BARAT' },
+            { id: 12, name: 'JAWA TENGAH' }, { id: 18, name: 'JAWA TIMUR' }, { id: 28, name: 'KALIMANTAN BARAT' },
+            { id: 3, name: 'KALIMANTAN SELATAN' }, { id: 4, name: 'KALIMANTAN TENGAH' }, { id: 7, name: 'KALIMANTAN TIMUR' },
+            { id: 31, name: 'KALIMANTAN UTARA' }, { id: 8, name: 'KEPULAUAN RIAU' }, { id: 30, name: 'LAMPUNG' },
+            { id: 2, name: 'MALUKU' }, { id: 32, name: 'MALUKU UTARA' }, { id: 9, name: 'NANGGROE ACEH DARUSSALAM (NAD)' },
+            { id: 1, name: 'NUSA TENGGARA BARAT (NTB)' }, { id: 21, name: 'NUSA TENGGARA TIMUR (NTT)' }, { id: 14, name: 'PAPUA' },
+            { id: 29, name: 'PAPUA BARAT' }, { id: 25, name: 'RIAU' }, { id: 34, name: 'SULAWESI BARAT' },
+            { id: 33, name: 'SULAWESI SELATAN' }, { id: 27, name: 'SULAWESI TENGAH' }, { id: 20, name: 'SULAWESI TENGGARA' },
+            { id: 22, name: 'SULAWESI UTARA' }, { id: 23, name: 'SUMATERA BARAT' }, { id: 26, name: 'SUMATERA SELATAN' },
+            { id: 16, name: 'SUMATERA UTARA' }
+        ];
+
+        if (profileProvincesCache && profileProvincesCache.length > 0) {
+            populateProvs(profileProvincesCache);
+        } else {
+            populateProvs(FALLBACK_PROVINCES);
+            fetch('/api/shipping/provinces')
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        profileProvincesCache = data;
+                        populateProvs(profileProvincesCache);
+                    }
+                })
+                .catch(() => {});
+        }
+    }
+
+    function loadProfileAddressCities(provId, targetCityIdOrName = null) {
+        if (!addrSelectCity) return;
+        addrSelectCity.innerHTML = '<option value="">-- Memuat Kota / Kabupaten... --</option>';
+        addrSelectCity.disabled = true;
+
+        if (!provId) {
+            addrSelectCity.innerHTML = '<option value="">-- Pilih Provinsi Dahulu --</option>';
+            return;
+        }
+
+        fetch(`/api/shipping/cities?province_id=${provId}`)
+            .then(res => res.json())
+            .then(cities => {
+                let options = '<option value="">-- Pilih Kota / Kabupaten --</option>';
+                let matchedCity = null;
+
+                (cities || []).forEach(c => {
+                    const isSelected = targetCityIdOrName && (
+                        String(c.id) === String(targetCityIdOrName) ||
+                        c.name.toLowerCase().includes(String(targetCityIdOrName).toLowerCase())
+                    );
+                    if (isSelected && !matchedCity) matchedCity = c;
+                    options += `<option value="${c.id}" ${isSelected ? 'selected' : ''}>${escapeHtml(c.name)}</option>`;
+                });
+
+                addrSelectCity.innerHTML = options;
+                addrSelectCity.disabled = false;
+
+                if (matchedCity) {
+                    addrSelectCity.value = matchedCity.id;
+                    addrInputCity.value = matchedCity.name;
+                    addrInputCityId.value = matchedCity.id;
+                }
+            })
+            .catch(() => {
+                addrSelectCity.innerHTML = '<option value="">-- Gagal Memuat Kota (Klik untuk coba lagi) --</option>';
+                addrSelectCity.disabled = false;
+            });
+    }
+
+    if (addrSelectProv) {
+        addrSelectProv.addEventListener('change', function() {
+            const provId = this.value;
+            const provName = this.options[this.selectedIndex]?.text || '';
+            addrInputProv.value = provId ? provName : '';
+            addrInputProvId.value = provId || '';
+
+            addrInputCity.value = '';
+            addrInputCityId.value = '';
+            loadProfileAddressCities(provId);
+        });
+    }
+
+    if (addrSelectCity) {
+        addrSelectCity.addEventListener('change', function() {
+            const cityId = this.value;
+            const cityName = this.options[this.selectedIndex]?.text || '';
+            addrInputCity.value = cityId ? cityName : '';
+            addrInputCityId.value = cityId || '';
+        });
+    }
+
+    function openAddAddressModal() {
         document.getElementById('address-modal-title').textContent = 'Tambah Alamat Pengiriman';
         document.getElementById('address-edit-id').value = '';
         document.getElementById('address-input-label').value = 'Rumah';
         document.getElementById('address-input-name').value = '{{ $user['name'] }}';
         document.getElementById('address-input-phone').value = '{{ $user['phone'] === 'Belum diisi' ? '' : $user['phone'] }}';
         document.getElementById('address-input-address').value = '';
-        document.getElementById('address-input-city').value = '{{ $user['city'] === 'Belum diisi' ? '' : $user['city'] }}';
-        document.getElementById('address-input-province').value = '';
         document.getElementById('address-input-postal').value = '';
         document.getElementById('address-input-primary').checked = false;
+
+        addrInputProv.value = '';
+        addrInputProvId.value = '';
+        addrInputCity.value = '';
+        addrInputCityId.value = '';
+
+        loadProfileAddressProvinces();
 
         addressModal.classList.add('open');
         document.getElementById('address-input-address').focus();
@@ -1708,7 +1848,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnAddNewAddress) btnAddNewAddress.addEventListener('click', openAddAddressModal);
 
     function openEditAddressModal(addrId) {
-                const addresses = window.initialAddresses || [];
+        const addresses = window.initialAddresses || [];
         const addr = addresses.find(a => String(a.id) === String(addrId));
         if (!addr) {
             openAddAddressModal();
@@ -1721,24 +1861,31 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('address-input-name').value = addr.name || '';
         document.getElementById('address-input-phone').value = addr.phone || '';
         document.getElementById('address-input-address').value = addr.address || '';
-        document.getElementById('address-input-city').value = addr.city || '';
-        document.getElementById('address-input-province').value = addr.province || '';
         document.getElementById('address-input-postal').value = addr.postal_code || '';
         document.getElementById('address-input-primary').checked = !!addr.is_primary;
+
+        addrInputProv.value = addr.province || '';
+        addrInputProvId.value = addr.province_id || '';
+        addrInputCity.value = addr.city || '';
+        addrInputCityId.value = addr.city_id || '';
+
+        loadProfileAddressProvinces(addr.province_id || addr.province, addr.city_id || addr.city);
 
         addressModal.classList.add('open');
         document.getElementById('address-input-address').focus();
     }
 
-        if (formAddress) {
+    if (formAddress) {
         formAddress.addEventListener('submit', function() {
             const addrId = document.getElementById('address-edit-id').value.trim();
             const label = document.getElementById('address-input-label').value.trim();
             const name = document.getElementById('address-input-name').value.trim();
             const phone = document.getElementById('address-input-phone').value.trim();
             const address = document.getElementById('address-input-address').value.trim();
-            const city = document.getElementById('address-input-city').value.trim();
-            const province = document.getElementById('address-input-province').value.trim();
+            const city = addrInputCity.value.trim() || document.getElementById('address-select-city').options[document.getElementById('address-select-city').selectedIndex]?.text || '';
+            const city_id = addrInputCityId.value.trim() || document.getElementById('address-select-city').value;
+            const province = addrInputProv.value.trim() || document.getElementById('address-select-province').options[document.getElementById('address-select-province').selectedIndex]?.text || '';
+            const province_id = addrInputProvId.value.trim() || document.getElementById('address-select-province').value;
             const postal_code = document.getElementById('address-input-postal').value.trim();
             const is_primary = document.getElementById('address-input-primary').checked;
 
@@ -1750,6 +1897,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Kolom alamat lengkap wajib diisi.');
                 return;
             }
+            if (!province_id || !city_id) {
+                alert('Harap pilih provinsi dan kota tujuan pengiriman.');
+                return;
+            }
 
             const addrData = {
                 label: label || 'Alamat',
@@ -1757,7 +1908,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 phone: phone,
                 address: address,
                 city: city,
+                city_id: city_id,
                 province: province,
+                province_id: province_id,
                 postal_code: postal_code,
                 is_primary: is_primary
             };
@@ -1978,8 +2131,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentSelectedAvatar = '';
 
     function openAvatarModal() {
-        const user = window.SweetDreamsAuth ? window.SweetDreamsAuth.getCurrentUser() : null;
-        const currentAvatar = (user && user.avatar) ? user.avatar : '{{ $user["avatar"] }}';
+        const currentAvatar = document.getElementById('active-selected-avatar-val')?.value || '{{ $user["avatar"] }}';
         currentSelectedAvatar = currentAvatar;
 
         const avatarSrc = currentAvatar.startsWith('data:') || currentAvatar.startsWith('http') || currentAvatar.startsWith('/') 
@@ -2106,15 +2258,66 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            if (window.SweetDreamsAuth) {
-                window.SweetDreamsAuth.updateUserProfile({
-                    avatar: currentSelectedAvatar
-                });
-            }
+            btnSaveAvatarModal.disabled = true;
+            btnSaveAvatarModal.textContent = 'Menyimpan...';
 
-            syncActiveUserData();
-            closeAvatarModal();
-            showProfileToast('Foto profil baru berhasil disimpan!');
+            fetch('/api/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    avatar: currentSelectedAvatar
+                })
+            })
+            .then(res => res.json().then(data => ({ status: res.status, body: data })))
+            .then(({ status, body }) => {
+                btnSaveAvatarModal.disabled = false;
+                btnSaveAvatarModal.textContent = 'Simpan Foto Profil';
+
+                if (status === 200) {
+                    const avatarUrl = body.avatar_url || (
+                        currentSelectedAvatar.startsWith('data:') || currentSelectedAvatar.startsWith('http') || currentSelectedAvatar.startsWith('/')
+                            ? currentSelectedAvatar
+                            : '/' + currentSelectedAvatar
+                    );
+
+                    const sideImg = document.getElementById('sidebar-avatar-img');
+                    const modalImg = document.getElementById('modal-avatar-preview');
+                    const setImg = document.getElementById('settings-avatar-preview');
+                    const spotImg = document.getElementById('avatar-spotlight-img');
+                    const navImg = document.querySelector('#btn-user img');
+                    const hiddenVal = document.getElementById('active-selected-avatar-val');
+
+                    if (sideImg) sideImg.src = avatarUrl;
+                    if (modalImg) modalImg.src = avatarUrl;
+                    if (setImg) setImg.src = avatarUrl;
+                    if (spotImg) spotImg.src = avatarUrl;
+                    if (navImg) navImg.src = avatarUrl;
+                    if (hiddenVal) hiddenVal.value = currentSelectedAvatar;
+
+                    if (window.SweetDreamsAuth) {
+                        try {
+                            const cur = window.SweetDreamsAuth.getCurrentUser() || {};
+                            cur.avatar = currentSelectedAvatar;
+                            window.SweetDreamsAuth.saveCurrentUser(cur);
+                        } catch(e) {}
+                    }
+
+                    closeAvatarModal();
+                    showProfileToast('Foto profil baru berhasil disimpan!');
+                } else {
+                    const msg = body.message || 'Gagal menyimpan foto profil.';
+                    alert(msg);
+                }
+            })
+            .catch(() => {
+                btnSaveAvatarModal.disabled = false;
+                btnSaveAvatarModal.textContent = 'Simpan Foto Profil';
+                alert('Tidak bisa menghubungi server, coba lagi.');
+            });
         });
     }
 
@@ -2146,7 +2349,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (logoutModal) logoutModal.classList.remove('open');
     }
 
-       function executeLogout() {
+    function executeLogout() {
+        try {
+            localStorage.removeItem('sweetdreams_auth_user');
+            if (window.SweetDreamsAuth) {
+                localStorage.removeItem(window.SweetDreamsAuth.USER_KEY);
+            }
+        } catch(e) {}
         window.location.href = '/logout';
     }
 

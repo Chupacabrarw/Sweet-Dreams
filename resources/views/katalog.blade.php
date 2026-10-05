@@ -542,6 +542,9 @@
         border-color: var(--blush);
         box-shadow: 0 3px 10px rgba(201,122,140, 0.35);
     }
+    .card-wishlist-btn.active svg {
+        fill: currentColor;
+    }
 
     /* Discount Badge */
     .card-discount-badge {
@@ -1021,13 +1024,14 @@
                         @if(!empty($prod['discount']))
                             <span class="card-discount-badge">{{ $prod['discount'] }}</span>
                         @endif
-                        <button type="button" class="card-wishlist-btn" data-product-id="{{ $prod['id'] }}" aria-label="Tambah ke Wishlist" onclick="event.stopPropagation();">
+                        <button type="button" class="card-wishlist-btn {{ in_array($prod['id'], $wishlistIds ?? []) ? 'active' : '' }}" data-product-id="{{ $prod['id'] }}" aria-label="Tambah ke Wishlist" onclick="toggleWishlist(event, {{ $prod['id'] }}, this);">
                             <i data-lucide="heart" style="width:18px;height:18px;"></i>
                         </button>
                     </div>
                     <div class="product-tags">
                         <span class="product-tag-badge">{{ $prod['badge'] ?? $prod['category_name'] }}</span>
                         <span class="product-tag-size">Ukuran {{ implode(', ', $prod['sizes']) }}</span>
+                        <span class="product-tag-stock" style="font-size: 0.75rem; color: var(--ink-muted); white-space: nowrap;">Stok: {{ $prod['stock'] ?? 0 }}</span>
                     </div>
                     <div class="katalog-product-card-body">
                         <div class="product-rating">
@@ -1122,9 +1126,9 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const PRODUCTS_PER_PAGE = 8;
-        window.initialWishlist = @json($wishlistIds);
+    window.initialWishlist = (@json($wishlistIds ?? [])).map(Number);
 
-        // Wishlist tersimpan di database
+    // Wishlist tersimpan di database
     let wishlistIds = window.initialWishlist || [];
     function getWishlist() {
         return wishlistIds;
@@ -1480,7 +1484,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Build HTML
         const html = pageItems.map((prod, index) => {
-            const isWishlisted = wishlist.includes(prod.id);
+            const isWishlisted = wishlist.map(Number).includes(Number(prod.id));
             const discountBadge = prod.discount 
                 ? `<span class="card-discount-badge">${prod.discount}</span>` 
                 : '';
@@ -1499,13 +1503,14 @@ document.addEventListener('DOMContentLoaded', function() {
                                 class="card-wishlist-btn ${isWishlisted ? 'active' : ''}" 
                                 data-product-id="${prod.id}" 
                                 aria-label="Tambah ke Wishlist" 
-                                onclick="event.stopPropagation(); toggleWishlist(${prod.id}, this);">
+                                onclick="toggleWishlist(event, ${prod.id}, this);">
                             <i data-lucide="heart" style="width:18px;height:18px;"></i>
                         </button>
                     </div>
                     <div class="product-tags">
                         <span class="product-tag-badge">${badgeLabel}</span>
                         <span class="product-tag-size">Ukuran ${sizeList}</span>
+                        <span class="product-tag-stock" style="font-size: 0.75rem; color: var(--ink-muted); white-space: nowrap;">Stok: ${prod.stock || 0}</span>
                     </div>
                     <div class="katalog-product-card-body">
                         <div class="product-rating">
@@ -1679,7 +1684,19 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // Wishlist toggle
-        window.toggleWishlist = function(productId, btn) {
+    const isLoggedIn = @json(auth()->check());
+    window.toggleWishlist = function(e, productId, btn) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        if (!isLoggedIn) {
+            window.location.href = '/login';
+            return;
+        }
+
+        const pid = Number(productId);
         fetch('/api/wishlist/toggle', {
             method: 'POST',
             headers: {
@@ -1687,23 +1704,77 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Accept': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
             },
-            body: JSON.stringify({ product_id: productId })
+            body: JSON.stringify({ product_id: pid })
         })
-        .then(res => res.json())
+        .then(res => {
+            if (res.status === 401) {
+                window.location.href = '/login';
+                return;
+            }
+            return res.json();
+        })
         .then(data => {
+            if (!data) return;
             if (data.is_wishlisted) {
-                wishlistIds.push(productId);
+                if (!wishlistIds.map(Number).includes(pid)) {
+                    wishlistIds.push(pid);
+                }
                 btn.classList.add('active');
-                btn.style.transform = 'scale(1.3)';
+                btn.style.transform = 'scale(1.25)';
                 setTimeout(() => { btn.style.transform = ''; }, 200);
             } else {
-                wishlistIds = wishlistIds.filter(id => id !== productId);
+                wishlistIds = wishlistIds.filter(id => Number(id) !== pid);
                 btn.classList.remove('active');
             }
             updateWishlistBadge();
+            try {
+                localStorage.setItem('sweetdreams_wishlist_sync', Date.now().toString());
+            } catch(err) {}
         })
         .catch(() => alert('Tidak bisa menghubungi server, coba lagi.'));
     };
+
+    // Re-sync wishlist state (e.g. back from product detail or tab switch)
+    function syncWishlistFromServer() {
+        if (!isLoggedIn) return;
+        fetch('/api/wishlist/ids', {
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(res => {
+            if (res.ok) return res.json();
+        })
+        .then(data => {
+            if (data && Array.isArray(data.ids)) {
+                wishlistIds = data.ids.map(Number);
+                updateWishlistBadge();
+                document.querySelectorAll('.card-wishlist-btn').forEach(b => {
+                    const id = Number(b.getAttribute('data-product-id'));
+                    if (wishlistIds.includes(id)) {
+                        b.classList.add('active');
+                    } else {
+                        b.classList.remove('active');
+                    }
+                });
+            }
+        })
+        .catch(() => {});
+    }
+
+    window.addEventListener('pageshow', function() {
+        syncWishlistFromServer();
+    });
+
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+            syncWishlistFromServer();
+        }
+    });
+
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'sweetdreams_wishlist_sync') {
+            syncWishlistFromServer();
+        }
+    });
 
     // URL parameter updater
     function updateUrlParams() {

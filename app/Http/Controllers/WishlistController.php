@@ -50,6 +50,19 @@ class WishlistController extends Controller
         return response()->json([
             'is_wishlisted' => $isWishlisted,
             'wishlist_count' => $request->user()->wishlists()->count(),
+            'product_id' => (int) $data['product_id'],
+        ]);
+    }
+
+    public function ids(Request $request)
+    {
+        $wishlistIds = $request->user()
+            ? $request->user()->wishlists()->pluck('product_id')->map(fn($id) => (int)$id)->toArray()
+            : [];
+
+        return response()->json([
+            'ids' => $wishlistIds,
+            'count' => count($wishlistIds),
         ]);
     }
 }

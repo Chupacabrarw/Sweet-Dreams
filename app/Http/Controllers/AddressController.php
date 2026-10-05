@@ -10,14 +10,16 @@ class AddressController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'label' => 'nullable|string|max:100',
+            'label'          => 'nullable|string|max:100',
             'recipient_name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'required|string',
-            'city' => 'nullable|string|max:255',
-            'province' => 'nullable|string|max:255',
-            'postal_code' => 'nullable|string|max:10',
-            'is_primary' => 'nullable|boolean',
+            'phone'          => 'nullable|string|max:20',
+            'address'        => 'required|string',
+            'city'           => 'nullable|string|max:255',
+            'city_id'        => 'nullable|string|max:20',
+            'province'       => 'nullable|string|max:255',
+            'province_id'    => 'nullable|string|max:20',
+            'postal_code'    => 'nullable|string|max:10',
+            'is_primary'     => 'nullable|boolean',
         ]);
 
         $user = $request->user();
@@ -36,14 +38,16 @@ class AddressController extends Controller
         abort_if($address->user_id !== $request->user()->id, 403);
 
         $data = $request->validate([
-            'label' => 'nullable|string|max:100',
+            'label'          => 'nullable|string|max:100',
             'recipient_name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'required|string',
-            'city' => 'nullable|string|max:255',
-            'province' => 'nullable|string|max:255',
-            'postal_code' => 'nullable|string|max:10',
-            'is_primary' => 'nullable|boolean',
+            'phone'          => 'nullable|string|max:20',
+            'address'        => 'required|string',
+            'city'           => 'nullable|string|max:255',
+            'city_id'        => 'nullable|string|max:20',
+            'province'       => 'nullable|string|max:255',
+            'province_id'    => 'nullable|string|max:20',
+            'postal_code'    => 'nullable|string|max:10',
+            'is_primary'     => 'nullable|boolean',
         ]);
 
         if (!empty($data['is_primary'])) {

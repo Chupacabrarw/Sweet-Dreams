@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', $product['title'] . ' - Sweet Dreams')
 
@@ -162,6 +162,9 @@
         background: var(--blush);
         color: #fff;
         border-color: var(--blush);
+    }
+    .btn-wishlist-float.active svg {
+        fill: currentColor;
     }
 
     /* Product Info (Right) */
@@ -775,6 +778,14 @@
         background: #fff;
         transform: scale(1.1);
     }
+    .related-btn-wishlist.active {
+        background: var(--blush);
+        color: #fff;
+        border-color: var(--blush);
+    }
+    .related-btn-wishlist.active svg {
+        fill: currentColor;
+    }
     .related-card-body {
         padding: 1.15rem 1.25rem 1.35rem;
         display: flex;
@@ -1182,7 +1193,10 @@
             <a href="/produk/{{ $rel['slug'] }}" class="related-card" id="related-prod-{{ $idx + 1 }}">
                 <div class="related-card-img-box">
                     <span class="related-badge-discount">{{ $rel['discount'] }}</span>
-                    <button class="related-btn-wishlist" aria-label="Wishlist" onclick="event.preventDefault(); this.classList.toggle('active');">
+                    <button class="related-btn-wishlist {{ ($rel['is_wishlisted'] ?? false) ? 'active' : '' }}" 
+                            aria-label="Wishlist" 
+                            data-product-id="{{ $rel['id'] }}" 
+                            onclick="toggleRelatedWishlist(event, {{ $rel['id'] }}, this);">
                         <i data-lucide="heart" style="width:16px;height:16px;"></i>
                     </button>
                     <img src="{{ asset($rel['image']) }}" alt="{{ $rel['name'] }}" loading="lazy">
@@ -1274,9 +1288,23 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // 5. Wishlist Float Button
-        const wishlistBtn = document.getElementById('btn-wishlist-toggle');
+    const wishlistBtn = document.getElementById('btn-wishlist-toggle');
+    const isLoggedInUser = @json(auth()->check());
+
+    function updateNavWishlistBadge(count) {
+        const navBadge = document.querySelector('#btn-wishlist .badge');
+        if (navBadge && count !== undefined) {
+            navBadge.textContent = count;
+            navBadge.style.display = count > 0 ? 'flex' : 'none';
+        }
+    }
+
     if (wishlistBtn) {
         wishlistBtn.addEventListener('click', function() {
+            if (!isLoggedInUser) {
+                window.location.href = '/login';
+                return;
+            }
             const productId = {{ $product['id'] }};
             fetch('/api/wishlist/toggle', {
                 method: 'POST',
@@ -1287,13 +1315,60 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify({ product_id: productId })
             })
-            .then(res => res.json())
+            .then(res => {
+                if (res.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+                return res.json();
+            })
             .then(data => {
+                if (!data) return;
                 wishlistBtn.classList.toggle('active', data.is_wishlisted);
+                updateNavWishlistBadge(data.wishlist_count);
+                try {
+                    localStorage.setItem('sweetdreams_wishlist_sync', Date.now().toString());
+                } catch(e) {}
             })
             .catch(() => alert('Tidak bisa menghubungi server, coba lagi.'));
         });
     }
+
+    window.toggleRelatedWishlist = function(e, productId, btn) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        if (!isLoggedInUser) {
+            window.location.href = '/login';
+            return;
+        }
+        fetch('/api/wishlist/toggle', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ product_id: Number(productId) })
+        })
+        .then(res => {
+            if (res.status === 401) {
+                window.location.href = '/login';
+                return;
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (!data) return;
+            btn.classList.toggle('active', data.is_wishlisted);
+            updateNavWishlistBadge(data.wishlist_count);
+            try {
+                localStorage.setItem('sweetdreams_wishlist_sync', Date.now().toString());
+            } catch(err) {}
+        })
+        .catch(() => alert('Tidak bisa menghubungi server, coba lagi.'));
+    };
     // 6. Smooth Scroll to Size Guide Table
     const gotoSizeBtn = document.getElementById('btn-goto-size-guide');
     const sizeTableBox = document.getElementById('size-table-box');

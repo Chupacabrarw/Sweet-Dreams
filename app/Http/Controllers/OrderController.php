@@ -35,6 +35,25 @@ class OrderController extends Controller
             ->where('user_id', $request->user()->id)
             ->firstOrFail();
 
+        // Jika pesanan masih unpaid tapi ada payment_reference, auto-sync dengan Komerce
+        if ($order->payment_status !== 'paid' && !empty($order->payment_reference)) {
+            try {
+                $statusCheck = app(\App\Services\KomercePaymentService::class)->getPaymentStatus($order->payment_reference);
+                if (!empty($statusCheck['success'])) {
+                    $remoteStatus = strtoupper($statusCheck['status'] ?? '');
+                    if (in_array($remoteStatus, ['PAID', 'SETTLED', 'SUCCESS', 'COMPLETED'])) {
+                        $order->update(['payment_status' => 'paid', 'status' => 'processing']);
+                        $order->refresh();
+                    } elseif (in_array($remoteStatus, ['EXPIRED', 'FAILED', 'CANCELED', 'CANCELLED'])) {
+                        $order->update(['payment_status' => 'expired', 'status' => 'cancelled']);
+                        $order->refresh();
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Jangan gagalkan halaman tracking jika API status sedang timeout
+            }
+        }
+
         $steps = ['Diproses', 'Dikirim', 'Selesai'];
         $stepMap = ['pending' => 0, 'processing' => 0, 'shipped' => 1, 'completed' => 2, 'cancelled' => 0];
         $currentStep = $stepMap[$order->status] ?? 0;
@@ -113,6 +132,11 @@ class OrderController extends Controller
                 'shipping' => 'Rp ' . number_format($order->shipping_cost, 0, ',', '.'),
                 'total' => 'Rp ' . number_format($order->total, 0, ',', '.'),
             ],
+            'raw_order_number' => $order->order_number,
+            'payment_status'   => $order->payment_status,
+            'payment_method'   => $order->payment_method,
+            'payment_url'      => $order->payment_url,
+            'va_number'        => $order->va_number,
         ];
 
         return view('pesanan-detail', ['order' => $data]);

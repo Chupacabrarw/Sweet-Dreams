@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Checkout - Sweet Dreams')
 
@@ -131,6 +131,63 @@
         outline: none;
         transition: all 0.2s ease;
         box-sizing: border-box;
+    }
+    select.form-control {
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a6a72' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        padding-right: 2.5rem;
+    }
+    select.form-control:disabled {
+        background-color: #faf5f6;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    .shipping-loading-indicator {
+        padding: 1.4rem;
+        text-align: center;
+        background: #fff8f9;
+        border: 1.5px dashed #fbd5df;
+        border-radius: 14px;
+        color: #8a6a72;
+        font-size: 0.88rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+    .shipping-courier-tag {
+        display: inline-block;
+        padding: 2px 7px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        margin-left: 6px;
+        letter-spacing: 0.03em;
+        vertical-align: middle;
+    }
+    .shipping-courier-tag.jne {
+        background: #e0f2fe;
+        color: #0284c7;
+    }
+    .shipping-courier-tag.pos {
+        background: #ffedd5;
+        color: #ea580c;
+    }
+    .shipping-courier-tag.jnt {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+    .shipping-courier-tag.lion {
+        background: #fef3c7;
+        color: #d97706;
+    }
+    .shipping-courier-tag.sap {
+        background: #ecfdf5;
+        color: #059669;
     }
     .form-control:focus {
         border-color: var(--blush);
@@ -321,6 +378,25 @@
         color: var(--ink-muted);
         text-transform: uppercase;
     }
+    .shipping-courier-tag {
+        display: inline-block;
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 6px;
+        margin-left: 6px;
+        background: #fce7ee;
+        color: #d44d6e;
+        vertical-align: middle;
+        letter-spacing: 0.02em;
+    }
+    .shipping-courier-tag.jne { background: #e8f0fe; color: #1a73e8; }
+    .shipping-courier-tag.jnt { background: #fce8e6; color: #d93025; }
+    .shipping-courier-tag.sicepat { background: #fef7e0; color: #b06000; }
+    .shipping-courier-tag.pos { background: #feefe3; color: #e37400; }
+    .shipping-courier-tag.lion { background: #fce8e6; color: #c5221f; }
+    .shipping-courier-tag.spx { background: #fef0eb; color: #ee4d2d; }
+    .shipping-courier-tag.sap { background: #e6f4ea; color: #137333; }
 
     /* ===== RIGHT: ORDER SUMMARY CARD ===== */
     .checkout-summary-card {
@@ -598,6 +674,106 @@
         background: var(--blush-dark);
     }
 
+    /* Modal Payment Additions */
+    .modal-amount-display {
+        background: #fdf6f8;
+        border: 1px solid #fce7ee;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .modal-amount-display .amount-label {
+        font-size: 0.85rem;
+        color: var(--ink-muted);
+        font-weight: 500;
+    }
+    .modal-amount-display .amount-val {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--ink);
+    }
+    .va-payment-box {
+        background: #faf8f8;
+        border: 1.5px dashed #e06b88;
+        border-radius: 14px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.25rem;
+        text-align: left;
+    }
+    .va-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.65rem;
+    }
+    .va-bank-badge {
+        font-size: 0.78rem;
+        font-weight: 700;
+        background: #ffffff;
+        border: 1px solid #e06b88;
+        color: #e06b88;
+        padding: 3px 10px;
+        border-radius: 6px;
+    }
+    .va-status-tag {
+        font-size: 0.72rem;
+        color: #b87b58;
+        font-weight: 600;
+    }
+    .va-number-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #ffffff;
+        border: 1px solid #eedbdf;
+        border-radius: 8px;
+        padding: 0.5rem 0.85rem;
+        margin-bottom: 0.5rem;
+    }
+    .va-number-text {
+        font-family: 'DM Mono', monospace, sans-serif;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #2a1f22;
+        letter-spacing: 0.08em;
+    }
+    .btn-copy-va {
+        background: transparent;
+        border: none;
+        color: #e06b88;
+        font-weight: 700;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: background 0.15s;
+    }
+    .btn-copy-va:hover {
+        background: #fce7ee;
+    }
+    .va-note {
+        font-size: 0.74rem;
+        color: #8c7379;
+        margin: 0;
+        line-height: 1.4;
+    }
+    .payment-actions-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    .btn-pay-gateway {
+        background: linear-gradient(135deg, #e06b88 0%, #c44d6b 100%) !important;
+        box-shadow: 0 4px 14px rgba(224, 107, 136, 0.35);
+    }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 1024px) {
         .checkout-grid {
@@ -679,14 +855,27 @@
 
                 <div class="form-row-2col">
                     <div class="form-group">
-                        <label for="input-kota">Kota <span class="required">*</span></label>
-                        <input type="text" id="input-kota" class="form-control" placeholder="Kota / Kabupaten" required>
-                        <span class="field-error-msg" id="err-kota">Kota / Kabupaten wajib diisi.</span>
+                        <label for="select-provinsi">Provinsi <span class="required">*</span></label>
+                        <select id="select-provinsi" class="form-control" required>
+                            <option value="">-- Pilih Provinsi --</option>
+                            @if(!empty($provinces))
+                                @foreach($provinces as $prov)
+                                    <option value="{{ $prov['id'] }}">{{ $prov['name'] }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                        <input type="hidden" id="input-provinsi" value="">
+                        <input type="hidden" id="input-provinsi-id" value="">
+                        <span class="field-error-msg" id="err-provinsi">Provinsi wajib dipilih.</span>
                     </div>
                     <div class="form-group">
-                        <label for="input-provinsi">Provinsi <span class="required">*</span></label>
-                        <input type="text" id="input-provinsi" class="form-control" placeholder="Provinsi" required>
-                        <span class="field-error-msg" id="err-provinsi">Provinsi wajib diisi.</span>
+                        <label for="select-kota">Kota / Kabupaten <span class="required">*</span></label>
+                        <select id="select-kota" class="form-control" required disabled>
+                            <option value="">-- Pilih Provinsi Dahulu --</option>
+                        </select>
+                        <input type="hidden" id="input-kota" value="">
+                        <input type="hidden" id="input-kota-id" value="">
+                        <span class="field-error-msg" id="err-kota">Kota / Kabupaten wajib dipilih.</span>
                     </div>
                 </div>
 
@@ -702,9 +891,13 @@
                 <div class="section-accent-heading">
                     <div class="accent-bar"></div>
                     <h2>Metode Pengiriman</h2>
+                    <span style="font-size: 0.8rem; color: #8a6a72; margin-left: auto; font-weight: 500;" id="rajaongkir-badge-status">
+                        <i data-lucide="truck" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 3px; color: var(--blush);"></i>
+                        RajaOngkir Live
+                    </span>
                 </div>
 
-                <div class="radio-card-list">
+                <div class="radio-card-list" id="courier-list-container">
                     @foreach($shippingMethods as $courier)
                         <div class="radio-card-item {{ $courier['active'] ? 'active' : '' }}" 
                              data-type="shipping" 
@@ -776,8 +969,8 @@
                 </div>
 
                 <div class="cost-row">
-                    <span>Biaya Pengiriman (<span id="summary-courier-label">SiCepat</span>)</span>
-                    <span class="cost-val" id="checkout-shipping">Rp 25.000</span>
+                    <span>Biaya Pengiriman (<span id="summary-courier-label">{{ $shippingMethods[0]['name'] ?? 'J&T Express EZ' }}</span>)</span>
+                    <span class="cost-val" id="checkout-shipping">Rp {{ number_format($shippingCost ?? 16000, 0, ',', '.') }}</span>
                 </div>
 
                 <div class="cost-row" id="row-checkout-discount">
@@ -818,24 +1011,62 @@
     <button class="checkout-alert-close" id="checkout-alert-close" aria-label="Tutup Notifikasi">&times;</button>
 </div>
 
-{{-- ORDER CONFIRMATION MODAL --}}
+{{-- ORDER CONFIRMATION & PAYMENT MODAL --}}
 <div class="order-success-modal" id="order-modal">
     <div class="success-modal-card">
-        <div class="success-icon-badge">
+        <div class="success-icon-badge" id="modal-icon-badge">
             <i data-lucide="check-circle" style="width:40px;height:40px;"></i>
         </div>
-        <h3 class="success-title">Pesanan Berhasil Dibuat!</h3>
+        <h3 class="success-title" id="modal-title">Pesanan Berhasil Dibuat!</h3>
         <span class="success-invoice-id" id="invoice-display">INVOICE: #SD-20240908-01</span>
-        <p class="success-desc">
-            Terima kasih, <strong id="customer-name-display">Nabila Putri</strong>! Instruksi pembayaran telah dikirimkan ke nomor telepon dan pesanan Anda sedang disiapkan.
+        
+        <p class="success-desc" id="modal-desc-text">
+            Terima kasih, <strong id="customer-name-display">Pelanggan</strong>! Pesananmu telah tercatat dan siap diproses.
         </p>
-               <a href="#" id="btn-view-order" class="btn-home-return">
-            Lihat Pesanan Saya
-            <i data-lucide="arrow-right" style="width:18px;height:18px;"></i>
-        </a>
-        <a href="/" class="btn-home-return" style="background:transparent;color:var(--blush);border:1px solid var(--blush-pale);margin-top:0.5rem;">
-            Kembali ke Beranda
-        </a>
+
+        {{-- Total Tagihan Box --}}
+        <div class="modal-amount-display">
+            <span class="amount-label">Total Tagihan:</span>
+            <span class="amount-val" id="modal-total-amount">Rp 0</span>
+        </div>
+
+        {{-- Virtual Account Box (Aktif jika bayar via Bank Transfer / VA) --}}
+        <div class="va-payment-box" id="va-box" style="display:none;">
+            <div class="va-header">
+                <span class="va-bank-badge" id="va-bank-badge">BCA Virtual Account</span>
+                <span class="va-status-tag">Menunggu Pembayaran</span>
+            </div>
+            <div class="va-number-wrapper">
+                <span class="va-number-text" id="va-number-display">0000000000</span>
+                <button type="button" class="btn-copy-va" id="btn-copy-va" title="Salin Nomor VA">
+                    <i data-lucide="copy" style="width:16px;height:16px;"></i>
+                    <span id="copy-va-text">Salin</span>
+                </button>
+            </div>
+            <p class="va-note">Transfer tepat sejumlah total tagihan di atas agar otomatis terverifikasi sistem.</p>
+        </div>
+
+        {{-- Payment Gateway Actions --}}
+        <div class="payment-actions-group">
+            <a href="#" target="_blank" id="btn-open-payment-url" class="btn-home-return btn-pay-gateway" style="display:none;">
+                <i data-lucide="external-link" style="width:18px;height:18px;"></i>
+                Buka Halaman Pembayaran (Komerce Pay)
+            </a>
+
+            <button type="button" id="btn-check-payment-status" class="btn-home-return" style="background:#fce7ee;color:var(--blush);border:1px solid #fbd5df;cursor:pointer;">
+                <i data-lucide="refresh-cw" style="width:16px;height:16px;" id="check-status-icon"></i>
+                <span id="check-status-text">Cek Status Pembayaran</span>
+            </button>
+
+            <a href="#" id="btn-view-order" class="btn-home-return" style="background:transparent;color:var(--ink);border:1px solid #e5d7dc;margin-top:0.35rem;">
+                Lihat Detail Pesanan
+                <i data-lucide="arrow-right" style="width:16px;height:16px;"></i>
+            </a>
+            
+            <a href="/" class="btn-home-return" style="background:transparent;color:var(--ink-muted);border:none;margin-top:-0.25rem;font-size:0.85rem;">
+                Kembali ke Beranda
+            </a>
+        </div>
     </div>
 </div>
 
@@ -845,7 +1076,7 @@ document.addEventListener('DOMContentLoaded', function() {
     lucide.createIcons();
 
         let items = @json($checkoutItems);
-    let currentShippingCost = 25000;
+    let currentShippingCost = {{ $shippingCost ?? 16000 }};
     let appliedVoucher = '';
 
     const itemsContainer = document.getElementById('checkout-items-list');
@@ -859,6 +1090,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function formatRupiah(num) {
         return 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     }
 
     function showCheckoutAlert(title, message) {
@@ -891,14 +1132,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const inputPhone = document.getElementById('input-phone');
         const inputAlamat = document.getElementById('input-alamat');
         const inputKota = document.getElementById('input-kota');
+        const inputKotaId = document.getElementById('input-kota-id');
         const inputProvinsi = document.getElementById('input-provinsi');
+        const inputProvinsiId = document.getElementById('input-provinsi-id');
         const inputKodepos = document.getElementById('input-kodepos');
 
         if (inputNama && !inputNama.value) inputNama.value = primaryAddr.name || '';
         if (inputPhone && !inputPhone.value) inputPhone.value = primaryAddr.phone || '';
         if (inputAlamat && !inputAlamat.value) inputAlamat.value = primaryAddr.address || '';
         if (inputKota && !inputKota.value) inputKota.value = primaryAddr.city || '';
+        if (inputKotaId && !inputKotaId.value) inputKotaId.value = primaryAddr.city_id || '';
         if (inputProvinsi && !inputProvinsi.value) inputProvinsi.value = primaryAddr.province || '';
+        if (inputProvinsiId && !inputProvinsiId.value) inputProvinsiId.value = primaryAddr.province_id || '';
         if (inputKodepos && !inputKodepos.value) inputKodepos.value = primaryAddr.postal_code || '';
     }
 
@@ -926,16 +1171,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 msg: 'Alamat lengkap wajib diisi minimal 8 karakter.'
             },
             {
-                el: document.getElementById('input-kota'),
-                err: document.getElementById('err-kota'),
-                check: val => val.trim().length >= 2,
-                msg: 'Kota / Kabupaten wajib diisi.'
-            },
-            {
                 el: document.getElementById('input-provinsi'),
+                focusEl: document.getElementById('select-provinsi'),
                 err: document.getElementById('err-provinsi'),
                 check: val => val.trim().length >= 2,
-                msg: 'Provinsi wajib diisi.'
+                msg: 'Provinsi wajib dipilih.'
+            },
+            {
+                el: document.getElementById('input-kota'),
+                focusEl: document.getElementById('select-kota'),
+                err: document.getElementById('err-kota'),
+                check: val => val.trim().length >= 2,
+                msg: 'Kota / Kabupaten wajib dipilih.'
             },
             {
                 el: document.getElementById('input-kodepos'),
@@ -947,29 +1194,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
         fields.forEach(f => {
             if (!f.el) return;
+            const targetEl = f.focusEl || f.el;
             const valid = f.check(f.el.value);
             if (!valid) {
                 isValid = false;
-                f.el.classList.add('is-invalid');
+                targetEl.classList.add('is-invalid');
                 if (f.err) {
                     f.err.textContent = f.msg;
                     f.err.classList.add('visible');
                 }
                 if (!firstInvalidEl) {
-                    firstInvalidEl = f.el;
+                    firstInvalidEl = targetEl;
                 }
             } else {
-                f.el.classList.remove('is-invalid');
+                targetEl.classList.remove('is-invalid');
                 if (f.err) f.err.classList.remove('visible');
             }
 
             // Real-time listener to remove error class when corrected
-            f.el.addEventListener('input', function() {
-                if (f.check(this.value)) {
-                    this.classList.remove('is-invalid');
+            const listenerEl = f.focusEl || f.el;
+            listenerEl.addEventListener('input', function() {
+                if (f.check(f.el.value)) {
+                    listenerEl.classList.remove('is-invalid');
                     if (f.err) f.err.classList.remove('visible');
                 }
             });
+            if (f.focusEl) {
+                f.focusEl.addEventListener('change', function() {
+                    if (f.check(f.el.value)) {
+                        f.focusEl.classList.remove('is-invalid');
+                        if (f.err) f.err.classList.remove('visible');
+                    }
+                });
+            }
         });
 
         if (!isValid && firstInvalidEl) {
@@ -1049,32 +1306,266 @@ document.addEventListener('DOMContentLoaded', function() {
         if (totalEl) totalEl.textContent = formatRupiah(grandTotal);
     }
 
-    // Courier selection
-    const shippingCards = document.querySelectorAll('.radio-card-item[data-type="shipping"]');
-    shippingCards.forEach(card => {
-        card.addEventListener('click', function() {
-            shippingCards.forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
+    // ===== RAJAONGKIR PROVINCES, CITIES & SHIPPING CALCULATION =====
+    const selectProvinsi = document.getElementById('select-provinsi');
+    const selectKota = document.getElementById('select-kota');
+    const inputProvinsi = document.getElementById('input-provinsi');
+    const inputProvinsiId = document.getElementById('input-provinsi-id');
+    const inputKota = document.getElementById('input-kota');
+    const inputKotaId = document.getElementById('input-kota-id');
+    const courierContainer = document.getElementById('courier-list-container');
 
-            const courierName = this.getAttribute('data-name');
-            const courierCost = parseInt(this.getAttribute('data-cost')) || 0;
+    let allProvinces = [];
 
-            if (courierLabel) {
-                if (courierName.includes('SiCepat')) {
-                    courierLabel.textContent = 'SiCepat';
-                } else if (courierName.includes('JNE')) {
-                    courierLabel.textContent = 'JNE';
-                } else if (courierName.includes('GoSend')) {
-                    courierLabel.textContent = 'GoSend';
-                } else {
+    function bindCourierSelection() {
+        const shippingCards = document.querySelectorAll('.radio-card-item[data-type="shipping"]');
+        shippingCards.forEach(card => {
+            card.addEventListener('click', function() {
+                shippingCards.forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+
+                const courierName = this.getAttribute('data-name');
+                const courierCost = parseInt(this.getAttribute('data-cost')) || 0;
+
+                if (courierLabel) {
                     courierLabel.textContent = courierName;
                 }
-            }
 
-            currentShippingCost = courierCost;
-            renderCheckoutSummary();
+                currentShippingCost = courierCost;
+                renderCheckoutSummary();
+            });
         });
-    });
+    }
+
+    // Bind initial cards
+    bindCourierSelection();
+
+    function renderLiveCourierCards(services) {
+        if (!courierContainer || !services || services.length === 0) return;
+
+        let html = '';
+        services.forEach((s, idx) => {
+            const isFirst = idx === 0;
+            const courierCode = (s.courier || '').toLowerCase();
+            const badgeClass = courierCode.includes('jne') ? 'jne' 
+                : (courierCode.includes('pos') ? 'pos' 
+                : (courierCode.includes('j&t') || courierCode.includes('jnt') ? 'jnt' 
+                : (courierCode.includes('lion') ? 'lion' 
+                : (courierCode.includes('sap') ? 'sap' 
+                : (courierCode.includes('spx') || courierCode.includes('shopee') ? 'spx' 
+                : (courierCode.includes('sicepat') ? 'sicepat' : ''))))));
+            
+            html += `
+                <div class="radio-card-item ${isFirst ? 'active' : ''}"
+                     data-type="shipping"
+                     data-id="${s.id}"
+                     data-name="${escapeHtml(s.name)}"
+                     data-cost="${s.cost}">
+                    <div class="radio-card-left">
+                        <div class="custom-radio-circle"></div>
+                        <div class="radio-card-text">
+                            <span class="radio-card-title">
+                                ${escapeHtml(s.name)}
+                                <span class="shipping-courier-tag ${badgeClass}">${escapeHtml(s.courier)}</span>
+                            </span>
+                            <span class="radio-card-desc">${escapeHtml(s.description || '')}</span>
+                        </div>
+                    </div>
+                    <span class="radio-card-price">${formatRupiah(s.cost)}</span>
+                </div>
+            `;
+        });
+
+        courierContainer.innerHTML = html;
+        bindCourierSelection();
+
+        // Auto select first courier
+        const first = services[0];
+        if (first) {
+            currentShippingCost = first.cost;
+            if (courierLabel) courierLabel.textContent = first.name;
+            renderCheckoutSummary();
+        }
+    }
+
+    function fetchShippingRates(cityId, cityName, provId = null) {
+        if (!courierContainer) return;
+
+        courierContainer.innerHTML = `
+            <div class="shipping-loading-indicator">
+                <div class="spinner-sm" style="width:20px;height:20px;border:2.5px solid #fbd5df;border-top-color:#d44d6e;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+                <span>Menghubungkan ke RajaOngkir & menghitung ongkir...</span>
+            </div>
+        `;
+
+        const totalWeight = Math.max(500, items.reduce((sum, item) => sum + (item.qty * 250), 0));
+        const effectiveProvId = provId || (selectProvinsi ? selectProvinsi.value : null);
+
+        fetch('/api/shipping/cost', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({
+                destination_city_id: cityId || null,
+                city: cityName || null,
+                province_id: effectiveProvId || null,
+                weight: totalWeight
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.services && data.services.length > 0) {
+                renderLiveCourierCards(data.services);
+            } else {
+                showCheckoutAlert('Info Pengiriman', data.message || 'Menggunakan opsi pengiriman standar.');
+            }
+        })
+        .catch(err => {
+            console.error('Error fetching shipping rates:', err);
+            showCheckoutAlert('Koneksi Ongkir', 'Gagal memuat tarif live RajaOngkir, menggunakan tarif standar.');
+        });
+    }
+
+    function loadCitiesForProvince(provId, selectedCityIdOrName = null) {
+        if (!selectKota) return;
+        selectKota.innerHTML = '<option value="">-- Memuat Kota / Kabupaten... --</option>';
+        selectKota.disabled = true;
+
+        if (!provId) {
+            selectKota.innerHTML = '<option value="">-- Pilih Provinsi Dahulu --</option>';
+            return;
+        }
+
+        fetch(`/api/shipping/cities?province_id=${provId}`)
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP error ' + res.status);
+                return res.json();
+            })
+            .then(cities => {
+                if (!Array.isArray(cities)) {
+                    console.error('Invalid cities response, expected array:', cities);
+                    throw new Error('Data kota tidak valid');
+                }
+
+                if (cities.length === 0) {
+                    selectKota.innerHTML = '<option value="">-- Tidak ada data kota --</option>';
+                    selectKota.disabled = false;
+                    return;
+                }
+
+                let options = '<option value="">-- Pilih Kota / Kabupaten --</option>';
+                let matchedOption = null;
+
+                cities.forEach(c => {
+                    const isSelected = selectedCityIdOrName && (
+                        String(c.id) === String(selectedCityIdOrName) ||
+                        c.name.toLowerCase() === String(selectedCityIdOrName).toLowerCase() ||
+                        c.name.toLowerCase().includes(String(selectedCityIdOrName).toLowerCase())
+                    );
+                    if (isSelected && !matchedOption) matchedOption = c;
+                    options += `<option value="${c.id}" ${isSelected ? 'selected' : ''}>${escapeHtml(c.name)}</option>`;
+                });
+
+                selectKota.innerHTML = options;
+                selectKota.disabled = false;
+
+                if (matchedOption) {
+                    selectKota.value = matchedOption.id;
+                    inputKota.value = matchedOption.name;
+                    inputKotaId.value = matchedOption.id;
+                    fetchShippingRates(matchedOption.id, matchedOption.name, provId);
+                }
+            })
+            .catch(err => {
+                console.error('Error loading cities:', err);
+                selectKota.innerHTML = '<option value="">-- Gagal Memuat Kota (Klik untuk coba lagi) --</option>';
+                selectKota.disabled = false;
+            });
+    }
+
+    if (selectProvinsi) {
+        selectProvinsi.addEventListener('change', function() {
+            const provId = this.value;
+            const provName = this.options[this.selectedIndex]?.text || '';
+            inputProvinsi.value = provId ? provName : '';
+            inputProvinsiId.value = provId || '';
+
+            inputKota.value = '';
+            inputKotaId.value = '';
+            loadCitiesForProvince(provId);
+
+            // Langsung update estimasi ongkir ke zona provinsi tersebut
+            if (provId) {
+                fetchShippingRates(null, provName, provId);
+            }
+        });
+    }
+
+    if (selectKota) {
+        selectKota.addEventListener('change', function() {
+            const cityId = this.value;
+            const cityName = this.options[this.selectedIndex]?.text || '';
+            inputKota.value = cityId ? cityName : '';
+            inputKotaId.value = cityId || '';
+
+            if (cityId) {
+                fetchShippingRates(cityId, cityName, selectProvinsi ? selectProvinsi.value : null);
+            }
+        });
+
+        selectKota.addEventListener('click', function() {
+            if (!this.value && this.options[0]?.text?.includes('Gagal') && selectProvinsi && selectProvinsi.value) {
+                loadCitiesForProvince(selectProvinsi.value);
+            }
+        });
+    }
+
+    // Load initial provinces and prefill address
+    const STATIC_PROVINCES = @json($provinces ?? \App\Http\Controllers\ShippingController::staticProvinces());
+
+    function initProvinces(provincesList) {
+        allProvinces = (provincesList && provincesList.length > 0) ? provincesList : STATIC_PROVINCES;
+
+        if (selectProvinsi && selectProvinsi.options.length <= 1) {
+            let options = '<option value="">-- Pilih Provinsi --</option>';
+            allProvinces.forEach(p => {
+                options += `<option value="${p.id}">${escapeHtml(p.name)}</option>`;
+            });
+            selectProvinsi.innerHTML = options;
+        }
+
+        if (primaryAddr && selectProvinsi) {
+            let matchedProv = null;
+            allProvinces.forEach(p => {
+                const isSelected = (primaryAddr.province_id && String(p.id) === String(primaryAddr.province_id)) ||
+                    (primaryAddr.province && p.name.toLowerCase().includes(primaryAddr.province.toLowerCase()));
+                if (isSelected && !matchedProv) matchedProv = p;
+            });
+
+            if (matchedProv) {
+                selectProvinsi.value = matchedProv.id;
+                inputProvinsi.value = matchedProv.name;
+                inputProvinsiId.value = matchedProv.id;
+                loadCitiesForProvince(matchedProv.id, primaryAddr.city_id || primaryAddr.city);
+            } else if (primaryAddr.city_id || primaryAddr.city) {
+                fetchShippingRates(primaryAddr.city_id || null, primaryAddr.city || null);
+            }
+        }
+    }
+
+    initProvinces(STATIC_PROVINCES);
+
+    fetch('/api/shipping/provinces')
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.length > 0) {
+                allProvinces = data;
+            }
+        })
+        .catch(() => {});
 
     // Payment selection
     const paymentCards = document.querySelectorAll('.radio-card-item[data-type="payment"]');
@@ -1153,9 +1644,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     phone: document.getElementById('input-phone').value.trim(),
                     address: document.getElementById('input-alamat').value.trim(),
                     city: document.getElementById('input-kota').value.trim(),
+                    city_id: document.getElementById('input-kota-id')?.value || null,
                     province: document.getElementById('input-provinsi').value.trim(),
+                    province_id: document.getElementById('input-provinsi-id')?.value || null,
                     postal_code: document.getElementById('input-kodepos').value.trim(),
-                                        shipping_id: selectedShipping ? selectedShipping.getAttribute('data-id') : null,
+                    shipping_id: selectedShipping ? selectedShipping.getAttribute('data-id') : null,
+                    shipping_courier: selectedShipping ? selectedShipping.getAttribute('data-name') : null,
+                    shipping_cost: selectedShipping ? (parseInt(selectedShipping.getAttribute('data-cost')) || 0) : 0,
                     payment_id: selectedPayment ? selectedPayment.getAttribute('data-id') : null,
                     voucher: appliedVoucher || null,
                     item_ids: items.map(i => i.id)
@@ -1172,9 +1667,88 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     const invoiceDisplay = document.getElementById('invoice-display');
                     if (invoiceDisplay) invoiceDisplay.textContent = `INVOICE: #${body.order_number}`;
+
+                    const modalTotalAmount = document.getElementById('modal-total-amount');
+                    if (modalTotalAmount) modalTotalAmount.textContent = formatRupiah(body.total || 0);
+
                     const viewOrderBtn = document.getElementById('btn-view-order');
                     if (viewOrderBtn) viewOrderBtn.href = `/pesanan/${body.order_number}`;
 
+                    // Tampilkan Virtual Account jika ada
+                    const vaBox = document.getElementById('va-box');
+                    const vaNumberDisplay = document.getElementById('va-number-display');
+                    const vaBankBadge = document.getElementById('va-bank-badge');
+                    const btnCopyVa = document.getElementById('btn-copy-va');
+                    const copyVaText = document.getElementById('copy-va-text');
+
+                    if (body.va_number && vaBox && vaNumberDisplay) {
+                        vaBox.style.display = 'block';
+                        vaNumberDisplay.textContent = body.va_number;
+                        if (vaBankBadge) vaBankBadge.textContent = (body.bank_code || 'Bank') + ' Virtual Account';
+
+                        if (btnCopyVa) {
+                            btnCopyVa.onclick = function() {
+                                navigator.clipboard.writeText(body.va_number).then(() => {
+                                    if (copyVaText) copyVaText.textContent = 'Tersalin!';
+                                    setTimeout(() => { if (copyVaText) copyVaText.textContent = 'Salin'; }, 2000);
+                                });
+                            };
+                        }
+                    } else if (vaBox) {
+                        vaBox.style.display = 'none';
+                    }
+
+                    // Tampilkan tombol buka Payment Page jika ada payment_url
+                    const btnOpenPay = document.getElementById('btn-open-payment-url');
+                    if (btnOpenPay) {
+                        if (body.payment_url) {
+                            btnOpenPay.style.display = 'inline-flex';
+                            btnOpenPay.href = body.payment_url;
+                        } else {
+                            btnOpenPay.style.display = 'none';
+                        }
+                    }
+
+                    // Setup tombol Cek Status Pembayaran
+                    const btnCheckStatus = document.getElementById('btn-check-payment-status');
+                    const checkStatusText = document.getElementById('check-status-text');
+                    const checkStatusIcon = document.getElementById('check-status-icon');
+
+                    if (btnCheckStatus) {
+                        btnCheckStatus.onclick = function() {
+                            btnCheckStatus.disabled = true;
+                            if (checkStatusText) checkStatusText.textContent = 'Mengecek...';
+                            if (checkStatusIcon) checkStatusIcon.style.animation = 'spin 0.8s linear infinite';
+
+                            fetch(`/api/payment/status/${body.order_number}`)
+                                .then(r => r.json())
+                                .then(res => {
+                                    btnCheckStatus.disabled = false;
+                                    if (checkStatusIcon) checkStatusIcon.style.animation = 'none';
+
+                                    if (res.payment_status === 'paid') {
+                                        if (checkStatusText) checkStatusText.textContent = 'Pembayaran Lunas!';
+                                        btnCheckStatus.style.background = '#d4edda';
+                                        btnCheckStatus.style.color = '#155724';
+                                        btnCheckStatus.style.borderColor = '#c3e6cb';
+                                        setTimeout(() => {
+                                            window.location.href = `/pesanan/${body.order_number}`;
+                                        }, 1000);
+                                    } else {
+                                        if (checkStatusText) checkStatusText.textContent = 'Cek Status Pembayaran';
+                                        showCheckoutAlert('Status Pembayaran', 'Pembayaran belum terdeteksi. Silakan lakukan pembayaran terlebih dahulu.');
+                                    }
+                                })
+                                .catch(() => {
+                                    btnCheckStatus.disabled = false;
+                                    if (checkStatusText) checkStatusText.textContent = 'Cek Status Pembayaran';
+                                    if (checkStatusIcon) checkStatusIcon.style.animation = 'none';
+                                    showCheckoutAlert('Koneksi', 'Gagal memeriksa status pembayaran.');
+                                });
+                        };
+                    }
+
+                    lucide.createIcons();
                     modal.classList.add('open');
                 } else {
                     showCheckoutAlert(
