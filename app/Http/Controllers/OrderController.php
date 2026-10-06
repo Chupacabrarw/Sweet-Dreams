@@ -35,16 +35,16 @@ class OrderController extends Controller
             ->where('user_id', $request->user()->id)
             ->firstOrFail();
 
-        // Jika pesanan masih unpaid tapi ada payment_reference, auto-sync dengan Komerce
+        // Jika pesanan masih unpaid tapi ada payment_reference, auto-sync dengan Midtrans
         if ($order->payment_status !== 'paid' && !empty($order->payment_reference)) {
             try {
-                $statusCheck = app(\App\Services\KomercePaymentService::class)->getPaymentStatus($order->payment_reference);
+                $statusCheck = app(\App\Services\MidtransPaymentService::class)->getPaymentStatus($order->payment_reference);
                 if (!empty($statusCheck['success'])) {
-                    $remoteStatus = strtoupper($statusCheck['status'] ?? '');
-                    if (in_array($remoteStatus, ['PAID', 'SETTLED', 'SUCCESS', 'COMPLETED'])) {
+                    $remoteStatus = strtolower($statusCheck['status'] ?? '');
+                    if (in_array($remoteStatus, ['capture', 'settlement'])) {
                         $order->update(['payment_status' => 'paid', 'status' => 'processing']);
                         $order->refresh();
-                    } elseif (in_array($remoteStatus, ['EXPIRED', 'FAILED', 'CANCELED', 'CANCELLED'])) {
+                    } elseif (in_array($remoteStatus, ['expire', 'cancel', 'deny'])) {
                         $order->update(['payment_status' => 'expired', 'status' => 'cancelled']);
                         $order->refresh();
                     }

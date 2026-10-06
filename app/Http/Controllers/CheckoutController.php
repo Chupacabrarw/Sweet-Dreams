@@ -131,6 +131,12 @@ class CheckoutController extends Controller
         }
         $cartItems = $cartQuery->get();
 
+        \Illuminate\Support\Facades\Log::info('Checkout Debug:', [
+            'user_id' => $user->id,
+            'request_item_ids' => $data['item_ids'] ?? null,
+            'found_cart_items' => $cartItems->pluck('id'),
+        ]);
+
         if ($cartItems->isEmpty()) {
             return response()->json(['message' => 'Keranjang belanja masih kosong atau tidak ada produk yang dipilih.'], 422);
         }
@@ -214,16 +220,13 @@ class CheckoutController extends Controller
             $voucher->increment('used_count');
         }
 
-        // Buat tagihan pembayaran via Komerce Payment Gateway
-        $paymentResult = app(\App\Services\KomercePaymentService::class)->createPayment($order, $payment['id']);
+        // Buat tagihan pembayaran via Midtrans
+        $paymentResult = app(\App\Services\MidtransPaymentService::class)->createPayment($order);
 
         if (!empty($paymentResult['success'])) {
             $order->update([
-                'payment_reference'  => $paymentResult['payment_id'] ?? null,
+                'payment_reference'  => $paymentResult['payment_reference'] ?? null,
                 'payment_url'        => $paymentResult['payment_url'] ?? null,
-                'va_number'          => $paymentResult['va_number'] ?? null,
-                'qr_string'          => $paymentResult['qr_string'] ?? null,
-                'payment_expired_at' => $paymentResult['expired_at'] ?? null,
             ]);
         }
 
@@ -232,11 +235,8 @@ class CheckoutController extends Controller
             'order_number'   => $order->order_number,
             'total'          => $order->total,
             'payment_url'    => $order->payment_url,
-            'va_number'      => $order->va_number,
-            'qr_string'      => $order->qr_string,
             'payment_id'     => $order->payment_reference,
             'payment_method' => $payment['name'],
-            'bank_code'      => $paymentResult['bank_code'] ?? null,
             'payment_status' => $order->payment_status,
         ], 201);
     }

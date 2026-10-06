@@ -132,7 +132,7 @@ Route::get('/api/shipping/provinces', [App\Http\Controllers\ShippingController::
 Route::get('/api/shipping/cities', [App\Http\Controllers\ShippingController::class, 'cities']);
 Route::post('/api/shipping/cost', [App\Http\Controllers\ShippingController::class, 'cost']);
 
-// ===== PAYMENT GATEWAY (KOMERCE) =====
+// ===== PAYMENT GATEWAY (MIDTRANS) =====
 Route::get('/api/payment/status/{orderNumber}', [App\Http\Controllers\PaymentController::class, 'checkStatus']);
 Route::post('/api/payment/webhook', [App\Http\Controllers\PaymentController::class, 'handleWebhook']);
 
