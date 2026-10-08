@@ -3,869 +3,9 @@
 @section('title', 'Katalog Produk - Sweet Dreams')
 
 @section('content')
-<style>
-    /* ===== KATALOG PAGE ===== */
-    .katalog-header {
-        max-width: 1320px;
-        margin: 0 auto;
-        padding: 2.25rem 2rem 1rem;
-    }
-    .katalog-header h1 {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 2.25rem;
-        font-weight: 500;
-        color: var(--ink);
-        margin: 0 0 0.35rem 0;
-        letter-spacing: -0.01em;
-    }
-    .katalog-header p {
-        font-size: 0.95rem;
-        color: var(--ink-muted);
-        margin: 0;
-    }
-
-    /* ===== KATALOG LAYOUT ===== */
-    .katalog-layout {
-        max-width: 1320px;
-        margin: 0 auto;
-        padding: 1rem 2rem 4rem;
-        display: grid;
-        grid-template-columns: 270px 1fr;
-        gap: 2rem;
-        align-items: start;
-    }
-
-    /* ===== FILTER SIDEBAR ===== */
-    .filter-sidebar {
-        background: #fff;
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 1.75rem;
-        position: sticky;
-        top: 88px;
-        box-shadow: 0 8px 24px rgba(201,122,140, 0.04);
-        transition: all 0.3s ease;
-    }
-    .filter-header-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 0.25rem;
-    }
-    .filter-title {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0;
-    }
-    .filter-quick-clear {
-        background: none;
-        border: none;
-        color: var(--blush);
-        font-size: 0.78rem;
-        font-weight: 600;
-        cursor: pointer;
-        padding: 0;
-        text-decoration: underline;
-        font-family: 'DM Sans', sans-serif;
-    }
-    .filter-quick-clear:hover {
-        color: var(--blush-dark);
-    }
-    .filter-subtitle {
-        font-size: 0.8rem;
-        color: var(--ink-faint);
-        margin: 0 0 1.5rem 0;
-        line-height: 1.5;
-    }
-
-    /* Filter Group */
-    .filter-group {
-        margin-bottom: 1.5rem;
-        padding-bottom: 1.25rem;
-        border-bottom: 1px solid var(--border);
-    }
-    .filter-group:last-of-type {
-        border-bottom: none;
-        margin-bottom: 1rem;
-        padding-bottom: 0;
-    }
-    .filter-group-label {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.88rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0 0 0.85rem 0;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    .filter-group-label .filter-badge-count {
-        font-size: 0.72rem;
-        color: var(--blush);
-        background: var(--bg-warm);
-        border: 1px solid var(--border);
-        padding: 1px 7px;
-        border-radius: 8px;
-        font-weight: 600;
-    }
-
-    /* Checkbox Filter */
-    .filter-checkbox {
-        display: flex;
-        align-items: center;
-        gap: 0.65rem;
-        margin-bottom: 0.65rem;
-        cursor: pointer;
-        font-size: 0.86rem;
-        color: var(--ink-muted);
-        user-select: none;
-        transition: color 0.2s ease;
-    }
-    .filter-checkbox:hover {
-        color: var(--blush);
-    }
-    .filter-checkbox input[type="checkbox"] {
-        appearance: none;
-        -webkit-appearance: none;
-        width: 19px;
-        height: 19px;
-        border: 2px solid rgba(180,140,150,0.35);
-        border-radius: 5px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-        flex-shrink: 0;
-        background: #fff;
-    }
-    .filter-checkbox input[type="checkbox"]:checked {
-        background: var(--blush);
-        border-color: var(--blush);
-    }
-    .filter-checkbox input[type="checkbox"]:checked::after {
-        content: '';
-        display: block;
-        width: 5px;
-        height: 9px;
-        border: solid #fff;
-        border-width: 0 2px 2px 0;
-        transform: rotate(45deg);
-        margin-top: -1px;
-    }
-    .filter-checkbox:hover input[type="checkbox"] {
-        border-color: var(--blush);
-    }
-
-    /* Size Filter */
-    .size-options {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-    .size-btn {
-        width: 40px;
-        height: 40px;
-        border-radius: 6px;
-        border: 1px solid var(--border);
-        background: #fff;
-        color: var(--ink-muted);
-        font-size: 0.8rem;
-        font-weight: 600;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        font-family: 'DM Sans', sans-serif;
-    }
-    .size-btn:hover {
-        border-color: var(--blush);
-        color: var(--blush);
-        transform: translateY(-2px);
-    }
-    .size-btn.active {
-        background: var(--blush);
-        border-color: var(--blush);
-        color: #fff;
-        box-shadow: 0 4px 10px rgba(201,122,140,0.25);
-        transform: scale(1.05);
-    }
-
-    /* Color Filter */
-    .color-options {
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-    }
-    .color-btn {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        border: 2px solid transparent;
-        cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        padding: 0;
-        outline: none;
-        position: relative;
-    }
-    .color-btn:hover {
-        transform: scale(1.15);
-    }
-    .color-btn.active {
-        border-color: var(--blush);
-        box-shadow: 0 0 0 3px rgba(201,122,140,0.3);
-        transform: scale(1.1);
-    }
-    .color-btn.active::after {
-        content: '';
-        position: absolute;
-        inset: 4px;
-        border-radius: 50%;
-        border: 1.5px solid #fff;
-        pointer-events: none;
-    }
-
-    /* Price Range Filter */
-    .price-inputs {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.75rem;
-        margin-bottom: 0.85rem;
-    }
-    .price-input-group label {
-        font-size: 0.72rem;
-        color: var(--ink-muted);
-        display: block;
-        margin-bottom: 0.3rem;
-        font-weight: 500;
-    }
-    .price-input-group input {
-        width: 100%;
-        border: 1.5px solid rgba(180,140,150,0.35);
-        border-radius: 8px;
-        padding: 8px 10px;
-        font-size: 0.82rem;
-        color: var(--ink);
-        background: var(--bg-warm);
-        outline: none;
-        font-family: 'DM Sans', sans-serif;
-        font-weight: 600;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    .price-input-group input:focus {
-        border-color: var(--blush);
-        box-shadow: 0 0 0 3px rgba(201,122,140, 0.15);
-    }
-
-    /* Range Slider */
-    .price-slider {
-        position: relative;
-        height: 6px;
-        background: var(--blush-pale);
-        border-radius: 3px;
-        margin: 0.75rem 0 0.5rem;
-    }
-    .price-slider-track {
-        position: absolute;
-        height: 100%;
-        background: linear-gradient(90deg, var(--blush), #f48da8);
-        border-radius: 3px;
-        left: 0%;
-        right: 0%;
-    }
-    .price-slider input[type="range"] {
-        position: absolute;
-        width: 100%;
-        height: 6px;
-        appearance: none;
-        -webkit-appearance: none;
-        background: transparent;
-        pointer-events: none;
-        top: -4px;
-        left: 0;
-        margin: 0;
-    }
-    .price-slider input[type="range"]::-webkit-slider-thumb {
-        appearance: none;
-        -webkit-appearance: none;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: var(--blush);
-        border: 2px solid #fff;
-        box-shadow: 0 2px 6px rgba(201,122,140,0.35);
-        cursor: pointer;
-        pointer-events: all;
-        transition: transform 0.15s ease;
-    }
-    .price-slider input[type="range"]::-webkit-slider-thumb:hover {
-        transform: scale(1.2);
-    }
-    .price-slider input[type="range"]::-moz-range-thumb {
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: var(--blush);
-        border: 2px solid #fff;
-        box-shadow: 0 2px 6px rgba(201,122,140,0.35);
-        cursor: pointer;
-        pointer-events: all;
-        transition: transform 0.15s ease;
-    }
-    .price-range-label {
-        font-size: 0.78rem;
-        color: var(--ink-muted);
-        margin-top: 0.4rem;
-        font-weight: 500;
-        text-align: center;
-    }
-
-    /* Reset Button */
-    .btn-reset-filter {
-        width: 100%;
-        padding: 10px 16px;
-        border: 1.5px solid var(--blush);
-        border-radius: 8px;
-        background: transparent;
-        color: var(--blush);
-        font-size: 0.88rem;
-        font-weight: 600;
-        cursor: pointer;
-        font-family: 'DM Sans', sans-serif;
-        transition: all 0.25s ease;
-        margin-top: 0.75rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-    }
-    .btn-reset-filter:hover {
-        background: var(--blush);
-        color: #fff;
-        box-shadow: 0 4px 14px rgba(201,122,140, 0.25);
-    }
-
-    /* ===== PRODUCT CONTENT AREA ===== */
-    .products-content {
-        min-width: 0;
-    }
-    .products-content-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1.25rem;
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
-    .products-content-header .category-title h2 {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 1.65rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0;
-    }
-    .products-content-header .category-title p {
-        font-size: 0.85rem;
-        color: var(--ink-muted);
-        margin: 0.2rem 0 0 0;
-    }
-    .sort-dropdown {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-    }
-    .sort-dropdown label {
-        font-size: 0.84rem;
-        color: var(--ink-muted);
-        white-space: nowrap;
-        font-weight: 500;
-    }
-    .sort-dropdown select {
-        appearance: none;
-        -webkit-appearance: none;
-        background: #fff;
-        border: 1.5px solid rgba(180,140,150,0.35);
-        border-radius: 10px;
-        padding: 9px 36px 9px 14px;
-        font-size: 0.86rem;
-        font-weight: 500;
-        color: var(--ink);
-        font-family: 'DM Sans', sans-serif;
-        cursor: pointer;
-        outline: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%233a2a2e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 12px center;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
-    }
-    .sort-dropdown select:focus {
-        border-color: var(--blush);
-        box-shadow: 0 0 0 3px rgba(201,122,140, 0.12);
-    }
-
-    /* ===== ACTIVE FILTER CHIPS BAR ===== */
-    .active-filter-chips {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1.5rem;
-        padding-bottom: 0.5rem;
-    }
-    .active-filter-chips:empty {
-        display: none;
-    }
-    .filter-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        background: var(--bg-warm);
-        border: 1px solid var(--border);
-        color: var(--blush);
-        padding: 5px 11px;
-        border-radius: 8px;
-        font-size: 0.78rem;
-        font-weight: 600;
-        transition: all 0.2s ease;
-    }
-    .filter-chip:hover {
-        background: #fde8ee;
-        border-color: #f7a8be;
-    }
-    .filter-chip-btn {
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: var(--blush);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        margin: 0;
-        font-size: 0.95rem;
-        line-height: 1;
-        transition: transform 0.15s ease;
-    }
-    .filter-chip-btn:hover {
-        transform: scale(1.25);
-    }
-    .clear-all-chips {
-        background: none;
-        border: none;
-        color: var(--ink-muted);
-        font-size: 0.78rem;
-        font-weight: 500;
-        cursor: pointer;
-        text-decoration: underline;
-        padding: 4px 6px;
-        font-family: 'DM Sans', sans-serif;
-    }
-    .clear-all-chips:hover {
-        color: var(--blush);
-    }
-
-    /* ===== PRODUCT GRID (CATALOG) ===== */
-    .katalog-products-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
-        transition: opacity 0.2s ease;
-    }
-
-    /* Catalog Product Card */
-    .katalog-product-card {
-        background: #fff;
-        border-radius: var(--radius);
-        overflow: hidden;
-        border: 1px solid var(--border);
-        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.35s ease;
-        text-decoration: none;
-        color: inherit;
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        cursor: pointer;
-    }
-    .katalog-product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 14px 34px rgba(201,122,140,0.12);
-        border-color: var(--blush);
-    }
-    .katalog-product-card-img {
-        width: 100%;
-        aspect-ratio: 3/4;
-        overflow: hidden;
-        background: var(--bg-warm);
-        position: relative;
-    }
-    .katalog-product-card-img img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .katalog-product-card:hover .katalog-product-card-img img {
-        transform: scale(1.06);
-    }
-
-    /* Wishlist Button */
-    .card-wishlist-btn {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.92);
-        backdrop-filter: blur(4px);
-        border: 1px solid rgba(251, 213, 223, 0.8);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        color: var(--ink-muted);
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 2;
-    }
-    .card-wishlist-btn:hover {
-        transform: scale(1.12);
-        color: var(--blush);
-    }
-    .card-wishlist-btn.active {
-        background: var(--blush);
-        color: #fff;
-        border-color: var(--blush);
-        box-shadow: 0 3px 10px rgba(201,122,140, 0.35);
-    }
-    .card-wishlist-btn.active svg {
-        fill: currentColor;
-    }
-
-    /* Discount Badge */
-    .card-discount-badge {
-        position: absolute;
-        top: 12px;
-        left: 12px;
-        background: var(--blush);
-        color: #fff;
-        font-size: 0.72rem;
-        font-weight: 700;
-        padding: 4px 8px;
-        border-radius: 6px;
-        z-index: 2;
-        letter-spacing: 0.02em;
-        box-shadow: 0 2px 8px rgba(201,122,140, 0.3);
-    }
-
-    /* Tags row */
-    .product-tags {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.85rem 1rem 0;
-        gap: 0.5rem;
-    }
-    .product-tag-badge {
-        display: inline-block;
-        background: var(--ink);
-        color: #fff;
-        font-size: 0.68rem;
-        font-weight: 600;
-        padding: 3px 9px;
-        border-radius: 8px;
-        letter-spacing: 0.02em;
-        white-space: nowrap;
-    }
-    .product-tag-size {
-        font-size: 0.75rem;
-        color: var(--ink-muted);
-        white-space: nowrap;
-    }
-
-    .katalog-product-card-body {
-        padding: 0.6rem 1rem 1.1rem;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-    }
-    .product-rating {
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-        font-size: 0.75rem;
-        color: var(--ink-muted);
-        margin-bottom: 0.35rem;
-    }
-    .product-rating svg {
-        fill: #f59e0b;
-        color: #f59e0b;
-    }
-    .product-rating-score {
-        font-weight: 700;
-        color: var(--ink);
-    }
-    .katalog-product-card-body h3 {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 0.98rem;
-        font-weight: 600;
-        margin: 0 0 0.35rem 0;
-        color: var(--ink);
-        line-height: 1.35;
-    }
-    .katalog-product-card-body .product-desc {
-        font-size: 0.78rem;
-        color: var(--ink-muted);
-        line-height: 1.5;
-        margin: 0 0 0.85rem 0;
-        flex: 1;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    .katalog-product-card-footer {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.5rem;
-        margin-top: auto;
-    }
-    .price-wrapper {
-        display: flex;
-        flex-direction: column;
-    }
-    .katalog-product-card-footer .price {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--ink);
-    }
-    .katalog-product-card-footer .original-price {
-        font-size: 0.75rem;
-        color: var(--ink-faint);
-        text-decoration: line-through;
-        font-weight: 400;
-    }
-    .btn-detail {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.3rem;
-        background: var(--blush);
-        color: #fff;
-        padding: 8px 16px;
-        border-radius: 8px;
-        font-size: 0.78rem;
-        font-weight: 600;
-        text-decoration: none;
-        border: none;
-        cursor: pointer;
-        transition: all 0.25s ease;
-        font-family: 'DM Sans', sans-serif;
-        white-space: nowrap;
-    }
-    .btn-detail:hover {
-        background: var(--blush-dark);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(201,122,140,0.25);
-    }
-
-    /* ===== EMPTY STATE ===== */
-    .catalog-empty-state {
-        grid-column: 1 / -1;
-        text-align: center;
-        padding: 4.5rem 2rem;
-        background: #fff;
-        border: 1.5px dashed var(--blush-pale);
-        border-radius: var(--radius-lg);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-    .catalog-empty-icon {
-        width: 76px;
-        height: 76px;
-        border-radius: 50%;
-        background: var(--bg-warm);
-        color: var(--blush);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 1.25rem;
-        border: 1px solid var(--border);
-    }
-    .catalog-empty-state h3 {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 1.45rem;
-        color: var(--ink);
-        margin: 0 0 0.5rem 0;
-        font-weight: 700;
-    }
-    .catalog-empty-state p {
-        font-size: 0.9rem;
-        color: var(--ink-muted);
-        max-width: 420px;
-        margin: 0 0 1.5rem 0;
-        line-height: 1.55;
-    }
-    .catalog-empty-state .btn-reset-filter {
-        width: auto;
-        padding: 10px 24px;
-        margin-top: 0;
-    }
-
-    /* ===== MOBILE FILTER TOGGLE ===== */
-    .mobile-filter-toggle {
-        display: none;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        width: 100%;
-        padding: 11px;
-        border: 1.5px solid var(--blush);
-        border-radius: 8px;
-        background: #fff;
-        color: var(--blush);
-        font-size: 0.88rem;
-        font-weight: 600;
-        cursor: pointer;
-        font-family: 'DM Sans', sans-serif;
-        margin-bottom: 1rem;
-        box-shadow: 0 2px 8px rgba(201,122,140,0.08);
-    }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 1024px) {
-        .katalog-products-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-    @media (max-width: 768px) {
-        .katalog-layout {
-            grid-template-columns: 1fr;
-            padding: 1rem;
-        }
-        .katalog-header {
-            padding: 1.5rem 1rem 0.5rem;
-        }
-        .filter-sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 320px;
-            max-width: 85vw;
-            height: 100vh;
-            z-index: 200;
-            border-radius: 0 20px 20px 0;
-            overflow-y: auto;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-            border: none;
-            box-shadow: 6px 0 28px rgba(0,0,0,0.18);
-        }
-        .filter-sidebar.open {
-            transform: translateX(0);
-        }
-        .filter-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 199;
-            background: rgba(42,31,34,0.45);
-            backdrop-filter: blur(4px);
-        }
-        .filter-overlay.open {
-            display: block;
-        }
-        .mobile-filter-toggle {
-            display: flex;
-        }
-        .filter-sidebar-close {
-            display: flex !important;
-        }
-        .products-content-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.75rem;
-        }
-        .katalog-products-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-    }
-    @media (max-width: 480px) {
-        .katalog-products-grid {
-            grid-template-columns: 1fr;
-        }
-        .katalog-header h1 {
-            font-size: 1.6rem;
-        }
-    }
-
-    /* Filter close btn (mobile only) */
-    .filter-sidebar-close {
-        display: none;
-        align-items: center;
-        justify-content: flex-end;
-        margin-bottom: 0.5rem;
-    }
-    .filter-sidebar-close button {
-        width: 36px;
-        height: 36px;
-        border: none;
-        background: transparent;
-        cursor: pointer;
-        color: var(--ink);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        transition: background 0.2s;
-    }
-    .filter-sidebar-close button:hover {
-        background: var(--bg-warm);
-        color: var(--blush);
-    }
-
-    .katalog-pagination {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 2.5rem;
-    flex-wrap: wrap;
-}
-.pagination-btn {
-    min-width: 40px;
-    height: 40px;
-    padding: 0 0.75rem;
-    border: 1px solid var(--border);
-    background: #fff;
-    color: var(--ink);
-    border-radius: 10px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-.pagination-btn:hover:not(:disabled) {
-    background: #fff0f4;
-    border-color: var(--blush);
-}
-.pagination-btn.active {
-    background: var(--blush);
-    border-color: var(--blush);
-    color: #fff;
-}
-.pagination-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-</style>
+@push('page-styles')
+    @vite('resources/css/pages/katalog.css')
+@endpush
 
 {{-- PAGE HEADER --}}
 <div class="katalog-header" id="katalog-header">
@@ -892,6 +32,7 @@
             <button type="button" class="filter-quick-clear" id="filter-quick-clear">Hapus Semua</button>
         </div>
         <p class="filter-subtitle">Sesuaikan preferensi untuk menemukan koleksi yang tepat</p>
+        <p class="filter-stock-note">Semua ukuran dan warna yang diatur ditampilkan. Pilihan bertanda “Habis” belum bisa dipilih karena stoknya kosong.</p>
 
         {{-- Kategori --}}
         <div class="filter-group" id="filter-kategori">
@@ -899,22 +40,15 @@
                 <span>Kategori</span>
                 <span class="filter-badge-count" id="cat-badge-count" style="display:none;">0</span>
             </p>
-            <label class="filter-checkbox">
-                <input type="checkbox" name="kategori" value="baju-tidur" {{ $activeCategory === 'baju-tidur' ? 'checked' : '' }}>
-                <span>Baju Tidur</span>
-            </label>
-            <label class="filter-checkbox">
-                <input type="checkbox" name="kategori" value="lingerie" {{ $activeCategory === 'lingerie' ? 'checked' : '' }}>
-                <span>Lingerie</span>
-            </label>
-            <label class="filter-checkbox">
-                <input type="checkbox" name="kategori" value="kimono" {{ $activeCategory === 'kimono' ? 'checked' : '' }}>
-                <span>Kimono</span>
-            </label>
-            <label class="filter-checkbox">
-                <input type="checkbox" name="kategori" value="pakaian-dalam" {{ $activeCategory === 'pakaian-dalam' ? 'checked' : '' }}>
-                <span>Pakaian Dalam</span>
-            </label>
+            @foreach($categories as $index => $category)
+                <label class="filter-checkbox category-filter-option" data-category-slug="{{ $category->slug }}" data-category-name="{{ $category->name }}" @if($index >= 4) hidden @endif>
+                    <input type="checkbox" name="kategori" value="{{ $category->slug }}" {{ $activeCategory === $category->slug ? 'checked' : '' }}>
+                    <span>{{ $category->name }}</span>
+                </label>
+            @endforeach
+            <button type="button" class="color-options-toggle category-options-toggle" id="category-options-toggle" aria-expanded="false" hidden>
+                Kategori lainnya
+            </button>
         </div>
 
         {{-- Ukuran --}}
@@ -924,11 +58,6 @@
                 <span class="filter-badge-count" id="size-badge-count" style="display:none;">0</span>
             </p>
             <div class="size-options" id="size-options-container">
-                <button type="button" class="size-btn" data-size="S">S</button>
-                <button type="button" class="size-btn" data-size="M">M</button>
-                <button type="button" class="size-btn" data-size="L">L</button>
-                <button type="button" class="size-btn" data-size="XL">XL</button>
-                <button type="button" class="size-btn" data-size="XXL">XXL</button>
             </div>
         </div>
 
@@ -939,12 +68,10 @@
                 <span class="filter-badge-count" id="color-badge-count" style="display:none;">0</span>
             </p>
             <div class="color-options" id="color-options-container">
-                <button type="button" class="color-btn" data-color="pink" data-color-name="Pink" style="background: #e8a0b0;" title="Pink" aria-label="Pink"></button>
-                <button type="button" class="color-btn" data-color="gold" data-color-name="Gold" style="background: #d4a854;" title="Gold" aria-label="Gold"></button>
-                <button type="button" class="color-btn" data-color="white" data-color-name="White" style="background: #f5f0ec; border: 1.5px solid rgba(180,140,150,0.35);" title="White" aria-label="White"></button>
-                <button type="button" class="color-btn" data-color="cream" data-color-name="Cream" style="background: #eedfc8;" title="Cream" aria-label="Cream"></button>
-                <button type="button" class="color-btn" data-color="grey" data-color-name="Grey" style="background: #6a6a7a;" title="Grey" aria-label="Grey"></button>
             </div>
+            <button type="button" class="color-options-toggle" id="color-options-toggle" aria-expanded="false" hidden>
+                Warna lainnya
+            </button>
         </div>
 
         {{-- Rentang Harga --}}
@@ -1036,7 +163,7 @@
                     <div class="katalog-product-card-body">
                         <div class="product-rating">
                             <i data-lucide="star" style="width:14px;height:14px;"></i>
-                            <span class="product-rating-score">{{ $prod['rating'] }}</span>
+                            <span class="product-rating-score">{{ $prod['review_count'] > 0 ? $prod['rating'] : '—' }}</span>
                             <span>({{ $prod['review_count'] }})</span>
                         </div>
                         <h3><a href="/produk/{{ $prod['slug'] }}" style="color:inherit;text-decoration:none;" onclick="event.stopPropagation();">{{ $prod['title'] }}</a></h3>
@@ -1075,6 +202,132 @@ document.addEventListener('DOMContentLoaded', function() {
     // 1. DATASET
     const rawProducts = @json($products ?? []);
     const initialCategoryParam = @json($activeCategory);
+    const sizeOptionsContainer = document.getElementById('size-options-container');
+    const colorOptionsContainer = document.getElementById('color-options-container');
+    const colorOptionsToggle = document.getElementById('color-options-toggle');
+    const colorOptionItems = [];
+    const categoryOptionItems = [...document.querySelectorAll('.category-filter-option')];
+    const categoryOptionsToggle = document.getElementById('category-options-toggle');
+    const categoryNameBySlug = new Map(categoryOptionItems.map(option => [
+        option.dataset.categorySlug,
+        option.dataset.categoryName,
+    ]));
+    const hiddenCategoryCount = Math.max(0, categoryOptionItems.length - 4);
+    categoryOptionsToggle.hidden = hiddenCategoryCount === 0;
+    categoryOptionsToggle.textContent = `Kategori lainnya (+${hiddenCategoryCount})`;
+
+    function setCategoryOptionsExpanded(expanded) {
+        categoryOptionItems.forEach((option, index) => {
+            option.hidden = !expanded && index >= 4;
+        });
+        categoryOptionsToggle.textContent = expanded
+            ? 'Tampilkan lebih sedikit'
+            : `Kategori lainnya (+${hiddenCategoryCount})`;
+        categoryOptionsToggle.setAttribute('aria-expanded', String(expanded));
+    }
+
+    categoryOptionsToggle.addEventListener('click', () => {
+        setCategoryOptionsExpanded(categoryOptionsToggle.getAttribute('aria-expanded') !== 'true');
+    });
+
+    const configuredVariants = rawProducts.flatMap(product => product.configured_variants || []);
+    const sizeAvailability = new Map();
+    configuredVariants.forEach(variant => {
+        sizeAvailability.set(
+            variant.size,
+            (sizeAvailability.get(variant.size) || false) || variant.stock > 0
+        );
+    });
+    const availableSizes = [...sizeAvailability.keys()];
+    const commonSizeOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'ONE SIZE'];
+    availableSizes.sort((a, b) => {
+        const aIndex = commonSizeOrder.indexOf(a.toUpperCase());
+        const bIndex = commonSizeOrder.indexOf(b.toUpperCase());
+        if (aIndex !== -1 || bIndex !== -1) {
+            return (aIndex === -1 ? commonSizeOrder.length : aIndex) -
+                (bIndex === -1 ? commonSizeOrder.length : bIndex);
+        }
+        return a.localeCompare(b);
+    });
+    availableSizes.forEach(size => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'size-btn';
+        button.dataset.size = size;
+        button.textContent = size;
+        button.disabled = !sizeAvailability.get(size);
+        if (button.disabled) {
+            button.title = `${size} — stok habis`;
+            button.setAttribute('aria-label', `${size}, stok habis`);
+        }
+        sizeOptionsContainer.appendChild(button);
+    });
+
+    const colorHex = {
+        pink: '#e8a0b0', gold: '#d4a854', white: '#f5f0ec',
+        cream: '#eedfc8', grey: '#6a6a7a', gray: '#6a6a7a',
+        black: '#272329', red: '#c53c50', blue: '#4c74a5',
+        green: '#54836c', purple: '#8665a7', navy: '#27385d',
+        brown: '#80604b',
+    };
+    const availableColors = new Map();
+    configuredVariants.forEach(variant => {
+        const color = availableColors.get(variant.color) || {
+            name: variant.color_name,
+            hex: variant.color_hex || colorHex[variant.color] || '#b58d97',
+            inStock: false,
+        };
+        color.inStock = color.inStock || variant.stock > 0;
+        availableColors.set(variant.color, color);
+    });
+    [...availableColors.entries()].sort(([a], [b]) => a.localeCompare(b)).forEach(([color, colorInfo], index) => {
+        const option = document.createElement('div');
+        option.className = 'color-filter-option';
+        option.hidden = index >= 5;
+        const displayName = colorInfo.name.replace(/\b\w/g, character => character.toUpperCase());
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'color-btn';
+        button.dataset.color = color;
+        button.dataset.colorName = displayName;
+        button.style.backgroundColor = colorInfo.hex;
+        button.disabled = !colorInfo.inStock;
+        if (button.disabled) {
+            button.title = `${displayName} — stok habis`;
+            button.setAttribute('aria-label', `${displayName}, stok habis`);
+        }
+        if (color === 'white' || color === 'cream') {
+            button.style.border = '1.5px solid rgba(180,140,150,0.35)';
+        }
+        if (!button.disabled) {
+            button.title = displayName;
+            button.setAttribute('aria-label', displayName);
+        }
+
+        const name = document.createElement('span');
+        name.className = 'color-filter-name';
+        name.textContent = button.disabled ? `${displayName} · Habis` : displayName;
+
+        option.append(button, name);
+        colorOptionsContainer.appendChild(option);
+        colorOptionItems.push(option);
+    });
+    const hiddenColorCount = Math.max(0, colorOptionItems.length - 5);
+    colorOptionsToggle.hidden = hiddenColorCount === 0;
+    colorOptionsToggle.textContent = `Warna lainnya (+${hiddenColorCount})`;
+
+    function setColorOptionsExpanded(expanded) {
+        colorOptionItems.forEach((option, index) => {
+            option.hidden = !expanded && index >= 5;
+        });
+        colorOptionsToggle.textContent = expanded ? 'Tampilkan lebih sedikit' : `Warna lainnya (+${hiddenColorCount})`;
+        colorOptionsToggle.setAttribute('aria-expanded', String(expanded));
+    }
+
+    colorOptionsToggle.addEventListener('click', () => {
+        setColorOptionsExpanded(colorOptionsToggle.getAttribute('aria-expanded') !== 'true');
+    });
 
     // 2. DOM ELEMENTS
     const productsGrid = document.getElementById('katalog-products-grid');
@@ -1178,6 +431,9 @@ document.addEventListener('DOMContentLoaded', function() {
     categoryCheckboxes.forEach(cb => {
         cb.checked = state.categories.includes(cb.value);
     });
+    if (categoryOptionItems.some(option => option.hidden && option.querySelector('input').checked)) {
+        setCategoryOptionsExpanded(true);
+    }
 
     // Initial sizes
     if (urlParams.has('sizes')) {
@@ -1197,6 +453,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 btn.classList.add('active');
             }
         });
+        if (colorOptionItems.some(option => option.hidden && option.querySelector('.color-btn.active'))) {
+            setColorOptionsExpanded(true);
+        }
     }
 
     // Initial price
@@ -1363,16 +622,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
-            // Size check
-            if (state.sizes.length > 0) {
-                const hasSize = item.sizes && item.sizes.some(s => state.sizes.includes(s));
-                if (!hasSize) return false;
-            }
-
-            // Color check
-            if (state.colors.length > 0) {
-                const hasColor = item.colors && item.colors.some(c => state.colors.includes(c));
-                if (!hasColor) return false;
+            // Size and color must belong to the same in-stock variant.
+            if (state.sizes.length > 0 || state.colors.length > 0) {
+                const hasAvailableVariant = (item.variants || []).some(variant =>
+                    (state.sizes.length === 0 || state.sizes.includes(variant.size)) &&
+                    (state.colors.length === 0 || state.colors.includes(variant.color))
+                );
+                if (!hasAvailableVariant) return false;
             }
 
             // Price check
@@ -1441,13 +697,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (state.search) {
             activeCategoryTitle.textContent = `Pencarian: "${state.search}"`;
         } else if (state.categories.length === 1) {
-            const catMap = {
-                'baju-tidur': 'Baju Tidur',
-                'lingerie': 'Lingerie',
-                'kimono': 'Kimono',
-                'pakaian-dalam': 'Pakaian Dalam'
-            };
-            activeCategoryTitle.textContent = catMap[state.categories[0]] || 'Katalog';
+            activeCategoryTitle.textContent = categoryNameBySlug.get(state.categories[0]) || 'Katalog';
         } else if (state.categories.length > 1) {
             activeCategoryTitle.textContent = 'Koleksi Terpilih';
         } else {
@@ -1491,7 +741,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const origPrice = prod.original_price 
                 ? `<span class="original-price">${prod.original_price}</span>` 
                 : '';
-            const sizeList = prod.sizes ? prod.sizes.join(', ') : 'S, M, L';
+            const sizeList = Array.isArray(prod.sizes) && prod.sizes.length
+                ? prod.sizes.join(', ')
+                : 'Belum diatur';
             const badgeLabel = prod.badge || prod.category_name;
 
             return `
@@ -1515,7 +767,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="katalog-product-card-body">
                         <div class="product-rating">
                             <i data-lucide="star" style="width:14px;height:14px;"></i>
-                            <span class="product-rating-score">${prod.rating}</span>
+                            <span class="product-rating-score">${prod.review_count > 0 ? prod.rating : '—'}</span>
                             <span>(${prod.review_count})</span>
                         </div>
                         <h3><a href="/produk/${prod.slug}" style="color:inherit;text-decoration:none;" onclick="event.stopPropagation();">${prod.title}</a></h3>
@@ -1582,17 +834,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Category chips
-        const catMap = {
-            'baju-tidur': 'Baju Tidur',
-            'lingerie': 'Lingerie',
-            'kimono': 'Kimono',
-            'pakaian-dalam': 'Pakaian Dalam'
-        };
         state.categories.forEach(cat => {
+            const categoryName = categoryNameBySlug.get(cat) || cat;
+            const safeCategoryName = categoryName.replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;',
+            })[character]);
             chips.push(`
                 <span class="filter-chip">
-                    ${catMap[cat] || cat}
-                    <button type="button" class="filter-chip-btn" onclick="removeCategoryFilter('${cat}')" aria-label="Hapus kategori ${cat}">&times;</button>
+                    ${safeCategoryName}
+                    <button type="button" class="filter-chip-btn" onclick="removeCategoryFilter('${cat}')" aria-label="Hapus kategori ${safeCategoryName}">&times;</button>
                 </span>
             `);
         });

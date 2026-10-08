@@ -6,133 +6,80 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin') - Sweet Dreams</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    @vite('resources/css/layouts/admin.css')
+    @stack('page-styles')
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'Inter',sans-serif; background:#f4f3f5; color:#2a1f24; }
-        a { text-decoration:none; color:inherit; }
 
-        .admin-layout { display:flex; min-height:100vh; }
-
-        /* Sidebar */
-        .admin-sidebar {
-            width:236px; background:#20161b; color:#fff;
-            display:flex; flex-direction:column; padding:1.5rem 0;
-            flex-shrink:0;
-            position:fixed; top:0; left:0; bottom:0;
-            overflow-y:auto;
-        }
-        .admin-brand { display:flex; align-items:center; justify-content:center; gap:0.7rem; padding:0 1.25rem 1.5rem; }
-        .admin-brand-logo {
-            width:100%; display:flex; align-items:center; justify-content:center;
-        }
-        .admin-brand-logo img { height:120px; width:auto; object-fit:contain; filter: brightness(0) invert(1); }
-        .admin-brand-text strong { display:block; font-size:0.95rem; }
-        .admin-brand-text span { display:block; font-size:0.68rem; color:#a08a90; letter-spacing:0.04em; }
-
-        .admin-nav { flex:1; display:flex; flex-direction:column; gap:0.2rem; padding:0 0.75rem; }
-        .admin-nav-item {
-            display:flex; align-items:center; gap:0.7rem;
-            padding:0.65rem 0.85rem; border-radius:10px;
-            font-size:0.88rem; color:#cbb7bd; font-weight:500;
-        }
-        .admin-nav-item:hover { background:rgba(255,255,255,0.06); color:#fff; }
-        .admin-nav-item.active { background:#d44d6e; color:#fff; }
-
-        .admin-sidebar-footer { padding:1rem 1.25rem 0; }
-        .admin-status-label { font-size:0.68rem; color:#a08a90; letter-spacing:0.04em; margin-bottom:0.4rem; }
-        .admin-status-value { display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; font-weight:600; }
-        .admin-status-dot { width:7px; height:7px; border-radius:50%; background:#3ecf8e; }
-
-        /* Main */
-        .admin-main { flex:1; display:flex; flex-direction:column; min-width:0; margin-left:236px; }
-        .admin-header {
-            display:flex; justify-content:space-between; align-items:center;
-            padding:1.5rem 2rem; background:#f4f3f5;
-        }
-        .admin-header h1 { font-size:1.5rem; font-weight:700; }
-        .admin-header p { font-size:0.85rem; color:#8a6a72; margin-top:0.15rem; }
-        .admin-header-right { display:flex; align-items:center; gap:1rem; }
-        .admin-bell {
-            width:38px; height:38px; border-radius:10px; background:#fff;
-            display:flex; align-items:center; justify-content:center; position:relative;
-        }
-        .admin-bell .dot { position:absolute; top:8px; right:8px; width:7px; height:7px; border-radius:50%; background:#d44d6e; }
-        .admin-avatar-row { display:flex; align-items:center; gap:0.6rem; }
-        .admin-avatar-circle {
-            width:36px; height:36px; border-radius:50%; background:#f2c9d3;
-            display:flex; align-items:center; justify-content:center;
-            font-weight:700; color:#a13655;
-        }
-        .admin-avatar-text strong { display:block; font-size:0.85rem; }
-        .admin-avatar-text span { display:block; font-size:0.72rem; color:#8a6a72; }
-
-        .admin-content { padding:0 2rem 3rem; }
-
-        /* Shared card styles used across admin pages */
-        .admin-card { background:#fff; border-radius:16px; padding:1.5rem; }
-        .admin-stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem; margin-bottom:1.5rem; }
-        .admin-stat-card { background:#fff; border-radius:16px; padding:1.3rem 1.5rem; }
-        .admin-stat-label { font-size:0.82rem; color:#8a6a72; margin-bottom:0.5rem; }
-        .admin-stat-value { font-size:1.5rem; font-weight:700; }
-        @media (max-width: 1100px) { .admin-stat-grid { grid-template-columns:repeat(2,1fr); } }
-    </style>
 </head>
 <body>
 <div class="admin-layout">
-    <aside class="admin-sidebar">
+    <aside class="admin-sidebar" id="admin-sidebar">
         <div class="admin-brand">
-            <div class="admin-brand-logo"><img src="/images/logo.png" alt="Sweet Dream Logo"></div>
+            <a class="admin-brand-logo" href="{{ route('admin.dashboard') }}" aria-label="Sweet Dreams Admin">
+                <img src="/images/logo.png" alt="Sweet Dream Logo">
+            </a>
         </div>
 
         <nav class="admin-nav">
-            <a href="{{ route('admin.dashboard') }}" class="admin-nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                <i data-lucide="layout-grid" style="width:18px;height:18px;"></i> Dashboard
+            <a href="{{ route('admin.dashboard') }}" class="admin-nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" title="Dashboard">
+                <i data-lucide="layout-grid" style="width:18px;height:18px;"></i><span>Dashboard</span>
             </a>
-            <a href="{{ route('admin.products') }}" class="admin-nav-item {{ request()->routeIs('admin.products*') ? 'active' : '' }}">
-                <i data-lucide="shopping-bag" style="width:18px;height:18px;"></i> Produk
+            <a href="{{ route('admin.products') }}" class="admin-nav-item {{ request()->routeIs('admin.products*') ? 'active' : '' }}" title="Produk">
+                <i data-lucide="shopping-bag" style="width:18px;height:18px;"></i><span>Produk</span>
             </a>
-            <a href="{{ route('admin.stock') }}" class="admin-nav-item {{ request()->routeIs('admin.stock*') ? 'active' : '' }}">
-                <i data-lucide="boxes" style="width:18px;height:18px;"></i> Stok
+            <a href="{{ route('admin.stock') }}" class="admin-nav-item {{ request()->routeIs('admin.stock*') ? 'active' : '' }}" title="Stok">
+                <i data-lucide="boxes" style="width:18px;height:18px;"></i><span>Stok</span>
             </a>
-            <a href="{{ route('admin.orders') }}" class="admin-nav-item {{ request()->routeIs('admin.orders*') ? 'active' : '' }}">
-                <i data-lucide="file-text" style="width:18px;height:18px;"></i> Pesanan
+            <a href="{{ route('admin.orders') }}" class="admin-nav-item {{ request()->routeIs('admin.orders*') ? 'active' : '' }}" title="Pesanan">
+                <i data-lucide="file-text" style="width:18px;height:18px;"></i><span>Pesanan</span>
             </a>
-            <a href="{{ route('admin.customers') }}" class="admin-nav-item {{ request()->routeIs('admin.customers*') ? 'active' : '' }}">
-                <i data-lucide="users" style="width:18px;height:18px;"></i> Pelanggan
+            <a href="{{ route('admin.customers') }}" class="admin-nav-item {{ request()->routeIs('admin.customers*') ? 'active' : '' }}" title="Pelanggan">
+                <i data-lucide="users" style="width:18px;height:18px;"></i><span>Pelanggan</span>
             </a>
-            <a href="{{ route('admin.content') }}" class="admin-nav-item {{ request()->routeIs('admin.content*') ? 'active' : '' }}">
-                <i data-lucide="image" style="width:18px;height:18px;"></i> Konten
+            <a href="{{ route('admin.content') }}" class="admin-nav-item {{ request()->routeIs('admin.content*') ? 'active' : '' }}" title="Konten">
+                <i data-lucide="image" style="width:18px;height:18px;"></i><span>Konten</span>
             </a>
-                        <a href="{{ route('admin.vouchers') }}" class="admin-nav-item {{ request()->routeIs('admin.vouchers*') ? 'active' : '' }}">
-                <i data-lucide="ticket" style="width:18px;height:18px;"></i> Promo & Voucher
+            @php($unreadContactMessages = \App\Models\ContactMessage::whereNull('read_at')->count())
+            <a href="{{ route('admin.contact-messages') }}" class="admin-nav-item admin-contact-nav-item {{ request()->routeIs('admin.contact-messages*') ? 'active' : '' }}" title="Pesan Kontak">
+                <i data-lucide="messages-square" style="width:18px;height:18px;"></i><span>Pesan Kontak</span>
+                @if($unreadContactMessages > 0)
+                    <span class="admin-nav-badge" aria-label="{{ $unreadContactMessages }} pesan belum dibaca">{{ $unreadContactMessages > 99 ? '99+' : $unreadContactMessages }}</span>
+                @endif
             </a>
-            <a href="{{ route('admin.reports') }}" class="admin-nav-item {{ request()->routeIs('admin.reports*') ? 'active' : '' }}">
-                <i data-lucide="bar-chart-2" style="width:18px;height:18px;"></i> Laporan
+                        <a href="{{ route('admin.vouchers') }}" class="admin-nav-item {{ request()->routeIs('admin.vouchers*') ? 'active' : '' }}" title="Promo & Voucher">
+                <i data-lucide="ticket" style="width:18px;height:18px;"></i><span>Promo & Voucher</span>
+            </a>
+            <a href="{{ route('admin.reports') }}" class="admin-nav-item {{ request()->routeIs('admin.reports*') ? 'active' : '' }}" title="Laporan">
+                <i data-lucide="bar-chart-2" style="width:18px;height:18px;"></i><span>Laporan</span>
             </a>
         </nav>
 
         <div class="admin-sidebar-footer">
             <form method="POST" action="{{ route('admin.logout') }}" style="margin-bottom:1rem;">
                 @csrf
-                <button type="submit" class="admin-nav-item" style="width:100%; background:none; border:none; color:#e8a4b0; cursor:pointer; text-align:left;">
-                    <i data-lucide="log-out" style="width:18px;height:18px;"></i> Logout
+                <button type="submit" class="admin-nav-item admin-logout-item" style="width:100%; background:none; border:none; color:#e8a4b0; cursor:pointer; text-align:left;">
+                    <i data-lucide="log-out" style="width:18px;height:18px;"></i><span>Logout</span>
                 </button>
             </form>
             <div class="admin-status-label">STATUS TOKO</div>
-            <div class="admin-status-value"><span class="admin-status-dot"></span> Toko aktif</div>
+            <div class="admin-status-value"><span class="admin-status-dot"></span><span>Toko aktif</span></div>
         </div>
     </aside>
 
     <div class="admin-main">
         <header class="admin-header">
-            <div>
-                <h1>@yield('page-title')</h1>
-                <p>@yield('page-subtitle')</p>
+            <div class="admin-header-title">
+                <button type="button" class="admin-sidebar-toggle" id="admin-sidebar-toggle"
+                        aria-label="Ciutkan sidebar" aria-controls="admin-sidebar" aria-expanded="true">
+                    <i data-lucide="panel-left-close" style="width:19px;height:19px;"></i>
+                </button>
+                <div>
+                    <h1>@yield('page-title')</h1>
+                    <p>@yield('page-subtitle')</p>
+                </div>
             </div>
             <div class="admin-header-right">
-                <div class="admin-bell"><i data-lucide="bell" style="width:18px;height:18px;"></i><span class="dot"></span></div>
                 <div class="admin-avatar-row">
                     <div class="admin-avatar-circle">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
                     <div class="admin-avatar-text">
@@ -148,8 +95,77 @@
         </main>
     </div>
 </div>
+<button type="button" class="admin-sidebar-backdrop" id="admin-sidebar-backdrop" aria-label="Tutup menu"></button>
+
+<?php
+    $adminToasts = collect([
+        'success' => session('success'),
+        'error' => session('error'),
+        'warning' => session('warning'),
+        'info' => session('info'),
+        'status' => session('status'),
+    ])->filter(fn ($message) => filled($message));
+
+    if ($errors->any()) {
+        $adminToasts->put('error', implode(' ', $errors->all()));
+    }
+?>
+<div class="admin-toast-stack" aria-live="polite" aria-atomic="false">
+    @foreach($adminToasts as $type => $message)
+        <div class="admin-toast admin-toast-{{ $type }}" role="{{ $type === 'error' ? 'alert' : 'status' }}">
+            <i data-lucide="{{ $type === 'error' ? 'circle-alert' : 'circle-check' }}" aria-hidden="true"></i>
+            <span>{{ $message }}</span>
+            <button type="button" class="admin-toast-close" aria-label="Tutup notifikasi">&times;</button>
+        </div>
+    @endforeach
+</div>
 
 <script>
+    const adminSidebar = document.getElementById('admin-sidebar');
+    const sidebarToggle = document.getElementById('admin-sidebar-toggle');
+    const sidebarBackdrop = document.getElementById('admin-sidebar-backdrop');
+    const mobileSidebar = window.matchMedia('(max-width: 900px)');
+
+    function setSidebarExpanded(expanded) {
+        document.body.classList.toggle('admin-sidebar-open', expanded && mobileSidebar.matches);
+        document.body.classList.toggle('admin-sidebar-collapsed', !expanded && !mobileSidebar.matches);
+        sidebarToggle.setAttribute('aria-expanded', String(expanded));
+        sidebarToggle.setAttribute('aria-label', expanded ? 'Ciutkan sidebar' : 'Luaskan sidebar');
+        sidebarToggle.innerHTML = `<i data-lucide="${expanded ? 'panel-left-close' : 'panel-left-open'}" style="width:19px;height:19px;"></i>`;
+        lucide.createIcons();
+    }
+
+    setSidebarExpanded(!mobileSidebar.matches);
+
+    sidebarToggle.addEventListener('click', () => {
+        const expanded = mobileSidebar.matches
+            ? !document.body.classList.contains('admin-sidebar-open')
+            : document.body.classList.contains('admin-sidebar-collapsed');
+        setSidebarExpanded(expanded);
+    });
+
+    sidebarBackdrop.addEventListener('click', () => setSidebarExpanded(false));
+    adminSidebar.querySelectorAll('.admin-nav-item').forEach((item) => {
+        item.addEventListener('click', () => {
+            if (mobileSidebar.matches) setSidebarExpanded(false);
+        });
+    });
+
+    mobileSidebar.addEventListener('change', () => {
+        document.body.classList.remove('admin-sidebar-open', 'admin-sidebar-collapsed');
+        setSidebarExpanded(!mobileSidebar.matches);
+    });
+
+    document.querySelectorAll('.admin-toast').forEach((toast) => {
+        const dismiss = () => {
+            toast.classList.add('admin-toast-leaving');
+            toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+        };
+
+        toast.querySelector('.admin-toast-close').addEventListener('click', dismiss);
+        window.setTimeout(dismiss, 5000);
+    });
+
     lucide.createIcons();
 </script>
 @yield('scripts')

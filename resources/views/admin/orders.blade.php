@@ -1,91 +1,13 @@
-﻿@extends('admin.layout')
+@extends('admin.layout')
 
 @section('title', 'Manajemen Pesanan')
 @section('page-title', 'Manajemen Pesanan')
 @section('page-subtitle', 'Proses pesanan masuk dan pantau pengiriman')
 
 @section('content')
-<style>
-    .filter-pills { display:flex; gap:0.6rem; margin-bottom:1.5rem; flex-wrap:wrap; }
-    .filter-pill { padding:0.55rem 1.1rem; border-radius:10px; font-size:0.85rem; font-weight:600; background:#fff; border:1px solid #e5dde0; cursor:pointer; text-decoration:none; color:#3a2a2e; transition: all 0.2s; }
-    .filter-pill:hover { border-color:#d44d6e; color:#d44d6e; }
-    .filter-pill.active { background:#d44d6e; color:#fff; border-color:#d44d6e; }
-
-    .admin-table { width:100%; border-collapse:collapse; }
-    .admin-table th { text-align:left; font-size:0.72rem; text-transform:uppercase; color:#8a6a72; padding:0.75rem 1rem; border-bottom:2px solid #f1e4e7; letter-spacing:0.05em; }
-    .admin-table td { padding:1rem; border-bottom:1px solid #f8eff1; font-size:0.88rem; vertical-align:middle; }
-    .admin-table tbody tr:hover { background:#fdf7f8; }
-
-    .status-pill { padding:0.3rem 0.85rem; border-radius:20px; font-size:0.76rem; font-weight:700; display:inline-block; }
-    .status-pill.pending    { background:#fde2e6; color:#c53660; }
-    .status-pill.processing { background:#e2ecfd; color:#2f5fc9; }
-    .status-pill.shipped    { background:#fff3d9; color:#b7791f; }
-    .status-pill.completed  { background:#e3f9ee; color:#1e9e64; }
-    .status-pill.cancelled  { background:#f1e4e7; color:#8a6a72; }
-
-    .action-link { color:#d44d6e; font-weight:600; font-size:0.82rem; cursor:pointer; display:inline-flex; align-items:center; gap:0.3rem; padding:0.35rem 0.8rem; border:1px solid #f4c6d0; border-radius:8px; transition: all 0.2s; }
-    .action-link:hover { background:#d44d6e; color:#fff; border-color:#d44d6e; }
-
-    /* MODAL */
-    .order-modal-overlay { display:none; position:fixed; inset:0; background:rgba(30,10,20,0.5); backdrop-filter:blur(5px); z-index:9000; align-items:flex-start; justify-content:center; padding:2rem 1rem; overflow-y:auto; }
-    .order-modal-overlay.open { display:flex; }
-    .order-modal-card { background:#fff; border-radius:24px; width:100%; max-width:820px; box-shadow:0 24px 60px rgba(0,0,0,0.2); animation:popIn 0.3s cubic-bezier(0.16,1,0.3,1); overflow:hidden; margin:auto; }
-    @keyframes popIn { from { transform:scale(0.94) translateY(16px); opacity:0; } to { transform:scale(1) translateY(0); opacity:1; } }
-
-    .modal-header { background:linear-gradient(135deg,#3a2a2e 0%,#5a3a42 100%); padding:1.75rem 2rem; display:flex; align-items:center; justify-content:space-between; color:#fff; }
-    .modal-header-left h2 { font-size:1.35rem; font-weight:700; margin:0 0 0.3rem 0; color:#fff; }
-    .modal-header-left p { font-size:0.82rem; color:#d4b8c0; margin:0; }
-    .modal-status-pill { padding:0.4rem 1rem; border-radius:50px; font-size:0.8rem; font-weight:700; display:inline-block; margin-top:0.4rem; }
-    .btn-modal-close { width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background 0.2s; }
-    .btn-modal-close:hover { background:rgba(255,255,255,0.3); }
-
-    .modal-body { padding:1.75rem 2rem; display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
-    .info-section { background:#fdf7f8; border:1px solid #f4dbe2; border-radius:16px; padding:1.25rem 1.5rem; }
-    .info-section-title { font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:#d44d6e; margin:0 0 1rem 0; }
-    .info-row { display:flex; justify-content:space-between; align-items:flex-start; padding:0.45rem 0; border-bottom:1px solid #f4dbe2; font-size:0.85rem; gap:1rem; }
-    .info-row:last-child { border-bottom:none; }
-    .info-row .ilabel { color:#8a6a72; flex-shrink:0; }
-    .info-row .ivalue { font-weight:600; color:#3a2a2e; text-align:right; line-height:1.5; }
-    .info-row .ivalue.paid { color:#1e9e64; }
-    .info-row .ivalue.unpaid { color:#c53660; }
-
-    .modal-items-section { padding:0 2rem 1.5rem; }
-    .items-section-title { font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; color:#d44d6e; margin:0 0 1rem 0; }
-    .order-item-card { display:flex; align-items:center; gap:1rem; padding:0.85rem 0; border-bottom:1px solid #f8eff1; }
-    .order-item-card:last-child { border-bottom:none; }
-    .order-item-img { width:52px; height:52px; border-radius:10px; overflow:hidden; border:1.5px solid #f4dbe2; background:#fdf7f8; flex-shrink:0; }
-    .order-item-img img { width:100%; height:100%; object-fit:cover; display:block; }
-    .order-item-img-ph { width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#d4b8c0; font-size:1.2rem; }
-    .order-item-details { flex:1; }
-    .order-item-title { font-size:0.9rem; font-weight:700; color:#3a2a2e; margin:0 0 0.2rem 0; }
-    .order-item-variant { font-size:0.78rem; color:#8a6a72; margin:0; }
-    .order-item-price-col { text-align:right; flex-shrink:0; }
-    .order-item-price-col .osubtotal { font-weight:700; color:#3a2a2e; font-size:0.9rem; }
-    .order-item-price-col .oprice-qty { font-size:0.76rem; color:#8a6a72; margin-top:0.1rem; }
-
-    .totals-section { padding:1rem 2rem 1.75rem; background:#fdf7f8; border-top:1px solid #f4dbe2; }
-    .total-row { display:flex; justify-content:space-between; padding:0.4rem 0; font-size:0.88rem; color:#6a4a52; }
-    .total-row .tval { font-weight:600; color:#3a2a2e; }
-    .total-row .tval.green { color:#1e9e64; }
-    .total-row.grand { padding-top:0.75rem; margin-top:0.25rem; border-top:1.5px solid #f4dbe2; }
-    .total-row.grand span { font-size:1.1rem; font-weight:700; color:#3a2a2e; }
-    .total-row.grand .tval { font-size:1.25rem; color:#d44d6e; }
-
-    .modal-form-section { padding:1.5rem 2rem; border-top:1px solid #f1e4e7; display:grid; grid-template-columns:1fr 1fr auto; gap:1rem; align-items:flex-end; background:#fff; }
-    .mf-group label { display:block; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#8a6a72; margin-bottom:0.45rem; }
-    .mf-group select, .mf-group input { width:100%; padding:0.65rem 0.9rem; border:1.5px solid #e8d0d6; border-radius:10px; font-size:0.88rem; color:#3a2a2e; background:#fff; outline:none; transition:border-color 0.2s; }
-    .mf-group select:focus, .mf-group input:focus { border-color:#d44d6e; }
-    .btn-update-status { height:44px; padding:0 1.5rem; background:linear-gradient(135deg,#e87b94 0%,#d44d6e 100%); color:#fff; border:none; border-radius:10px; font-size:0.88rem; font-weight:700; cursor:pointer; white-space:nowrap; box-shadow:0 4px 14px rgba(212,77,110,0.3); transition:all 0.2s; }
-    .btn-update-status:hover { transform:translateY(-1px); box-shadow:0 6px 18px rgba(212,77,110,0.4); }
-
-    @media (max-width:640px) { .modal-body { grid-template-columns:1fr; } .modal-form-section { grid-template-columns:1fr; } .modal-header,.modal-body,.modal-items-section,.modal-form-section { padding-left:1.25rem; padding-right:1.25rem; } }
-</style>
-
-@if(session('success'))
-    <div style="background:#e3f9ee;color:#1e9e64;padding:0.8rem 1.2rem;border-radius:10px;margin-bottom:1.2rem;font-size:0.88rem;">
-        {{ session('success') }}
-    </div>
-@endif
+@push('page-styles')
+    @vite('resources/css/pages/admin/orders.css')
+@endpush
 
 <div class="filter-pills">
     <a href="{{ route('admin.orders') }}" class="filter-pill {{ $activeFilter === 'all' ? 'active' : '' }}">Semua <strong>{{ $counts['all'] }}</strong></a>

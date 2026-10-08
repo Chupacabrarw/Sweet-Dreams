@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StockController extends Controller
 {
@@ -47,8 +49,12 @@ class StockController extends Controller
     {
         $data = $request->validate(['stock' => 'required|integer|min:0']);
 
-        $variant->update(['stock' => $data['stock']]);
-        $variant->product->update(['stock' => $variant->product->variants()->sum('stock')]);
+        DB::transaction(function () use ($variant, $data) {
+            $product = Product::query()->lockForUpdate()->findOrFail($variant->product_id);
+            $lockedVariant = ProductVariant::query()->lockForUpdate()->findOrFail($variant->id);
+            $lockedVariant->update(['stock' => $data['stock']]);
+            $product->update(['stock' => $product->variants()->sum('stock')]);
+        });
 
         return redirect()->route('admin.stock')->with('success', 'Stok berhasil diperbarui.');
     }

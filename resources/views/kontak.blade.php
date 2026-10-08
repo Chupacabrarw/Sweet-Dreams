@@ -4,404 +4,9 @@
 @section('description', 'Hubungi Sweet Dreams untuk pertanyaan seputar produk, pesanan, atau kerjasama. Kami siap membantu Anda.')
 
 @section('content')
-<style>
-    /* ===== HERO ===== */
-    .kontak-hero {
-        text-align: center;
-        padding: 4.5rem 1.5rem 3rem;
-        background: linear-gradient(180deg, #fdf2f5 0%, #fff 100%);
-    }
-    .kontak-hero-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.72rem;
-        font-weight: 800;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--blush);
-        margin-bottom: 1rem;
-    }
-    .kontak-hero-badge::before,
-    .kontak-hero-badge::after {
-        content: '';
-        width: 32px;
-        height: 1.5px;
-        background: var(--blush);
-        border-radius: 2px;
-    }
-    .kontak-hero h1 {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 2.8rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0 0 1rem 0;
-        line-height: 1.15;
-    }
-    .kontak-hero p {
-        font-size: 1rem;
-        color: var(--ink-muted);
-        max-width: 540px;
-        margin: 0 auto;
-        line-height: 1.7;
-    }
-
-    /* ===== MAIN GRID ===== */
-    .kontak-main-wrapper {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 2rem 5rem;
-    }
-    .kontak-grid {
-        display: grid;
-        grid-template-columns: 1.35fr 1fr;
-        gap: 2.5rem;
-        align-items: start;
-    }
-
-    /* ===== FORM CARD ===== */
-    .kontak-form-card {
-        background: #ffffff;
-        border: 1.5px solid #f4dbe2;
-        border-radius: 24px;
-        padding: 2.25rem 2.25rem 2rem;
-        box-shadow: 0 6px 28px rgba(201,122,140, 0.06);
-    }
-    .form-card-title {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 1.55rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0 0 1.75rem 0;
-    }
-    .kontak-form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-    .kontak-form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-    }
-    .kontak-form-group.full { grid-column: 1 / -1; }
-    .kontak-form-group label {
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: var(--ink-muted);
-    }
-    .kontak-form-group label .req { color: var(--blush); }
-    .kontak-form-group input,
-    .kontak-form-group select,
-    .kontak-form-group textarea {
-        padding: 0.7rem 1rem;
-        border: 1.5px solid #e8d0d6;
-        border-radius: 12px;
-        font-size: 0.9rem;
-        font-family: 'DM Sans', sans-serif;
-        color: var(--ink);
-        background: #fff;
-        outline: none;
-        transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .kontak-form-group input::placeholder,
-    .kontak-form-group textarea::placeholder { color: var(--ink-faint); }
-    .kontak-form-group input:focus,
-    .kontak-form-group select:focus,
-    .kontak-form-group textarea:focus {
-        border-color: var(--blush);
-        box-shadow: 0 0 0 3px rgba(201,122,140, 0.08);
-    }
-    .kontak-form-group select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23d44d6e' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; padding-right: 2.5rem; cursor: pointer; }
-    .kontak-form-group textarea { resize: vertical; min-height: 110px; }
-
-    .kontak-privacy-row {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.75rem;
-        margin: 1.25rem 0 1.5rem;
-        font-size: 0.82rem;
-        color: var(--ink-muted);
-        line-height: 1.6;
-    }
-    .kontak-privacy-row input[type="checkbox"] {
-        width: 16px; height: 16px;
-        accent-color: var(--blush);
-        flex-shrink: 0;
-        margin-top: 2px;
-        cursor: pointer;
-    }
-
-    .btn-kirim {
-        width: 100%;
-        height: 52px;
-        background: linear-gradient(135deg, #e87b94 0%, var(--blush) 100%);
-        border: none;
-        border-radius: 8px;
-        color: #fff;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.95rem;
-        font-weight: 700;
-        cursor: pointer;
-        letter-spacing: 0.03em;
-        box-shadow: 0 6px 22px rgba(201,122,140, 0.35);
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-    }
-    .btn-kirim:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 28px rgba(201,122,140, 0.45);
-    }
-    .btn-kirim:active { transform: translateY(0); }
-
-    /* ===== SUCCESS TOAST ===== */
-    .kontak-success-toast {
-        display: none;
-        background: linear-gradient(135deg, #e3f9ee 0%, #d1f5e7 100%);
-        border: 1.5px solid #a8e6c8;
-        border-radius: 14px;
-        padding: 1rem 1.25rem;
-        margin-bottom: 1.25rem;
-        font-size: 0.88rem;
-        color: #1a7a50;
-        font-weight: 600;
-        align-items: center;
-        gap: 0.6rem;
-    }
-    .kontak-success-toast.show { display: flex; }
-
-    /* ===== RIGHT SIDEBAR ===== */
-    .kontak-sidebar {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-        position: sticky;
-        top: 88px;
-    }
-
-    /* Kontak Langsung Card */
-    .kontak-langsung-card {
-        background: #fff;
-        border: 1.5px solid #f4dbe2;
-        border-radius: var(--radius-lg);
-        padding: 1.75rem;
-        box-shadow: 0 6px 24px rgba(201,122,140, 0.05);
-    }
-    .sidebar-card-title {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 1.15rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0 0 1.25rem 0;
-    }
-    .kontak-info-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.9rem;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid #fdf0f3;
-    }
-    .kontak-info-item:last-child { border-bottom: none; }
-    .kontak-info-icon {
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
-        background: #fce7ee;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        color: var(--blush);
-    }
-    .kontak-info-text .info-label {
-        font-size: 0.7rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--ink-faint);
-        margin: 0 0 0.2rem 0;
-    }
-    .kontak-info-text .info-value {
-        font-size: 0.92rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0;
-        text-decoration: none;
-    }
-    .kontak-info-text .info-value:hover { color: var(--blush); }
-    .kontak-info-text .info-sub {
-        font-size: 0.78rem;
-        color: var(--ink-muted);
-        margin: 0.1rem 0 0;
-    }
-
-    /* Lokasi Workshop Card */
-    .lokasi-workshop-card {
-        background: #fff;
-        border: 1.5px solid #f4dbe2;
-        border-radius: var(--radius-lg);
-        padding: 1.75rem;
-        box-shadow: 0 6px 24px rgba(201,122,140, 0.05);
-    }
-    .lokasi-address {
-        font-size: 0.85rem;
-        color: #6a4a52;
-        line-height: 1.65;
-        margin: 0 0 1rem 0;
-    }
-    .map-iframe-wrapper {
-        border-radius: var(--radius);
-        overflow: hidden;
-        border: 1.5px solid #f4dbe2;
-        width: 100%;
-        position: relative;
-        box-shadow: 0 4px 16px rgba(201,122,140, 0.08);
-        transition: box-shadow 0.3s ease;
-    }
-    .map-iframe-wrapper:hover {
-        box-shadow: 0 8px 24px rgba(201,122,140, 0.16);
-    }
-    .map-iframe-wrapper iframe {
-        width: 100%;
-        height: 220px;
-        border: none;
-        display: block;
-    }
-    .btn-buka-maps {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.45rem;
-        margin-top: 0.85rem;
-        background: #fce7ee;
-        color: var(--blush);
-        font-weight: 700;
-        font-size: 0.82rem;
-        padding: 0.5rem 1.1rem;
-        border-radius: 8px;
-        text-decoration: none;
-        transition: all 0.2s;
-    }
-    .btn-buka-maps:hover { background: var(--blush); color: #fff; }
-
-    /* ===== FAQ SECTION ===== */
-    .faq-section {
-        background: #fdf2f5;
-        padding: 5rem 2rem 5.5rem;
-    }
-    .faq-inner {
-        max-width: 820px;
-        margin: 0 auto;
-    }
-    .faq-header {
-        text-align: center;
-        margin-bottom: 3rem;
-    }
-    .faq-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.72rem;
-        font-weight: 800;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--blush);
-        margin-bottom: 0.85rem;
-    }
-    .faq-badge::before,
-    .faq-badge::after {
-        content: '';
-        width: 28px;
-        height: 1.5px;
-        background: var(--blush);
-        border-radius: 2px;
-    }
-    .faq-header h2 {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 2.3rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0;
-    }
-
-    /* Accordion */
-    .faq-item {
-        background: #fff;
-        border: 1.5px solid #f4dbe2;
-        border-radius: var(--radius);
-        margin-bottom: 0.85rem;
-        overflow: hidden;
-        transition: box-shadow 0.25s;
-    }
-    .faq-item.open {
-        box-shadow: 0 8px 24px rgba(201,122,140, 0.09);
-        border-color: var(--blush);
-    }
-    .faq-question {
-        width: 100%;
-        background: none;
-        border: none;
-        padding: 1.25rem 1.5rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        cursor: pointer;
-        gap: 1rem;
-        text-align: left;
-    }
-    .faq-question-text {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: var(--ink);
-        line-height: 1.4;
-    }
-    .faq-icon {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: #fce7ee;
-        color: var(--blush);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        font-size: 1rem;
-        font-weight: 700;
-        transition: all 0.3s ease;
-    }
-    .faq-item.open .faq-icon {
-        background: var(--blush);
-        color: #fff;
-        transform: rotate(45deg);
-    }
-    .faq-answer {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.4s ease, padding 0.3s ease;
-    }
-    .faq-answer-inner {
-        padding: 0 1.5rem 1.25rem;
-        font-size: 0.9rem;
-        color: #6a4a52;
-        line-height: 1.75;
-    }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 1024px) {
-        .kontak-grid { grid-template-columns: 1fr; }
-        .kontak-sidebar { position: static; }
-    }
-    @media (max-width: 640px) {
-        .kontak-hero h1 { font-size: 2rem; }
-        .kontak-form-grid { grid-template-columns: 1fr; }
-        .kontak-form-group.full { grid-column: auto; }
-        .kontak-main-wrapper { padding: 0 1rem 4rem; }
-        .faq-section { padding: 3.5rem 1rem 4rem; }
-        .faq-header h2 { font-size: 1.7rem; }
-    }
-</style>
+@push('page-styles')
+    @vite('resources/css/pages/kontak.css')
+@endpush
 
 {{-- HERO --}}
 <section class="kontak-hero">
@@ -418,29 +23,31 @@
         <div class="kontak-form-card">
             <h2 class="form-card-title">Kirimkan Pesan Anda</h2>
 
-            <div class="kontak-success-toast" id="kontak-success-toast">
+            <div class="kontak-success-toast" id="kontak-success-toast" role="status" aria-live="polite">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 Pesan Anda berhasil terkirim! Kami akan merespons dalam 1&times;24 jam kerja.
             </div>
 
             <form id="kontak-form" novalidate>
+                @csrf
+                <div class="kontak-form-error" id="kontak-form-error" role="alert" hidden></div>
                 <div class="kontak-form-grid">
                     <div class="kontak-form-group">
                         <label for="input-nama-kontak">Nama Lengkap <span class="req">*</span></label>
-                        <input type="text" id="input-nama-kontak" placeholder="Contoh: Ayu Putri" required>
+                        <input type="text" id="input-nama-kontak" name="name" placeholder="Contoh: Ayu Putri" maxlength="255" required>
                     </div>
                     <div class="kontak-form-group">
                         <label for="input-email-kontak">Alamat Email <span class="req">*</span></label>
-                        <input type="email" id="input-email-kontak" placeholder="ayu@emailsaya.com" required>
+                        <input type="email" id="input-email-kontak" name="email" placeholder="ayu@emailsaya.com" maxlength="255" required>
                     </div>
                     <div class="kontak-form-group">
                         <label for="input-wa-kontak">Nomor WhatsApp <span class="req">*</span></label>
-                        <input type="tel" id="input-wa-kontak" placeholder="0812 ****" required>
+                        <input type="tel" id="input-wa-kontak" name="phone" placeholder="0812 ****" maxlength="30" required>
                     </div>
                     <div class="kontak-form-group">
                         <label for="input-topik-kontak">Topik Pertanyaan <span class="req">*</span></label>
-                        <select id="input-topik-kontak" required>
-                            <option value="" disabled selected>Tanya Spesifikasi &amp; Bahan Produk</option>
+                        <select id="input-topik-kontak" name="topic" required>
+                            <option value="" disabled selected>Pilih topik pertanyaan</option>
                             <option value="produk">Spesifikasi &amp; Bahan Produk</option>
                             <option value="pesanan">Status &amp; Informasi Pesanan</option>
                             <option value="pengiriman">Pengiriman &amp; Resi</option>
@@ -452,16 +59,16 @@
                     </div>
                     <div class="kontak-form-group full">
                         <label for="input-order-kontak">Nomor Pesanan (Opsional)</label>
-                        <input type="text" id="input-order-kontak" placeholder="Contoh: #SD-26001-AB12 (jika ada pesanan terkait)">
+                        <input type="text" id="input-order-kontak" name="order_number" maxlength="100" placeholder="Contoh: #SD-26001-AB12 (jika ada pesanan terkait)">
                     </div>
                     <div class="kontak-form-group full">
                         <label for="input-pesan-kontak">Isi Pesan <span class="req">*</span></label>
-                        <textarea id="input-pesan-kontak" placeholder="Tuliskan pesan Anda secara detail di sini, tim kami akan memberikan respons terbaiknya..." required></textarea>
+                        <textarea id="input-pesan-kontak" name="message" minlength="5" maxlength="5000" placeholder="Tuliskan pesan Anda secara detail di sini, tim kami akan memberikan respons terbaiknya..." required></textarea>
                     </div>
                 </div>
 
                 <div class="kontak-privacy-row">
-                    <input type="checkbox" id="cb-privacy-kontak" required>
+                    <input type="checkbox" id="cb-privacy-kontak" name="privacy" value="1" required>
                     <label for="cb-privacy-kontak">
                         Saya menyetujui data di atas akan digunakan oleh tim Sweet Dreams untuk keperluan respons dan komunikasi layanan pelanggan.
                     </label>
@@ -551,7 +158,7 @@
 
         <div class="faq-list" id="faq-list">
 
-            <div class="faq-item">
+            <div class="faq-item" id="faq-pengiriman">
                 <button class="faq-question" aria-expanded="false">
                     <span class="faq-question-text">Berapa lama estimasi pengiriman ke rumah saya?</span>
                     <span class="faq-icon">+</span>
@@ -563,7 +170,7 @@
                 </div>
             </div>
 
-            <div class="faq-item">
+            <div class="faq-item" id="faq-penukaran">
                 <button class="faq-question" aria-expanded="false">
                     <span class="faq-question-text">Apakah piyama atau pakaian dalam bisa ditukar ukuran?</span>
                     <span class="faq-icon">+</span>
@@ -571,6 +178,18 @@
                 <div class="faq-answer">
                     <div class="faq-answer-inner">
                         Bisa! Kami memberikan kebijakan Tukar Ukuran Gratis dalam waktu 7 hari setelah barang diterima untuk kategori piyama, kimono, dan daster. Untuk lingerie, penukaran tidak berlaku karena alasan dasar & higienitas kami.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item" id="faq-panduan-ukuran">
+                <button class="faq-question" aria-expanded="false">
+                    <span class="faq-question-text">Bagaimana cara memilih ukuran yang tepat?</span>
+                    <span class="faq-icon">+</span>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-inner">
+                        Buka halaman detail produk dan pilih “Lihat tabel ukuran” untuk melihat panduan ukuran produk tersebut. Jika masih ragu, hubungi tim kami melalui halaman kontak.
                     </div>
                 </div>
             </div>
@@ -645,6 +264,8 @@ document.addEventListener('DOMContentLoaded', function () {
     var form = document.getElementById('kontak-form');
     var btnKirim = document.getElementById('btn-kirim-kontak');
     var toast = document.getElementById('kontak-success-toast');
+    var formError = document.getElementById('kontak-form-error');
+    var defaultButtonHtml = btnKirim ? btnKirim.innerHTML : '';
 
     if (form) {
         form.addEventListener('submit', function (e) {
@@ -666,19 +287,50 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // Simulate sending (can be replaced with real fetch/AJAX)
             btnKirim.disabled = true;
-            btnKirim.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Mengirim...';
+            btnKirim.textContent = 'Mengirim...';
+            formError.hidden = true;
+            formError.textContent = '';
+            toast.classList.remove('show');
 
-            setTimeout(function () {
+            fetch('{{ route('contact-messages.store') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    name: nama,
+                    email: email,
+                    phone: wa,
+                    topic: topik,
+                    order_number: document.getElementById('input-order-kontak').value.trim() || null,
+                    message: pesan,
+                    privacy: privacy ? 1 : null
+                })
+            })
+            .then(async function (response) {
+                var data = await response.json();
+                if (!response.ok) {
+                    var validationErrors = data.errors ? Object.values(data.errors).flat() : [];
+                    throw new Error(validationErrors.join(' ') || data.message || 'Pesan gagal dikirim. Silakan coba lagi.');
+                }
+
                 form.reset();
-                btnKirim.disabled = false;
-                btnKirim.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Kirim Pesan Sekarang';
-
+                toast.textContent = data.message;
                 toast.classList.add('show');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 setTimeout(function () { toast.classList.remove('show'); }, 6000);
-            }, 1200);
+            })
+            .catch(function (error) {
+                formError.textContent = error.message || 'Tidak dapat mengirim pesan. Periksa koneksi lalu coba lagi.';
+                formError.hidden = false;
+            })
+            .finally(function () {
+                btnKirim.disabled = false;
+                btnKirim.innerHTML = defaultButtonHtml;
+            });
         });
     }
 });

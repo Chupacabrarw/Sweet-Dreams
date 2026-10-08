@@ -26,10 +26,10 @@ class CustomerController extends Controller
 
         $customers = User::where('role', 'customer')
             ->when($search, fn ($q) => $q->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"))
-            ->withCount('orders')
+            ->withCount(['orders as orders_count' => fn ($query) => $query->countedAsSale()])
             ->get()
             ->map(function ($u) {
-                $totalSpent = $u->orders()->sum('total');
+                $totalSpent = $u->orders()->countedAsSale()->sum('total');
                 $seg = $this->segment($u->orders_count, $totalSpent, $u->created_at);
 
                 return [

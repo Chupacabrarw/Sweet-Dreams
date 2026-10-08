@@ -3,1012 +3,9 @@
 @section('title', 'Akun Saya - Sweet Dreams')
 
 @section('content')
-<style>
-    /* ===== PROFILE PAGE WRAPPER ===== */
-    .profile-page-wrapper {
-        max-width: 1320px;
-        margin: 0 auto;
-        padding: 2.5rem 2rem 5rem;
-    }
-
-    /* Header */
-    .profile-header {
-        margin-bottom: 2.5rem;
-    }
-    .profile-eyebrow {
-        font-size: 0.75rem;
-        font-weight: 700;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: #b87b58;
-        display: block;
-        margin-bottom: 0.4rem;
-    }
-    .profile-header h1 {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0 0 0.5rem 0;
-    }
-    .profile-header p {
-        font-size: 0.95rem;
-        color: var(--ink-muted);
-        margin: 0;
-    }
-
-    /* Main Grid */
-    .profile-layout-grid {
-        display: grid;
-        grid-template-columns: 280px 1fr;
-        gap: 2.5rem;
-        align-items: start;
-    }
-
-    /* ===== SIDEBAR ===== */
-    .profile-sidebar-card {
-        background: #ffffff;
-        border: 1px solid var(--border);
-        border-radius: 24px;
-        padding: 2rem 1.5rem;
-        box-shadow: 0 4px 20px rgba(201,122,140, 0.04);
-        position: sticky;
-        top: 88px;
-    }
-    .sidebar-avatar-container {
-        position: relative;
-        width: 88px;
-        margin: 0 auto 0.85rem;
-    }
-    .sidebar-avatar-box {
-        width: 88px;
-        height: 88px;
-        border-radius: 50%;
-        overflow: hidden;
-        margin: 0 auto;
-        border: 2.5px solid var(--blush-pale);
-        background: #fdf2f5;
-        cursor: pointer;
-        position: relative;
-        transition: all 0.25s ease;
-    }
-    .sidebar-avatar-box:hover {
-        border-color: var(--blush);
-        transform: scale(1.03);
-        box-shadow: 0 4px 15px rgba(201,122,140, 0.2);
-    }
-    .sidebar-avatar-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(42,31,34, 0.45);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-    }
-    .sidebar-avatar-box:hover .sidebar-avatar-overlay {
-        opacity: 1;
-    }
-    .sidebar-avatar-box img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-    .sidebar-avatar-badge-btn {
-        position: absolute;
-        bottom: 0px;
-        right: 0px;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: var(--blush);
-        color: #ffffff;
-        border: 2px solid #ffffff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        transition: all 0.2s ease;
-    }
-    .sidebar-avatar-badge-btn:hover {
-        background: #ba3b5d;
-        transform: scale(1.1);
-    }
-    .sidebar-user-name {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: var(--ink);
-        text-align: center;
-        margin: 0 0 0.2rem 0;
-    }
-    .sidebar-user-email {
-        font-size: 0.8rem;
-        color: var(--ink-muted);
-        text-align: center;
-        margin: 0 0 1.75rem 0;
-    }
-
-    /* Sidebar Navigation Menu */
-    .profile-nav-menu {
-        display: flex;
-        flex-direction: column;
-        gap: 0.35rem;
-    }
-    .profile-nav-item {
-        display: flex;
-        align-items: center;
-        gap: 0.85rem;
-        padding: 0.75rem 1rem;
-        border-radius: 12px;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.9rem;
-        font-weight: 500;
-        color: var(--ink-muted);
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        text-align: left;
-        width: 100%;
-    }
-    .profile-nav-item:hover {
-        background: #fdf2f5;
-        color: var(--blush);
-    }
-    .profile-nav-item.active {
-        background: #fdf0f4;
-        color: var(--blush);
-        font-weight: 700;
-    }
-    .profile-nav-item svg {
-        width: 18px;
-        height: 18px;
-        flex-shrink: 0;
-    }
-    .profile-nav-logout-btn {
-        display: flex;
-        align-items: center;
-        gap: 0.85rem;
-        padding: 0.75rem 1rem;
-        border-radius: 12px;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: #f43f5e;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        text-align: left;
-        width: 100%;
-        margin-top: 0.75rem;
-        text-decoration: none;
-        box-sizing: border-box;
-    }
-    .profile-nav-logout-btn:hover {
-        background: #fff1f2;
-        color: #e11d48;
-    }
-    .profile-nav-logout-btn svg {
-        width: 18px;
-        height: 18px;
-        flex-shrink: 0;
-    }
-
-    /* ===== RIGHT: CONTENT PANELS ===== */
-    .profile-tab-panel {
-        display: none;
-        animation: fadeInTab 0.3s ease;
-    }
-    .profile-tab-panel.active {
-        display: block;
-    }
-    @keyframes fadeInTab {
-        from { opacity: 0; transform: translateY(6px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ===== STATS ROW (RINGKASAN) ===== */
-    .stats-cards-row {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.25rem;
-        margin-bottom: 1.75rem;
-    }
-    .stat-card {
-        background: #ffffff;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem 1.75rem;
-        box-shadow: 0 4px 16px rgba(201,122,140, 0.03);
-        transition: transform 0.2s ease;
-    }
-    .stat-card:hover {
-        transform: translateY(-2px);
-    }
-    .stat-card.highlight {
-        background: #fef2f5;
-        border-color: var(--border);
-    }
-    .stat-num {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 2.25rem;
-        font-weight: 500;
-        color: var(--ink);
-        line-height: 1;
-        margin: 0 0 0.5rem 0;
-    }
-    .stat-label {
-        font-size: 0.85rem;
-        color: var(--ink-muted);
-        margin: 0;
-    }
-
-    /* White Section Cards */
-    .profile-content-card {
-        background: #ffffff;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-lg);
-        padding: 1.75rem 2rem;
-        box-shadow: 0 4px 16px rgba(201,122,140, 0.03);
-        margin-bottom: 1.75rem;
-    }
-    .card-header-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1.35rem;
-    }
-    .card-heading-title {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 1.15rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0;
-    }
-    .btn-edit-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        border: 1.5px solid rgba(180,140,150,0.35);
-        border-radius: 8px;
-        background: #ffffff;
-        color: var(--ink-muted);
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.82rem;
-        font-weight: 600;
-        padding: 6px 18px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    .btn-edit-pill:hover {
-        border-color: var(--blush);
-        color: var(--blush);
-        background: #fffbfa;
-    }
-    .link-view-all-pink {
-        color: var(--blush);
-        font-size: 0.88rem;
-        font-weight: 600;
-        text-decoration: none;
-        cursor: pointer;
-        transition: color 0.2s;
-    }
-    .link-view-all-pink:hover {
-        color: var(--blush-dark);
-    }
-
-    /* Data Profil 3 Columns */
-    .profile-info-cols {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
-    }
-    .info-col-item {
-        display: flex;
-        flex-direction: column;
-        gap: 0.35rem;
-    }
-    .info-col-label {
-        font-size: 0.78rem;
-        color: var(--ink-muted);
-    }
-    .info-col-val {
-        font-size: 0.92rem;
-        font-weight: 700;
-        color: var(--ink);
-    }
-
-    /* Pesanan Terbaru Rows */
-    .recent-orders-list {
-        display: flex;
-        flex-direction: column;
-    }
-    .recent-order-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1rem 0;
-        border-bottom: 1px solid #fae6ec;
-    }
-    .recent-order-row:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
-    }
-    .order-row-left {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-    .order-row-id {
-        font-size: 0.78rem;
-        color: var(--ink-muted);
-    }
-    .order-row-name {
-        font-size: 0.92rem;
-        font-weight: 700;
-        color: var(--ink);
-    }
-    .order-row-right {
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
-    }
-    .order-status-badge {
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 5px 14px;
-        border-radius: 8px;
-    }
-    .order-status-badge.shipping {
-        background: #fdf2f5;
-        color: var(--blush);
-    }
-    .order-status-badge.completed {
-        background: #ecfdf5;
-        color: #10b981;
-    }
-    .order-status-badge.pending {
-        background: #fef9c3;
-        color: #b45309;
-    }
-    .order-row-price {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: var(--ink);
-        min-width: 100px;
-        text-align: right;
-    }
-    .btn-lacak-mini {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.3rem;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: var(--blush);
-        background: #ffffff;
-        border: 1.5px solid var(--blush);
-        border-radius: 8px;
-        padding: 4px 14px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        text-decoration: none;
-        white-space: nowrap;
-    }
-    .btn-lacak-mini:hover {
-        background: var(--blush);
-        color: #ffffff;
-    }
-
-    /* ===== TAB: PESANAN SAYA ===== */
-    .my-orders-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-    .my-order-card {
-        background: #ffffff;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem 1.75rem;
-        box-shadow: 0 4px 16px rgba(201,122,140, 0.03);
-    }
-    .my-order-meta-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #fae6ec;
-        margin-bottom: 1.25rem;
-    }
-    .order-meta-left {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        font-size: 0.85rem;
-    }
-    .order-meta-date {
-        color: var(--ink);
-        font-weight: 600;
-    }
-    .order-meta-invoice {
-        color: var(--ink-muted);
-        font-weight: 700;
-    }
-    .my-order-product-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1.25rem;
-    }
-    .order-product-left {
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
-    }
-    .order-product-img {
-        width: 72px;
-        height: 72px;
-        border-radius: 12px;
-        overflow: hidden;
-        border: 1px solid var(--border);
-        background: #faf6f7;
-        flex-shrink: 0;
-    }
-    .order-product-img img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-    .order-product-title {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.98rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0 0 0.35rem 0;
-    }
-    .order-product-variant {
-        font-size: 0.82rem;
-        color: var(--ink-muted);
-        margin: 0;
-    }
-    .order-product-price {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: var(--ink);
-    }
-    .my-order-footer {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding-top: 1rem;
-        border-top: 1px solid #fae6ec;
-    }
-    .order-total-text {
-        font-size: 0.88rem;
-        color: var(--ink-muted);
-    }
-    .order-total-text strong {
-        color: var(--blush);
-        font-size: 1.05rem;
-    }
-    .btn-cancel-order {
-        background: #ffffff;
-        border: 1.5px solid #e06b88;
-        color: var(--blush);
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.82rem;
-        font-weight: 600;
-        padding: 7px 20px;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    .btn-cancel-order:hover {
-        background: #fdf2f5;
-        border-color: var(--blush);
-    }
-    .btn-lacak-order {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        background: var(--blush);
-        border: none;
-        color: #ffffff;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.82rem;
-        font-weight: 600;
-        padding: 7px 22px;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        text-decoration: none;
-        box-shadow: 0 3px 12px rgba(201,122,140, 0.25);
-    }
-    .btn-lacak-order:hover {
-        background: var(--blush-dark);
-        box-shadow: 0 4px 16px rgba(201,122,140, 0.35);
-    }
-    .btn-lacak-order svg {
-        width: 14px;
-        height: 14px;
-    }
-
-    /* ===== EDIT PROFILE MODAL ===== */
-    .edit-profile-modal-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(42,31,34, 0.45);
-        backdrop-filter: blur(4px);
-        z-index: 1000;
-        align-items: center;
-        justify-content: center;
-        padding: 1.5rem;
-    }
-    .edit-profile-modal-overlay.open {
-        display: flex;
-    }
-    .edit-modal-card {
-        background: #ffffff;
-        border-radius: 24px;
-        max-width: 480px;
-        width: 100%;
-        padding: 2.25rem 2rem;
-        box-shadow: 0 16px 40px rgba(0,0,0,0.18);
-        animation: scaleUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        position: relative;
-    }
-    .modal-header-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1.75rem;
-    }
-    .modal-header-title {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 1.15rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0;
-    }
-    .modal-close-btn {
-        background: none;
-        border: none;
-        color: var(--ink-muted);
-        cursor: pointer;
-        padding: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: color 0.2s;
-    }
-    .modal-close-btn:hover {
-        color: var(--blush);
-    }
-
-    /* Avatar with Camera Badge */
-    .modal-avatar-wrapper {
-        position: relative;
-        width: 80px;
-        height: 80px;
-        margin: 0 auto 1.75rem;
-    }
-    .modal-avatar-img {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        overflow: hidden;
-        border: 2px solid var(--blush-pale);
-        background: #fdf2f5;
-    }
-    .modal-avatar-img img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-    .avatar-camera-badge {
-        position: absolute;
-        bottom: -2px;
-        right: -2px;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: #ffffff;
-        border: 1.5px solid rgba(180,140,150,0.35);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--ink);
-        cursor: pointer;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        transition: all 0.2s ease;
-    }
-    .avatar-camera-badge:hover {
-        border-color: var(--blush);
-        color: var(--blush);
-        transform: scale(1.1);
-    }
-
-    /* Modal Form Fields */
-    .modal-form-group {
-        margin-bottom: 1rem;
-    }
-    .modal-form-group label {
-        display: block;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--ink-muted);
-        margin-bottom: 0.35rem;
-    }
-    .modal-input {
-        width: 100%;
-        height: 44px;
-        padding: 0 1rem;
-        border: 1.5px solid #e8d0d6;
-        border-radius: 10px;
-        background: #ffffff;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.88rem;
-        color: var(--ink);
-        outline: none;
-        transition: border-color 0.2s;
-        box-sizing: border-box;
-    }
-    select.modal-input {
-        cursor: pointer;
-        appearance: none;
-        -webkit-appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a6a72' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 1rem center;
-        padding-right: 2.5rem;
-    }
-    select.modal-input:disabled {
-        background-color: #faf5f6;
-        cursor: not-allowed;
-        opacity: 0.7;
-    }
-    .modal-input:focus {
-        border-color: var(--blush);
-    }
-    .modal-row-2col {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.85rem;
-    }
-    .modal-btn-row {
-        display: flex;
-        justify-content: space-between;
-        gap: 1rem;
-        margin-top: 1.75rem;
-    }
-    .btn-modal-cancel {
-        flex: 1;
-        height: 44px;
-        border: 1.5px solid rgba(180,140,150,0.35);
-        background: #ffffff;
-        color: var(--ink-muted);
-        border-radius: 8px;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.88rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-    .btn-modal-cancel:hover {
-        border-color: var(--ink);
-    }
-    .btn-modal-save {
-        flex: 1.4;
-        height: 44px;
-        border: none;
-        background: #e06b88;
-        color: #ffffff;
-        border-radius: 8px;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.88rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.2s;
-        box-shadow: 0 3px 12px rgba(224, 107, 136, 0.3);
-    }
-    .btn-modal-save:hover {
-        background: var(--blush);
-    }
-
-    /* Toast Notification */
-    .profile-toast {
-        position: fixed;
-        bottom: 2rem;
-        right: 2rem;
-        background: var(--ink);
-        color: #ffffff;
-        padding: 0.85rem 1.4rem;
-        border-radius: 12px;
-        font-size: 0.88rem;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-        display: flex;
-        align-items: center;
-        gap: 0.65rem;
-        z-index: 1001;
-        transform: translateY(100px);
-        opacity: 0;
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        pointer-events: none;
-    }
-    .profile-toast.show {
-        transform: translateY(0);
-        opacity: 1;
-        pointer-events: auto;
-    }
-    .profile-toast svg {
-        color: #10b981;
-    }
-
-    /* ===== ADDRESS LIST STYLES ===== */
-    .address-card-item {
-        padding: 1.25rem 0;
-        border-bottom: 1px solid #fae6ec;
-        transition: all 0.2s ease;
-    }
-    .address-card-item:last-child {
-        border-bottom: none;
-        padding-bottom: 0;
-    }
-    .address-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.45rem;
-    }
-    .address-label-badge {
-        font-weight: 700;
-        color: var(--ink);
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.95rem;
-    }
-    .address-primary-tag {
-        background: #fce7ee;
-        color: var(--blush);
-        padding: 2px 10px;
-        border-radius: 8px;
-        font-size: 0.72rem;
-        font-weight: 700;
-    }
-    .address-actions {
-        display: flex;
-        align-items: center;
-        gap: 0.85rem;
-    }
-    .address-action-btn {
-        background: none;
-        border: none;
-        color: var(--blush);
-        font-size: 0.82rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: color 0.2s;
-        padding: 0;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-    .address-action-btn:hover {
-        color: var(--blush-dark);
-        text-decoration: underline;
-    }
-    .address-action-btn.delete {
-        color: #9ca3af;
-    }
-    .address-action-btn.delete:hover {
-        color: #f43f5e;
-    }
-    .address-recipient {
-        margin: 0 0 0.35rem 0;
-        font-size: 0.9rem;
-        color: var(--ink);
-        font-weight: 600;
-    }
-    .address-detail-text {
-        margin: 0;
-        font-size: 0.85rem;
-        color: #7a5f67;
-        line-height: 1.55;
-    }
-
-    /* ===== AVATAR GALLERY MODAL ===== */
-    .avatar-picker-modal-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(42,31,34, 0.55);
-        backdrop-filter: blur(5px);
-        z-index: 1150;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        padding: 1.5rem;
-    }
-    .avatar-picker-modal-overlay.open {
-        display: flex;
-    }
-    .avatar-picker-card {
-        background: #ffffff;
-        border-radius: 28px;
-        max-width: 540px;
-        width: 100%;
-        padding: 2rem 2.25rem;
-        box-shadow: 0 20px 50px rgba(42,31,34, 0.25);
-        animation: scaleUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        position: relative;
-        max-height: 90vh;
-        overflow-y: auto;
-    }
-    .avatar-picker-tabs {
-        display: flex;
-        gap: 0.5rem;
-        background: #fdf0f4;
-        padding: 5px;
-        border-radius: 14px;
-        margin-bottom: 1.5rem;
-    }
-    .avatar-picker-tab-btn {
-        flex: 1;
-        padding: 9px 12px;
-        border: none;
-        background: transparent;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: var(--ink-muted);
-        border-radius: 10px;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.45rem;
-    }
-    .avatar-picker-tab-btn.active {
-        background: #ffffff;
-        color: var(--blush);
-        box-shadow: 0 2px 8px rgba(201,122,140, 0.12);
-    }
-    .avatar-preview-spotlight {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        padding: 1.25rem 1rem;
-        background: #fff8fa;
-        border-radius: var(--radius-lg);
-        border: 1.5px dashed var(--blush-pale);
-    }
-    .avatar-preview-spotlight-img {
-        width: 88px;
-        height: 88px;
-        border-radius: 50%;
-        border: 3.5px solid var(--blush);
-        object-fit: cover;
-        box-shadow: 0 6px 18px rgba(201,122,140, 0.25);
-        background: #fff;
-    }
-    .avatar-preview-spotlight-badge {
-        margin-top: 0.55rem;
-        font-size: 0.78rem;
-        font-weight: 700;
-        color: var(--blush);
-        background: #fdf0f4;
-        padding: 3px 14px;
-        border-radius: 8px;
-        border: 1px solid var(--border);
-    }
-    .avatar-grid-selection {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 0.75rem;
-        margin-bottom: 1.5rem;
-    }
-    .avatar-grid-item {
-        background: #ffffff;
-        border: 2px solid #fed7e2;
-        border-radius: var(--radius);
-        padding: 8px 6px;
-        cursor: pointer;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 5px;
-        transition: all 0.2s ease;
-    }
-    .avatar-grid-item:hover {
-        border-color: var(--blush);
-        transform: translateY(-2px);
-        background: #fff8fa;
-    }
-    .avatar-grid-item.selected {
-        border-color: var(--blush);
-        background: #fdf0f4;
-        box-shadow: 0 0 0 3px rgba(201,122,140, 0.2);
-        transform: translateY(-2px);
-    }
-    .avatar-grid-item img {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        object-fit: cover;
-        display: block;
-    }
-    .avatar-grid-item span {
-        font-size: 0.72rem;
-        font-weight: 600;
-        color: var(--ink-muted);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 100%;
-    }
-    .avatar-grid-item.selected span {
-        color: var(--blush);
-        font-weight: 700;
-    }
-    .device-upload-zone {
-        border: 2px dashed #f48da8;
-        border-radius: var(--radius-lg);
-        padding: 2.25rem 1.5rem;
-        text-align: center;
-        cursor: pointer;
-        background: #fffbfa;
-        transition: all 0.2s ease;
-        margin-bottom: 1.5rem;
-    }
-    .device-upload-zone:hover {
-        background: #fff0f4;
-        border-color: var(--blush);
-        transform: translateY(-2px);
-    }
-    .device-upload-zone i {
-        color: var(--blush);
-        margin-bottom: 0.5rem;
-    }
-    .device-upload-zone h4 {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin-bottom: 0.35rem;
-    }
-    .device-upload-zone p {
-        font-size: 0.8rem;
-        color: var(--ink-muted);
-        margin: 0;
-    }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 900px) {
-        .profile-layout-grid {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
-        .stats-cards-row {
-            grid-template-columns: 1fr;
-        }
-        .profile-info-cols {
-            grid-template-columns: 1fr !important;
-            gap: 1rem;
-        }
-    }
-</style>
+@push('page-styles')
+    @vite('resources/css/pages/profil.css')
+@endpush
 
 <div class="profile-page-wrapper">
     {{-- Header --}}
@@ -1038,23 +35,23 @@
             <p class="sidebar-user-email" id="sidebar-user-email">{{ $user['email'] }}</p>
 
             <nav class="profile-nav-menu">
-                <button class="profile-nav-item active" data-tab="ringkasan">
+                <button type="button" class="profile-nav-item active" data-tab="ringkasan" aria-controls="tab-panel-ringkasan">
                     <i data-lucide="layout-grid"></i>
                     <span>Ringkasan</span>
                 </button>
-                <button class="profile-nav-item" data-tab="pesanan">
+                <button type="button" class="profile-nav-item" data-tab="pesanan" aria-controls="tab-panel-pesanan">
                     <i data-lucide="shopping-bag"></i>
                     <span>Pesanan saya</span>
                 </button>
-                <button class="profile-nav-item" data-tab="alamat">
+                <button type="button" class="profile-nav-item" data-tab="alamat" aria-controls="tab-panel-alamat">
                     <i data-lucide="map-pin"></i>
                     <span>Alamat</span>
                 </button>
-                <button class="profile-nav-item" data-tab="wishlist">
+                <button type="button" class="profile-nav-item" data-tab="wishlist" aria-controls="tab-panel-wishlist">
                     <i data-lucide="heart"></i>
                     <span>Wishlist</span>
                 </button>
-                <button class="profile-nav-item" data-tab="pengaturan">
+                <button type="button" class="profile-nav-item" data-tab="pengaturan" aria-controls="tab-panel-pengaturan">
                     <i data-lucide="settings"></i>
                     <span>Pengaturan</span>
                 </button>
@@ -1116,7 +113,7 @@
                 <div class="profile-content-card">
                     <div class="card-header-row">
                         <h2 class="card-heading-title">Pesanan terbaru</h2>
-                        <span class="link-view-all-pink" id="link-goto-myorders">Lihat semua</span>
+                        <button type="button" class="link-view-all-pink" id="link-goto-myorders">Lihat semua</button>
                     </div>
                     <div class="recent-orders-list">
                         @foreach($recentOrders as $ro)
@@ -1138,9 +135,15 @@
 
             {{-- 2. TAB PESANAN SAYA --}}
             <div class="profile-tab-panel" id="tab-panel-pesanan">
+                @if(session('success'))
+                    <div class="profile-order-notice success" role="status">{{ session('success') }}</div>
+                @endif
+                @if(session('error'))
+                    <div class="profile-order-notice error" role="alert">{{ session('error') }}</div>
+                @endif
                 <div class="my-orders-list">
                     @foreach($myOrders as $idx => $order)
-                        <div class="my-order-card" id="my-order-{{ $idx + 1 }}">
+                        <div class="my-order-card {{ $order['status_type'] === 'cancelled' ? 'cancelled' : '' }}" id="my-order-{{ $idx + 1 }}">
                             <div class="my-order-meta-header">
                                 <div class="order-meta-left">
                                     <span class="order-meta-date">{{ $order['date'] }}</span>
@@ -1167,13 +170,16 @@
                                     Total Belanja (incl. ongkir): <strong>{{ $order['total'] }}</strong>
                                 </span>
                                 <div style="display:flex; align-items:center; gap:0.75rem;">
-                                    <a href="/pesanan/{{ $order['slug'] }}" class="btn-lacak-order">
+                                    <a href="{{ route('pesanan.detail', $order['slug']) }}" class="btn-lacak-order">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                                         Lacak Pesanan
                                     </a>
-                                    <button class="btn-cancel-order" onclick="if(confirm('Batalkan pesanan ini?')) { document.getElementById('my-order-{{ $idx + 1 }}').style.opacity = '0.5'; this.textContent = 'Dibatalkan'; this.disabled = true; }">
-                                        Batalkan
-                                    </button>
+                                    @if($order['can_cancel'])
+                                        <form method="POST" action="{{ route('pesanan.cancel', $order['slug']) }}" onsubmit="return confirm('Batalkan pesanan ini? Stok produk akan dikembalikan.');">
+                                            @csrf
+                                            <button type="submit" class="btn-cancel-order">Batalkan</button>
+                                        </form>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -1369,7 +375,7 @@
 
             <div class="modal-form-group">
                 <label for="address-input-address">Alamat Lengkap <span style="color:#f43f5e;">*</span></label>
-                <textarea id="address-input-address" class="modal-input" rows="3" style="height:auto; min-height:80px; padding:0.75rem 1rem; resize:vertical; font-family:'DM Sans',sans-serif; line-height:1.45;" placeholder="Nama jalan, nomor rumah/gedung, RT/RW, kelurahan, kecamatan" required></textarea>
+                <textarea id="address-input-address" class="modal-input" rows="3" style="height:auto; min-height:80px; padding:0.75rem 1rem; resize:vertical; font-family:var(--font-body); line-height:1.45;" placeholder="Nama jalan, nomor rumah/gedung, RT/RW, kelurahan, kecamatan" required></textarea>
             </div>
 
             <div class="modal-row-2col">
@@ -1512,7 +518,7 @@
         <div style="width: 58px; height: 58px; border-radius: 50%; background: #fff1f2; color: #f43f5e; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; border: 2px solid #fed7e2;">
             <i data-lucide="log-out" style="width: 28px; height: 28px;"></i>
         </div>
-        <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 700; color: var(--ink); margin: 0 0 0.5rem 0;">Keluar dari Akun?</h3>
+        <h3 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 700; color: var(--ink); margin: 0 0 0.5rem 0;">Keluar dari Akun?</h3>
         <p style="font-size: 0.88rem; color: var(--ink-muted); line-height: 1.5; margin: 0 0 1.75rem 0;">Apakah Anda yakin ingin keluar dan mengakhiri sesi akun Sweet Dreams pada perangkat ini?</p>
         
         <div style="display: flex; gap: 0.85rem; justify-content: center;">
@@ -1569,11 +575,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const tabPanels = document.querySelectorAll('.profile-tab-panel');
 
     function switchTab(targetTab) {
+        if (!Array.from(navItems).some(item => item.dataset.tab === targetTab)) return;
+
         navItems.forEach(item => {
             if (item.getAttribute('data-tab') === targetTab) {
                 item.classList.add('active');
+                item.setAttribute('aria-current', 'page');
             } else {
                 item.classList.remove('active');
+                item.removeAttribute('aria-current');
             }
         });
 
@@ -1585,6 +595,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    const requestedTab = new URLSearchParams(window.location.search).get('tab');
+    if (requestedTab) switchTab(requestedTab);
 
     navItems.forEach(item => {
         item.addEventListener('click', function() {
@@ -1626,11 +639,11 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('edit-input-birthdate').value = user.birthdate || '';
             document.getElementById('edit-input-city').value = user.city || '';
         } else {
-            document.getElementById('edit-input-nama').value = '{{ $user['name'] }}';
-            document.getElementById('edit-input-email').value = '{{ $user['email'] }}';
-            document.getElementById('edit-input-phone').value = '{{ $user['phone'] }}';
-            document.getElementById('edit-input-birthdate').value = '{{ $user['birthdate_raw'] }}';
-            document.getElementById('edit-input-city').value = '{{ $user['city'] }}';
+            document.getElementById('edit-input-nama').value = @json($user['name']);
+            document.getElementById('edit-input-email').value = @json($user['email']);
+            document.getElementById('edit-input-phone').value = @json($user['phone']);
+            document.getElementById('edit-input-birthdate').value = @json($user['birthdate_raw']);
+            document.getElementById('edit-input-city').value = @json($user['city']);
         }
         profileModal.classList.add('open');
     }
@@ -1644,7 +657,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnCloseProfileModal) btnCloseProfileModal.addEventListener('click', closeProfileModal);
     if (btnCancelProfile) btnCancelProfile.addEventListener('click', closeProfileModal);
 
-        formProfile.addEventListener('submit', function() {
+    if (formProfile) {
+        formProfile.addEventListener('submit', function(event) {
+            event.preventDefault();
             const newName = document.getElementById('edit-input-nama').value.trim();
             const newEmail = document.getElementById('edit-input-email').value.trim();
 
@@ -1828,8 +843,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('address-modal-title').textContent = 'Tambah Alamat Pengiriman';
         document.getElementById('address-edit-id').value = '';
         document.getElementById('address-input-label').value = 'Rumah';
-        document.getElementById('address-input-name').value = '{{ $user['name'] }}';
-        document.getElementById('address-input-phone').value = '{{ $user['phone'] === 'Belum diisi' ? '' : $user['phone'] }}';
+        document.getElementById('address-input-name').value = @json($user['name']);
+        document.getElementById('address-input-phone').value = @json($user['phone'] === 'Belum diisi' ? '' : $user['phone']);
         document.getElementById('address-input-address').value = '';
         document.getElementById('address-input-postal').value = '';
         document.getElementById('address-input-primary').checked = false;
@@ -2131,7 +1146,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentSelectedAvatar = '';
 
     function openAvatarModal() {
-        const currentAvatar = document.getElementById('active-selected-avatar-val')?.value || '{{ $user["avatar"] }}';
+        const currentAvatar = document.getElementById('active-selected-avatar-val')?.value || @json($user['avatar']);
         currentSelectedAvatar = currentAvatar;
 
         const avatarSrc = currentAvatar.startsWith('data:') || currentAvatar.startsWith('http') || currentAvatar.startsWith('/') 
@@ -2296,12 +1311,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (setImg) setImg.src = avatarUrl;
                     if (spotImg) spotImg.src = avatarUrl;
                     if (navImg) navImg.src = avatarUrl;
-                    if (hiddenVal) hiddenVal.value = currentSelectedAvatar;
+                    if (hiddenVal) hiddenVal.value = body.avatar;
+                    currentSelectedAvatar = body.avatar;
 
                     if (window.SweetDreamsAuth) {
                         try {
                             const cur = window.SweetDreamsAuth.getCurrentUser() || {};
-                            cur.avatar = currentSelectedAvatar;
+                            cur.avatar = body.avatar;
                             window.SweetDreamsAuth.saveCurrentUser(cur);
                         } catch(e) {}
                     }

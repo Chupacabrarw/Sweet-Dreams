@@ -14,7 +14,10 @@ class ReportController extends Controller
         $start = $request->get('start') ? Carbon::parse($request->get('start')) : now()->subDays(7)->startOfDay();
         $end = $request->get('end') ? Carbon::parse($request->get('end'))->endOfDay() : now()->endOfDay();
 
-        $orders = Order::whereBetween('created_at', [$start, $end])->get();
+        $orders = Order::query()
+            ->countedAsSale()
+            ->whereBetween('created_at', [$start, $end])
+            ->get();
 
         $grossRevenue = $orders->sum(fn ($o) => $o->subtotal + $o->shipping_cost);
         $totalDiscount = $orders->sum('discount');

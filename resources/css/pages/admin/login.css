@@ -1,0 +1,45 @@
+        :root {
+            --font-body: 'Inter', system-ui, sans-serif;
+            --font-heading: 'Manrope', system-ui, sans-serif;
+            --font-description: 'Nunito Sans', 'Inter', system-ui, sans-serif;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family:var(--font-body); background:#20161b;
+            min-height:100vh; display:flex; align-items:center; justify-content:center;
+            padding:1.5rem;
+        }
+        .admin-login-card {
+            background:#fff; border-radius:20px; padding:2.75rem 2.5rem;
+            width:100%; max-width:400px;
+        }
+        .admin-login-logo {
+            display:flex; align-items:center; justify-content:center;
+            margin:0 auto 1.25rem;
+        }
+        .admin-login-logo img {
+            height:150px; width:auto; object-fit:contain;
+        }
+        .admin-login-title {
+            text-align:center; font-family:var(--font-heading);
+            font-size:1.6rem; font-weight:700; color:#20161b; margin-bottom:0.35rem;
+        }
+        .admin-login-subtitle { text-align:center; font-size:0.85rem; color:#8a6a72; margin-bottom:2rem; }
+        .form-group { margin-bottom:1.2rem; }
+        .form-group label { display:block; font-size:0.82rem; font-weight:600; color:#3a2a2e; margin-bottom:0.4rem; }
+        .form-group input {
+            width:100%; padding:0.75rem 1rem; border:1px solid #e5dde0; border-radius:10px; font-size:0.9rem;
+        }
+        .form-group input:focus { outline:none; border-color:#d44d6e; }
+        .btn-admin-login {
+            width:100%; background:#d44d6e; color:#fff; border:none; border-radius:10px;
+            padding:0.85rem; font-size:0.95rem; font-weight:700; cursor:pointer; margin-top:0.5rem;
+        }
+        .btn-admin-login:hover { background:#b83d5c; }
+        .error-box {
+            background:#fde2e6; color:#c53660; padding:0.75rem 1rem; border-radius:10px;
+            font-size:0.85rem; margin-bottom:1.2rem;
+        }
+        .back-link { display:block; text-align:center; margin-top:1.5rem; font-size:0.82rem; color:#8a6a72; text-decoration:none; }
+        .back-link:hover { color:#d44d6e; }
+    

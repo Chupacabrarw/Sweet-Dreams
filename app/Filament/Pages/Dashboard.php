@@ -22,11 +22,11 @@ class Dashboard extends Page
         $lastMonthStart = now()->subMonth()->startOfMonth();
         $lastMonthEnd   = now()->subMonth()->endOfMonth();
 
-        $salesToday     = Order::whereDate('created_at', $today)->sum('total');
-        $salesThisMonth = Order::whereBetween('created_at', [$thisMonthStart, now()])->sum('total');
-        $salesLastMonth = Order::whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])->sum('total');
-        $totalOrders    = Order::count();
-        $totalRevenue   = Order::sum('total');
+        $salesToday     = Order::query()->countedAsSale()->whereDate('created_at', $today)->sum('total');
+        $salesThisMonth = Order::query()->countedAsSale()->whereBetween('created_at', [$thisMonthStart, now()])->sum('total');
+        $salesLastMonth = Order::query()->countedAsSale()->whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])->sum('total');
+        $totalOrders    = Order::query()->countedAsSale()->count();
+        $totalRevenue   = Order::query()->countedAsSale()->sum('total');
         $totalCustomers = User::where('role', 'customer')->count();
 
         $momGrowth = $salesLastMonth > 0
@@ -34,8 +34,8 @@ class Dashboard extends Page
             : ($salesThisMonth > 0 ? 100 : 0);
 
         $avgOrderValue   = $totalOrders > 0 ? round($totalRevenue / $totalOrders) : 0;
-        $ordersThisMonth = Order::whereBetween('created_at', [$thisMonthStart, now()])->count();
-        $ordersLastMonth = Order::whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])->count();
+        $ordersThisMonth = Order::query()->countedAsSale()->whereBetween('created_at', [$thisMonthStart, now()])->count();
+        $ordersLastMonth = Order::query()->countedAsSale()->whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])->count();
         $orderGrowth     = $ordersLastMonth > 0
             ? round((($ordersThisMonth - $ordersLastMonth) / $ordersLastMonth) * 100, 1)
             : ($ordersThisMonth > 0 ? 100 : 0);
@@ -51,22 +51,26 @@ class Dashboard extends Page
             $date = now()->subDays($daysAgo)->startOfDay();
             return [
                 'label' => $date->format('d M'),
-                'total' => Order::whereDate('created_at', $date)->sum('total'),
+                'total' => Order::query()->countedAsSale()->whereDate('created_at', $date)->sum('total'),
             ];
         });
 
-        $topProducts = OrderItem::selectRaw('product_title, product_image, SUM(quantity) as total_qty, SUM(subtotal) as total_revenue')
-            ->groupBy('product_title', 'product_image')
+        $topProducts = OrderItem::query()
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.payment_status', 'paid')
+            ->where('orders.status', '!=', 'cancelled')
+            ->selectRaw('order_items.product_title, order_items.product_image, SUM(order_items.quantity) as total_qty, SUM(order_items.subtotal) as total_revenue')
+            ->groupBy('order_items.product_title', 'order_items.product_image')
             ->orderByDesc('total_qty')
             ->take(5)
             ->get();
 
-        $paymentMix = Order::selectRaw('payment_method, COUNT(*) as cnt')
+        $paymentMix = Order::query()->countedAsSale()->selectRaw('payment_method, COUNT(*) as cnt')
             ->groupBy('payment_method')
             ->pluck('cnt', 'payment_method');
 
         $last30      = now()->subDays(29)->startOfDay();
-        $ordersByDay = Order::where('created_at', '>=', $last30)->get()
+        $ordersByDay = Order::query()->countedAsSale()->where('created_at', '>=', $last30)->get()
             ->groupBy(fn($o) => $o->created_at->dayOfWeek);
         $dayNames    = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
         $bestDayIdx  = $ordersByDay->map->count()->sortDesc()->keys()->first();

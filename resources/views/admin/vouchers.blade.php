@@ -5,25 +5,9 @@
 @section('page-subtitle', 'Kelola kode diskon dan kampanye flash sale')
 
 @section('content')
-<style>
-    .admin-table { width:100%; border-collapse:collapse; }
-    .admin-table th { text-align:left; font-size:0.72rem; text-transform:uppercase; color:#8a6a72; padding:0.75rem 0.5rem; border-bottom:1px solid #f1e4e7; }
-    .admin-table td { padding:0.9rem 0.5rem; border-bottom:1px solid #f1e4e7; font-size:0.88rem; }
-    .status-pill { padding:0.25rem 0.7rem; border-radius:20px; font-size:0.76rem; font-weight:600; }
-    .status-pill.aktif { background:#e3f9ee; color:#1e9e64; }
-    .status-pill.terjadwal { background:#e2ecfd; color:#2f5fc9; }
-    .status-pill.nonaktif { background:#f1e4e7; color:#8a6a72; }
-    .action-link { color:#d44d6e; font-weight:600; font-size:0.85rem; cursor:pointer; margin-right:0.6rem; }
-    .form-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1rem; }
-    .form-group label { display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.4rem; }
-    .form-group input, .form-group select { width:100%; padding:0.6rem 0.8rem; border:1px solid #e5dde0; border-radius:10px; font-size:0.88rem; }
-</style>
-
-@if(session('success'))
-    <div style="background:#e3f9ee;color:#1e9e64;padding:0.8rem 1.2rem;border-radius:10px;margin-bottom:1.2rem;font-size:0.88rem;">
-        {{ session('success') }}
-    </div>
-@endif
+@push('page-styles')
+    @vite('resources/css/pages/admin/vouchers.css')
+@endpush
 
 <div class="admin-stat-grid">
     <div class="admin-stat-card"><div class="admin-stat-label">Voucher aktif</div><div class="admin-stat-value">{{ $totalActive }}</div></div>

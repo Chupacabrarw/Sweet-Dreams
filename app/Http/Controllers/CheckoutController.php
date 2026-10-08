@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\Voucher;
+use App\Services\InventoryService;
 
 class CheckoutController extends Controller
 {
@@ -72,7 +73,7 @@ class CheckoutController extends Controller
         })->toArray();
 
         $subtotal = $cartItems->sum(fn ($item) => $item->product->price * $item->quantity);
-        $shippingCost = 16000; // default: J&T EZ (yang aktif duluan)
+        $shippingCost = 0;
 
         $addresses = $request->user()->addresses()
             ->orderByDesc('is_primary')
@@ -131,14 +132,11 @@ class CheckoutController extends Controller
         }
         $cartItems = $cartQuery->get();
 
-        \Illuminate\Support\Facades\Log::info('Checkout Debug:', [
-            'user_id' => $user->id,
-            'request_item_ids' => $data['item_ids'] ?? null,
-            'found_cart_items' => $cartItems->pluck('id'),
-        ]);
-
         if ($cartItems->isEmpty()) {
-            return response()->json(['message' => 'Keranjang belanja masih kosong atau tidak ada produk yang dipilih.'], 422);
+            return response()->json([
+                'message' => 'Pilihan produk checkout sudah berubah atau tidak tersedia. Kembali ke keranjang, pilih produk lagi, lalu lanjutkan checkout.',
+                'redirect_url' => route('keranjang'),
+            ], 409);
         }
 
         $payment = collect($this->paymentMethods())->firstWhere('id', $data['payment_id']);
@@ -173,6 +171,30 @@ class CheckoutController extends Controller
         $total = max(0, $subtotal + $shippingCost - $discount);
 
         $order = DB::transaction(function () use ($user, $data, $cartItems, $shippingCourier, $shippingService, $shippingCost, $payment, $subtotal, $discount, $total, $voucher) {
+            $lockedCartItems = $user->cartItems()
+                ->whereIn('id', $cartItems->modelKeys())
+                ->with('product')
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
+
+            if ($lockedCartItems->count() !== $cartItems->count()) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'items' => 'Isi keranjang berubah. Muat ulang keranjang lalu coba checkout kembali.',
+                ]);
+            }
+
+            $lockedById = $lockedCartItems->keyBy('id');
+            foreach ($cartItems as $snapshot) {
+                if (($lockedById->get($snapshot->id)?->quantity ?? null) !== $snapshot->quantity) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'items' => 'Jumlah produk di keranjang berubah. Muat ulang keranjang lalu coba checkout kembali.',
+                    ]);
+                }
+            }
+
+            app(InventoryService::class)->reserveForCartItems($lockedCartItems);
+
             $newOrder = Order::create([
                 'order_number' => 'SD-' . now()->format('ymd') . '-' . strtoupper(Str::random(4)),
                 'user_id' => $user->id,
@@ -192,9 +214,10 @@ class CheckoutController extends Controller
                 'status' => 'pending',
                 'payment_method' => $payment['id'],
                 'payment_status' => 'unpaid',
+                'inventory_deducted' => true,
             ]);
 
-            foreach ($cartItems as $item) {
+            foreach ($lockedCartItems as $item) {
                 OrderItem::create([
                     'order_id' => $newOrder->id,
                     'product_id' => $item->product_id,
@@ -208,26 +231,45 @@ class CheckoutController extends Controller
                 ]);
             }
 
-            // Hapus hanya item yang di-checkout
-            foreach ($cartItems as $item) {
-                $item->delete();
-            }
-
             return $newOrder;
         });
-
-        if ($voucher) {
-            $voucher->increment('used_count');
-        }
 
         // Buat tagihan pembayaran via Midtrans
         $paymentResult = app(\App\Services\MidtransPaymentService::class)->createPayment($order);
 
-        if (!empty($paymentResult['success'])) {
-            $order->update([
-                'payment_reference'  => $paymentResult['payment_reference'] ?? null,
-                'payment_url'        => $paymentResult['payment_url'] ?? null,
+        if (empty($paymentResult['success'])) {
+            app(InventoryService::class)->cancelOrder($order, [
+                'payment_status' => 'failed',
+                'status' => 'cancelled',
             ]);
+
+            return response()->json([
+                'message' => 'Tagihan pembayaran gagal dibuat. Stok sudah dikembalikan dan isi keranjang tetap tersedia; silakan coba checkout lagi.',
+            ], 502);
+        }
+
+        $order->update([
+            'payment_reference'  => $paymentResult['payment_reference'] ?? null,
+            'payment_url'        => $paymentResult['payment_url'] ?? null,
+        ]);
+
+        DB::transaction(function () use ($user, $cartItems) {
+            $currentItems = $user->cartItems()
+                ->whereIn('id', $cartItems->modelKeys())
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
+
+            foreach ($cartItems as $snapshot) {
+                $currentItem = $currentItems->get($snapshot->id);
+                if ($currentItem && $currentItem->quantity === $snapshot->quantity) {
+                    $currentItem->delete();
+                }
+            }
+        });
+
+        if ($voucher) {
+            $voucher->increment('used_count');
         }
 
         return response()->json([

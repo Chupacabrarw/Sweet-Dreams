@@ -8,7 +8,6 @@
                <img src="{{ asset($banner->image) }}" alt="Sweet Dreams" class="hero-img" loading="eager">
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <span class="hero-eyebrow">Koleksi Terbaru 2024</span>
             <h1>{!! nl2br(e($banner->title)) !!}</h1>
             <p>{{ $banner->subtitle }}</p>
             <a href="{{ $banner->link }}" class="btn-shop-now" id="btn-shop-hero">
@@ -97,72 +96,32 @@
             </div>
 
             <div class="testimonials-grid">
-                <div class="testimonial-card reveal reveal-delay-1" id="testimonial-1">
-                    <div class="testimonial-stars">
-                        <i data-lucide="star" style="width:14px;height:14px;fill:currentColor;"></i>
-                        <i data-lucide="star" style="width:14px;height:14px;fill:currentColor;"></i>
-                        <i data-lucide="star" style="width:14px;height:14px;fill:currentColor;"></i>
-                        <i data-lucide="star" style="width:14px;height:14px;fill:currentColor;"></i>
-                        <i data-lucide="star" style="width:14px;height:14px;fill:currentColor;"></i>
-                    </div>
-                    <p>"Baju tidur dari Sweet Dreams benar-benar membuat saya merasa seperti di hotel bintang lima setiap malam. Kualitasnya sangat premium!"</p>
-                    <div class="testimonial-author">
-                        <div class="avatar">AL</div>
-                        <div class="info">
-                            <h4>Ayu Lestari</h4>
-                            <span>Pelanggan Setia</span>
+                @forelse($featuredReviews as $review)
+                    <a class="testimonial-card reveal reveal-delay-{{ $loop->iteration }}" href="{{ route('produk.detail', $review->product->slug) }}">
+                        <div class="testimonial-stars" aria-label="{{ $review->rating }} dari 5 bintang">
+                            @for($star = 1; $star <= 5; $star++)
+                                <i data-lucide="star" style="width:14px;height:14px;fill:{{ $star <= $review->rating ? 'currentColor' : 'none' }};"></i>
+                            @endfor
                         </div>
-                    </div>
-                </div>
-                <div class="testimonial-card reveal reveal-delay-2" id="testimonial-2">
-                    <div class="testimonial-stars">
-                        <i data-lucide="star" style="width:14px;height:14px;fill:currentColor;"></i>
-                        <i data-lucide="star" style="width:14px;height:14px;fill:currentColor;"></i>
-                        <i data-lucide="star" style="width:14px;height:14px;fill:currentColor;"></i>
-                        <i data-lucide="star" style="width:14px;height:14px;fill:currentColor;"></i>
-                        <i data-lucide="star" style="width:14px;height:14px;fill:currentColor;"></i>
-                    </div>
-                    <p>"Kimono silk-nya sangat nyaman dipakai. Desainnya elegan, cocok untuk dipakai saat santai di rumah maupun saat tidur."</p>
-                    <div class="testimonial-author">
-                        <div class="avatar">RW</div>
-                        <div class="info">
-                            <h4>Rina Wijaya</h4>
-                            <span>Pelanggan</span>
+                        <p>“{{ $review->body }}”</p>
+                        <div class="testimonial-author">
+                            <div class="avatar">{{ mb_strtoupper(mb_substr($review->user->name, 0, 2)) }}</div>
+                            <div class="info">
+                                <h4>{{ $review->user->name }}</h4>
+                                <span>Verified Buyer · {{ $review->product->title }}</span>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="testimonial-card reveal reveal-delay-3" id="testimonial-3">
-                    <div class="testimonial-stars">
-                        <i data-lucide="star" style="width:14px;height:14px;fill:currentColor;"></i>
-                        <i data-lucide="star" style="width:14px;height:14px;fill:currentColor;"></i>
-                        <i data-lucide="star" style="width:14px;height:14px;fill:currentColor;"></i>
-                        <i data-lucide="star" style="width:14px;height:14px;fill:currentColor;"></i>
-                        <i data-lucide="star" style="width:14px;height:14px;fill:currentColor;"></i>
-                    </div>
-                    <p>"Pengiriman cepat dan kemasan yang cantik. Saya sangat puas dengan pelayanan Sweet Dreams — pasti akan beli lagi!"</p>
-                    <div class="testimonial-author">
-                        <div class="avatar">DS</div>
-                        <div class="info">
-                            <h4>Dina Sari</h4>
-                            <span>Pelanggan</span>
-                        </div>
-                    </div>
-                </div>
+                    </a>
+                @empty
+                    <p class="testimonials-empty">Ulasan pelanggan akan tampil di sini setelah ada pembeli yang menyelesaikan pesanan dan menulis ulasan.</p>
+                @endforelse
             </div>
         </div>
     </section>
 
-<style>
-.product-card-wishlist.active {
-    background: var(--blush);
-    color: #fff;
-    opacity: 1;
-    transform: scale(1);
-}
-.product-card-wishlist.active svg {
-    fill: currentColor;
-}
-</style>
+@push('page-styles')
+    @vite('resources/css/pages/welcome.css')
+@endpush
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

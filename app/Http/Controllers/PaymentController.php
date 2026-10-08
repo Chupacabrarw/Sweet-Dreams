@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Services\InventoryService;
 use App\Services\MidtransPaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -10,10 +11,12 @@ use Illuminate\Support\Facades\Log;
 class PaymentController extends Controller
 {
     protected MidtransPaymentService $paymentService;
+    protected InventoryService $inventoryService;
 
-    public function __construct(MidtransPaymentService $paymentService)
+    public function __construct(MidtransPaymentService $paymentService, InventoryService $inventoryService)
     {
         $this->paymentService = $paymentService;
+        $this->inventoryService = $inventoryService;
     }
 
     /**
@@ -45,6 +48,17 @@ class PaymentController extends Controller
                 $remoteStatus = strtolower($res['status'] ?? '');
 
                 if (in_array($remoteStatus, ['capture', 'settlement'])) {
+                    if ($order->status === 'cancelled') {
+                        Log::warning("Payment confirmed after order {$order->order_number} was cancelled.");
+                        return response()->json([
+                            'success' => false,
+                            'payment_status' => $order->payment_status,
+                            'order_status' => $order->status,
+                            'message' => 'Pesanan sudah dibatalkan. Hubungi admin untuk bantuan pembayaran.',
+                            'order_number' => $order->order_number,
+                        ], 409);
+                    }
+
                     $order->update([
                         'payment_status' => 'paid',
                         'status'         => 'processing',
@@ -58,18 +72,19 @@ class PaymentController extends Controller
                         'order_number'   => $order->order_number,
                     ]);
                 } elseif (in_array($remoteStatus, ['expire', 'cancel', 'deny'])) {
-                    $order->update([
+                    $cancelled = $this->inventoryService->cancelOrder($order, [
                         'payment_status' => 'expired',
                         'status'         => 'cancelled',
-                    ]);
+                    ], true);
+                    $order->refresh();
 
                     return response()->json([
-                        'success'        => true,
-                        'payment_status' => 'expired',
-                        'order_status'   => 'cancelled',
-                        'message'        => 'Tagihan pembayaran sudah kedaluwarsa.',
+                        'success'        => $cancelled,
+                        'payment_status' => $order->payment_status,
+                        'order_status'   => $order->status,
+                        'message'        => $cancelled ? 'Tagihan pembayaran sudah kedaluwarsa.' : 'Pembayaran pesanan ini sudah tercatat.',
                         'order_number'   => $order->order_number,
-                    ]);
+                    ], $cancelled ? 200 : 409);
                 }
             }
         }
@@ -104,7 +119,12 @@ class PaymentController extends Controller
             $order = Order::where('order_number', $orderNumber)->first();
 
             if ($order) {
-                if ($transaction == 'capture') {
+                if (
+                    in_array($transaction, ['capture', 'settlement'], true)
+                    && $order->status === 'cancelled'
+                ) {
+                    Log::warning("Payment confirmed after order {$order->order_number} was cancelled.");
+                } elseif ($transaction == 'capture') {
                     if ($type == 'credit_card') {
                         if ($fraud == 'challenge') {
                             $order->update(['payment_status' => 'pending']);
@@ -117,7 +137,10 @@ class PaymentController extends Controller
                 } elseif ($transaction == 'pending') {
                     $order->update(['payment_status' => 'pending']);
                 } elseif ($transaction == 'deny' || $transaction == 'expire' || $transaction == 'cancel') {
-                    $order->update(['payment_status' => 'expired', 'status' => 'cancelled']);
+                    $this->inventoryService->cancelOrder($order, [
+                        'payment_status' => 'expired',
+                        'status' => 'cancelled',
+                    ], true);
                 }
                 
                 Log::info("Order #{$orderNumber} payment webhook processed: status = {$transaction}");

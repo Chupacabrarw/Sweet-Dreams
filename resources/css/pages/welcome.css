@@ -1,0 +1,9 @@
+.product-card-wishlist.active {
+    background: var(--blush);
+    color: #fff;
+    opacity: 1;
+    transform: scale(1);
+}
+.product-card-wishlist.active svg {
+    fill: currentColor;
+}

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\OrderItem;
+use App\Models\Product;
 use App\Models\SiteContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -40,7 +42,21 @@ class ContentController extends Controller
     public function index()
     {
         $categories = \App\Models\Category::orderBy('name')->get();
-        $products    = \App\Models\Product::orderBy('title')->get();
+        $paidSales = OrderItem::query()
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.payment_status', 'paid')
+            ->where('orders.status', '!=', 'cancelled')
+            ->whereNotNull('order_items.product_id')
+            ->selectRaw('order_items.product_id as product_id, SUM(order_items.quantity) as total_sold')
+            ->groupBy('order_items.product_id')
+            ->pluck('total_sold', 'product_id');
+
+        $products = Product::orderBy('title')->get()
+            ->each(function (Product $product) use ($paidSales) {
+                $product->paid_sales_count = (int) $paidSales->get($product->id, 0);
+            })
+            ->sortByDesc('paid_sales_count')
+            ->values();
 
         $featuredCategories = json_decode(
             SiteContent::where('key', 'home_categories')->value('body') ?? '[]', true
