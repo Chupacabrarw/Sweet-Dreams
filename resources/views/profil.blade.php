@@ -17,9 +17,18 @@
 
     {{-- Layout Grid --}}
     <div class="profile-layout-grid">
-        
+
+        {{-- Toggle menu akun (khusus HP) --}}
+        <button type="button" class="profile-sidebar-toggle" id="profile-sidebar-toggle" aria-expanded="false" aria-controls="profile-sidebar">
+            <i data-lucide="menu" style="width:18px;height:18px;"></i>
+            <span>Menu Akun</span>
+        </button>
+
         {{-- Left: Sidebar --}}
-        <aside class="profile-sidebar-card">
+        <aside class="profile-sidebar-card" id="profile-sidebar">
+            <button type="button" class="profile-sidebar-close" id="profile-sidebar-close" aria-label="Tutup Menu Akun">
+                <i data-lucide="x" style="width:20px;height:20px;"></i>
+            </button>
             <div class="sidebar-avatar-container">
                 <div class="sidebar-avatar-box" id="btn-sidebar-avatar-click" title="Klik untuk ganti avatar">
                     <img id="sidebar-avatar-img" src="{{ $user['avatar_url'] ?? asset($user['avatar']) }}" alt="{{ $user['name'] }}">
@@ -611,8 +620,28 @@ document.addEventListener('DOMContentLoaded', function() {
         item.addEventListener('click', function() {
             const target = this.getAttribute('data-tab');
             if (target) switchTab(target);
+            // Tutup drawer di HP setelah pilih menu
+            document.getElementById('profile-sidebar')?.classList.remove('open');
+            document.getElementById('profile-sidebar-toggle')?.setAttribute('aria-expanded', 'false');
         });
     });
+
+    // Drawer menu akun (HP)
+    const profileSidebar = document.getElementById('profile-sidebar');
+    const profileSidebarToggle = document.getElementById('profile-sidebar-toggle');
+    const profileSidebarClose = document.getElementById('profile-sidebar-close');
+    if (profileSidebarToggle && profileSidebar) {
+        profileSidebarToggle.addEventListener('click', () => {
+            const open = profileSidebar.classList.toggle('open');
+            profileSidebarToggle.setAttribute('aria-expanded', String(open));
+        });
+    }
+    if (profileSidebarClose && profileSidebar) {
+        profileSidebarClose.addEventListener('click', () => {
+            profileSidebar.classList.remove('open');
+            profileSidebarToggle?.setAttribute('aria-expanded', 'false');
+        });
+    }
 
     // Link 'Lihat semua' in recent orders -> switches to 'pesanan'
     const linkGotoOrders = document.getElementById('link-goto-myorders');

@@ -923,6 +923,8 @@
     @media (max-width: 640px) {
         .product-gallery-wrapper {
             flex-direction: column-reverse;
+            /* Jangan sticky di HP biar tidak nutupin info produk saat scroll */
+            position: static;
         }
         .product-thumbnails-col {
             flex-direction: row;

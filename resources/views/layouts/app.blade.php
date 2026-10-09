@@ -130,16 +130,18 @@
                 <li><a href="/keranjang" class="{{ request()->is('keranjang*') ? 'active' : '' }}">Keranjang</a></li>
                 <li><a href="/wishlist" class="{{ request()->is('wishlist*') ? 'active' : '' }}">Wishlist</a></li>
                 @auth
-                    <li><a href="/profil" class="{{ request()->is('profil*') ? 'active' : '' }}">Akun Saya ({{ auth()->user()->name }})</a></li>
+                    <li><a href="/profil" class="{{ request()->is('profil*') ? 'active' : '' }}">Akun Saya</a></li>
                     @if(auth()->user()->is_admin || auth()->user()->role === 'admin')
                         <li><a href="/admin/dashboard" style="color: #6366f1;">Admin Panel</a></li>
                     @endif
-                    <li><a href="/logout" onclick="try{localStorage.removeItem('sweetdreams_auth_user');}catch(e){}" style="color: #f43f5e; font-weight: 600;">Keluar (Logout)</a></li>
                 @else
                     <li><a href="/login" class="{{ request()->is('login*') ? 'active' : '' }}">Masuk / Daftar Akun</a></li>
                 @endauth
                 <li><a href="/tentang" class="{{ request()->is('tentang') ? 'active' : '' }}">Tentang</a></li>
                 <li><a href="/kontak" class="{{ request()->is('kontak') ? 'active' : '' }}">Kontak</a></li>
+                @auth
+                    <li><a href="/logout" onclick="try{localStorage.removeItem('sweetdreams_auth_user');}catch(e){}" style="color: #f43f5e; font-weight: 600;">Keluar (Logout)</a></li>
+                @endauth
             </ul>
             <div class="mobile-nav-search">
                 <i data-lucide="search" class="search-icon"></i>

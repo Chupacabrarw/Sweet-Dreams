@@ -109,6 +109,11 @@
             <i data-lucide="sliders-horizontal" style="width:18px;height:18px;"></i>
             Filter & Urutkan
         </button>
+        {{-- Mobile Search (HP saja, sinkron ke filter katalog) --}}
+        <div class="mobile-catalog-search" id="mobile-catalog-search">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" id="katalog-search-mobile" placeholder="Cari produk..." autocomplete="off">
+        </div>
 
         <div class="products-content-header">
             <div class="category-title">
@@ -619,6 +624,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     if (navSearchInput) navSearchInput.addEventListener('input', handleSearchInput);
     if (mobileNavSearchInput) mobileNavSearchInput.addEventListener('input', handleSearchInput);
+
+    // Search bar khusus HP di halaman katalog (teruskan ke filter yang sama)
+    const katalogMobileSearch = document.getElementById('katalog-search-mobile');
+    if (katalogMobileSearch) {
+        if (state.search) katalogMobileSearch.value = state.search;
+        katalogMobileSearch.addEventListener('input', (e) => {
+            if (navSearchInput) navSearchInput.value = e.target.value;
+            handleSearchInput({ target: navSearchInput || e.target });
+        });
+    }
 
     // 7. FILTER & SORT LOGIC
     function filterProducts() {

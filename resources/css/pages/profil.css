@@ -1023,10 +1023,68 @@
     }
 
     /* ===== RESPONSIVE ===== */
+    .profile-sidebar-toggle {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 11px;
+        border: 1.5px solid var(--blush);
+        border-radius: 10px;
+        background: #fff;
+        color: var(--blush);
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: var(--font-body);
+        margin-bottom: 1rem;
+    }
+    .profile-sidebar-close {
+        display: none;
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 34px;
+        height: 34px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        color: var(--ink);
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
     @media (max-width: 900px) {
         .profile-layout-grid {
             grid-template-columns: 1fr;
             gap: 2rem;
+        }
+        .profile-sidebar-toggle {
+            display: flex;
+            grid-column: 1 / -1;
+        }
+        /* Sidebar jadi drawer geser, tidak makan tempat */
+        .profile-sidebar-card {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 300px;
+            max-width: 85vw;
+            z-index: 300;
+            border-radius: 0 20px 20px 0;
+            overflow-y: auto;
+            transform: translateX(-105%);
+            transition: transform 0.3s ease;
+            box-shadow: 6px 0 28px rgba(0,0,0,0.18);
+            margin: 0;
+        }
+        .profile-sidebar-card.open {
+            transform: translateX(0);
+        }
+        .profile-sidebar-close {
+            display: flex;
         }
         .stats-cards-row {
             grid-template-columns: 1fr;
