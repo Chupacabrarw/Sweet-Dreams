@@ -184,21 +184,27 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Harga (Rp)</label>
-                        <input type="number" name="price" id="input-price" required placeholder="Contoh: 150000" min="0" value="{{ old('price') }}">
+                        <label>Harga Jual (Rp)</label>
+                        <input type="number" name="price" id="input-price" required placeholder="Otomatis dari Asli − Diskon" min="0" value="{{ old('price') }}">
+                        <small style="color:#a8939a;">Terisi otomatis, bisa diubah manual.</small>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Harga Coret (Rp) <small style="font-weight:normal;color:#a8939a;">(Opsional)</small></label>
+                        <label>Harga Asli (Rp)</label>
                         <input type="number" name="original_price" id="input-original-price" placeholder="Contoh: 200000" min="0" value="{{ old('original_price') }}">
-                        <small style="color:#a8939a;">Diisi kalau produk diskon.</small>
+                        <small style="color:#a8939a;">Harga sebelum diskon (yang dicoret).</small>
                     </div>
                     <div class="form-group">
-                        <label>Label Diskon <small style="font-weight:normal;color:#a8939a;">(Opsional)</small></label>
-                        <input type="text" name="discount" id="input-discount" placeholder="Contoh: -16%" maxlength="20" value="{{ old('discount') }}">
-                        <small style="color:#a8939a;">Kosongkan = otomatis dihitung dari harga coret.</small>
+                        <label>Diskon (Rp)</label>
+                        <input type="number" name="discount_rp" id="input-discount-rp" placeholder="Contoh: 30000" min="0" value="{{ old('discount_rp') }}">
+                        <small style="color:#a8939a;">Potongan rupiah. % dihitung otomatis.</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Label Diskon <small style="font-weight:normal;color:#a8939a;">(Otomatis)</small></label>
+                        <input type="text" name="discount" id="input-discount" placeholder="Contoh: -16%" maxlength="20" value="{{ old('discount') }}" readonly>
+                        <small style="color:#a8939a;" id="discount-preview"></small>
                     </div>
                 </div>
 
@@ -582,6 +588,33 @@
 
     categoryInput.addEventListener('change', updateSkuPlaceholder);
 
+    // Harga Jual & % otomatis dari Harga Asli - Diskon Rp (ala Shopee)
+    const inputOriginalPrice = document.getElementById('input-original-price');
+    const inputDiscountRp = document.getElementById('input-discount-rp');
+    const inputPrice = document.getElementById('input-price');
+    const inputDiscount = document.getElementById('input-discount');
+    const discountPreview = document.getElementById('discount-preview');
+
+    function recalcDiscount() {
+        const asli = parseInt(inputOriginalPrice.value) || 0;
+        const potongan = parseInt(inputDiscountRp.value) || 0;
+        if (asli > 0 && potongan >= 0) {
+            const jual = Math.max(0, asli - potongan);
+            inputPrice.value = jual;
+            if (potongan > 0 && asli > 0) {
+                const pct = Math.round(potongan / asli * 100);
+                inputDiscount.value = `-${pct}%`;
+                if (discountPreview) discountPreview.textContent = `Rp${jual.toLocaleString('id-ID')} setelah diskon ${pct}%`;
+            } else {
+                inputDiscount.value = '';
+                if (discountPreview) discountPreview.textContent = 'Tanpa diskon.';
+            }
+        }
+    }
+
+    inputOriginalPrice.addEventListener('input', recalcDiscount);
+    inputDiscountRp.addEventListener('input', recalcDiscount);
+
     function previewImage(input) {
         if (input.files && input.files[0]) {
             const url = URL.createObjectURL(input.files[0]);
@@ -643,6 +676,9 @@
         categoryInput.value = p.category_id;
         document.getElementById('input-price').value = p.price_raw;
         document.getElementById('input-original-price').value = p.original_price_raw ?? '';
+        const editAsli = parseInt(p.original_price_raw) || 0;
+        const editJual = parseInt(p.price_raw) || 0;
+        document.getElementById('input-discount-rp').value = (editAsli > editJual) ? (editAsli - editJual) : '';
         document.getElementById('input-discount').value = p.discount || '';
         document.getElementById('input-weight').value = p.weight ?? 250;
         document.getElementById('input-desc').value = p.short_desc || '';

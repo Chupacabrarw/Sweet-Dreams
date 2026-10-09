@@ -157,8 +157,13 @@
     });
 
     document.querySelectorAll('.admin-toast').forEach((toast) => {
+        let gone = false;
         const dismiss = () => {
+            if (gone) return;
+            gone = true;
             toast.classList.add('admin-toast-leaving');
+            // Fallback: hapus paksa bila transisi CSS tidak jalan
+            window.setTimeout(() => toast.remove(), 600);
             toast.addEventListener('transitionend', () => toast.remove(), { once: true });
         };
 
@@ -178,8 +183,12 @@
         toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
         toast.innerHTML = `<i data-lucide="${type === 'error' ? 'circle-alert' : 'circle-check'}" aria-hidden="true"></i><span></span><button type="button" class="admin-toast-close" aria-label="Tutup notifikasi">&times;</button>`;
         toast.querySelector('span').textContent = message;
+        let gone = false;
         const dismiss = () => {
+            if (gone) return;
+            gone = true;
             toast.classList.add('admin-toast-leaving');
+            window.setTimeout(() => toast.remove(), 600);
             toast.addEventListener('transitionend', () => toast.remove(), { once: true });
         };
         toast.querySelector('.admin-toast-close').addEventListener('click', dismiss);

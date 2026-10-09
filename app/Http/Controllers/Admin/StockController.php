@@ -24,10 +24,12 @@ class StockController extends Controller
 
         $variants = ProductVariant::with('product')
             ->when($search !== '', function ($query) use ($search) {
+                // SKU/nama: cocok sebagian; ukuran & warna: cocok persis
+                // (LIKE 1 huruf "M" ikut kena "Merah Maroon"/"Muda")
                 $query->where(function ($query) use ($search) {
                     $query->where('sku', 'like', "%{$search}%")
-                        ->orWhere('size', 'like', "%{$search}%")
-                        ->orWhere('color', 'like', "%{$search}%")
+                        ->orWhereRaw('LOWER(size) = ?', [mb_strtolower($search)])
+                        ->orWhereRaw('LOWER(color) = ?', [mb_strtolower($search)])
                         ->orWhereHas('product', fn ($query) => $query->where('title', 'like', "%{$search}%"));
                 });
             })

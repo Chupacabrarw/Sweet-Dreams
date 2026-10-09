@@ -32,7 +32,7 @@
     <div class="stock-toolbar">
         <h3 style="font-size:1rem; margin:0;">Stok per varian</h3>
         <form method="GET" action="{{ route('admin.stock') }}" class="stock-search-form">
-            <input type="text" name="q" value="{{ $search ?? '' }}" class="stock-search-input" placeholder="Cari produk, SKU, ukuran, warna...">
+            <input type="text" name="q" value="{{ $search ?? '' }}" class="stock-search-input" placeholder="Cari produk, SKU dan warna">
             @if(!empty($search))
                 <a href="{{ route('admin.stock') }}" class="action-link">Reset</a>
             @endif
