@@ -125,8 +125,9 @@
                     </select>
                 </div>
                 <div class="mf-group">
-                    <label>Nomor Resi Pengiriman</label>
+                    <label>Nomor Resi Pengiriman <span id="resi-required-mark" style="display:none;color:#e11d48;">*</span></label>
                     <input type="text" name="tracking_number" id="order-tracking-input" placeholder="Contoh: JNE0239847201">
+                    <small id="resi-hint" style="display:none;color:#e11d48;font-size:0.75rem;">Wajib diisi saat status "Sudah Dikirim".</small>
                 </div>
                 <button type="submit" class="btn-update-status">Perbarui</button>
             </div>
@@ -135,6 +136,15 @@
 </div>
 
 <script>
+    // Resi wajib saat status "Sudah Dikirim" (backend juga menolak tanpa resi)
+    function syncResiRequirement() {
+        var isShipped = document.getElementById('order-status-select').value === 'shipped';
+        document.getElementById('order-tracking-input').required = isShipped;
+        document.getElementById('resi-required-mark').style.display = isShipped ? 'inline' : 'none';
+        document.getElementById('resi-hint').style.display = isShipped ? 'block' : 'none';
+    }
+    document.getElementById('order-status-select').addEventListener('change', syncResiRequirement);
+
 function loadOrderDetail(orderNumber, orderId) {
     fetch('/admin/pesanan/' + orderId, { headers: { 'Accept': 'application/json' } })
         .then(function(res) { return res.json(); })
@@ -168,8 +178,13 @@ function loadOrderDetail(orderNumber, orderId) {
             document.getElementById('modal-voucher').textContent = data.voucher_code || '(Tidak ada)';
 
             var itemsHtml = (data.items || []).map(function(i) {
-                var imgHtml = i.image
-                    ? '<img src="' + i.image + '" alt="' + i.title + '">'
+                // product_image tersimpan relatif ("images/...") -> absolutkan agar
+                // tidak resolve ke /admin/images/... (penyebab gambar rusak)
+                var src = i.image
+                    ? (i.image.charAt(0) === '/' || i.image.indexOf('http') === 0 ? i.image : '/' + i.image)
+                    : null;
+                var imgHtml = src
+                    ? '<img src="' + src + '" alt="' + i.title + '" onerror="this.outerHTML=\'<div class=&quot;order-item-img-ph&quot;>&#128230;</div>\'">'
                     : '<div class="order-item-img-ph">&#128230;</div>';
                 return '<div class="order-item-card">' +
                     '<div class="order-item-img">' + imgHtml + '</div>' +
@@ -191,6 +206,7 @@ function loadOrderDetail(orderNumber, orderId) {
 
             document.getElementById('order-status-select').value = data.status;
             document.getElementById('order-tracking-input').value = data.tracking_number || '';
+            syncResiRequirement();
             document.getElementById('order-status-form').action = '/admin/pesanan/' + orderId;
 
             document.getElementById('order-modal-overlay').classList.add('open');

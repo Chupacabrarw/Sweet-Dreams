@@ -22,7 +22,7 @@
     @stack('page-styles')
     @vite('resources/css/layouts/app-chatbot.css')
 
-
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 
 </head>
 <body>
@@ -597,13 +597,13 @@
     {{-- CHATBOT WIDGET --}}
     <div id="chatbot-widget" class="chatbot-widget">
         <button id="chatbot-toggle" class="chatbot-toggle" aria-label="Buka Chatbot">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <img src="{{ asset('images/avatars/cht-bot.png') }}" alt="Dreamy AI">
         </button>
 
         <div id="chatbot-window" class="chatbot-window">
             <div class="chatbot-header">
                 <div class="chatbot-header-info">
-                    <div class="chatbot-avatar">D</div>
+                  <div class="chatbot-avatar"><img src="{{ asset('images/avatars/cht-bot.png') }}" alt="Dreamy"></div>
                     <div>
                         <h4 class="chatbot-title">Dreamy</h4>
                         <p class="chatbot-subtitle">Asisten Virtual Sweet Dreams</p>
@@ -613,7 +613,8 @@
             </div>
 
             <div id="chatbot-messages" class="chatbot-messages">
-                <div class="chatbot-message bot">
+                                <div class="chatbot-message bot">
+                    <div class="chatbot-msg-avatar"><img src="{{ asset('images/avatars/cht-bot.png') }}" alt="Dreamy"></div>
                     <div class="chatbot-bubble">Halo! Saya Dreamy, asisten virtual Sweet Dreams. Ada yang bisa saya bantu hari ini? 😊</div>
                 </div>
             </div>
@@ -642,6 +643,7 @@
             const sendBtn = document.getElementById('chatbot-send');
 
             let chatHistory = [];
+            const CHATBOT_DEBUG = @json(config('app.debug'));
 
             // Toggle chat window
             toggleBtn.addEventListener('click', () => {
@@ -689,20 +691,20 @@
                     // Remove typing indicator
                     typingIndicator.remove();
 
-                    if (response.ok) {
+                    if (response.ok && !data.error) {
                         appendMessage(data.reply, 'bot');
 
                         // Update history
                         chatHistory.push({ role: 'user', text: message });
                         chatHistory.push({ role: 'model', text: data.reply });
                     } else {
-                        appendMessage(data.reply || 'Maaf, terjadi kesalahan.', 'bot');
+                        appendErrorMessage(data.reply || 'Maaf, terjadi kesalahan.', data);
                     }
 
                 } catch (error) {
                     console.error('Chat error:', error);
                     typingIndicator.remove();
-                    appendMessage('Maaf, koneksi terputus. Silakan coba lagi.', 'bot');
+                    appendErrorMessage('Maaf, koneksi terputus. Silakan coba lagi.', { code: 'NETWORK', debug: CHATBOT_DEBUG ? { message: String(error && error.message ? error.message : error) } : null });
                 } finally {
                     chatInput.disabled = false;
                     sendBtn.disabled = false;
@@ -719,7 +721,33 @@
                     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                     .replace(/\n/g, '<br>');
 
-                messageDiv.innerHTML = `<div class="chatbot-bubble">${formattedText}</div>`;
+                const avatar = sender === 'bot'
+    ? `<div class="chatbot-msg-avatar"><img src="/images/avatars/cht-bot.png" alt="Dreamy"></div>`
+    : '';
+messageDiv.innerHTML = `${avatar}<div class="chatbot-bubble">${formattedText}</div>`;
+                messagesContainer.appendChild(messageDiv);
+                scrollToBottom();
+            }
+
+            function appendErrorMessage(text, meta) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chatbot-message bot chatbot-message-error';
+
+                const safeText = window.escapeHtml(text).replace(/\n/g, '<br>');
+                const code = meta && meta.code ? window.escapeHtml(String(meta.code)) : 'ERROR';
+                let debugHtml = '';
+                if (CHATBOT_DEBUG && meta && meta.debug) {
+                    const raw = typeof meta.debug === 'string' ? meta.debug : JSON.stringify(meta.debug, null, 2);
+                    debugHtml = `<pre class="chatbot-error-debug">${window.escapeHtml(raw)}</pre>`;
+                }
+                messageDiv.innerHTML = `
+                    <div class="chatbot-msg-avatar"><img src="/images/avatars/cht-bot.png" alt="Dreamy"></div>
+                    <div class="chatbot-bubble chatbot-bubble-error">
+                        <div class="chatbot-error-title">⚠️ Sistem error — bukan jawaban Dreamy</div>
+                        <div>${safeText}</div>
+                        <div class="chatbot-error-code">${code}${CHATBOT_DEBUG ? ' · mode dev' : ''}</div>
+                        ${debugHtml}
+                    </div>`;
                 messagesContainer.appendChild(messageDiv);
                 scrollToBottom();
             }
@@ -728,6 +756,7 @@
                 const indicatorDiv = document.createElement('div');
                 indicatorDiv.className = 'chatbot-message bot';
                 indicatorDiv.innerHTML = `
+                    <div class="chatbot-msg-avatar"><img src="/images/avatars/cht-bot.png" alt="Dreamy"></div>
                     <div class="chatbot-bubble chatbot-typing">
                         <div class="chatbot-typing-dot"></div>
                         <div class="chatbot-typing-dot"></div>

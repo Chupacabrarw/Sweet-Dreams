@@ -166,6 +166,28 @@
         window.setTimeout(dismiss, 5000);
     });
 
+    // Toast via JS (popup kanan atas, sama seperti notifikasi server)
+    window.adminToast = function(message, type = 'error') {
+        const stack = document.querySelector('.admin-toast-stack');
+        if (!stack) {
+            alert(message);
+            return;
+        }
+        const toast = document.createElement('div');
+        toast.className = `admin-toast admin-toast-${type}`;
+        toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+        toast.innerHTML = `<i data-lucide="${type === 'error' ? 'circle-alert' : 'circle-check'}" aria-hidden="true"></i><span></span><button type="button" class="admin-toast-close" aria-label="Tutup notifikasi">&times;</button>`;
+        toast.querySelector('span').textContent = message;
+        const dismiss = () => {
+            toast.classList.add('admin-toast-leaving');
+            toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+        };
+        toast.querySelector('.admin-toast-close').addEventListener('click', dismiss);
+        window.setTimeout(dismiss, 5000);
+        stack.appendChild(toast);
+        if (window.lucide) lucide.createIcons();
+    };
+
     lucide.createIcons();
 </script>
 @yield('scripts')

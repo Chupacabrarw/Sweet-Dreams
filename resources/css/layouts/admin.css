@@ -23,7 +23,7 @@
         .admin-brand-logo {
             width:100%; display:flex; align-items:center; justify-content:center;
         }
-        .admin-brand-logo img { height:76px; width:auto; object-fit:contain; filter: brightness(0) invert(1); transition:height 0.25s ease; }
+        .admin-brand-logo img { height:76px; width:auto; object-fit:contain; transition:height 0.25s ease; }
         .admin-brand-text strong { display:block; font-size:0.95rem; }
         .admin-brand-text span { display:block; font-size:0.68rem; color:#a08a90; letter-spacing:0.04em; }
 
@@ -60,10 +60,11 @@
         .admin-header-right { display:flex; align-items:center; gap:1rem; }
         .admin-sidebar-toggle {
             width:40px; height:40px; border-radius:10px; background:#fff; color:#6e5a60;
+            border:1px solid #f2c9d3;
             display:flex; align-items:center; justify-content:center; position:relative;
-            flex:0 0 auto; cursor:pointer; transition:background 0.2s ease, color 0.2s ease;
+            flex:0 0 auto; cursor:pointer; transition:background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
         }
-        .admin-sidebar-toggle:hover { background:#fce7ee; color:#c53660; }
+        .admin-sidebar-toggle:hover { background:#fce7ee; color:#c53660; border-color:#d44d6e; }
         .admin-avatar-row { display:flex; align-items:center; gap:0.6rem; }
         .admin-avatar-circle {
             width:36px; height:36px; border-radius:50%; background:#f2c9d3;

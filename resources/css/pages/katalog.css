@@ -27,9 +27,10 @@
         grid-template-columns: 270px 1fr;
         gap: 2rem;
         align-items: start;
-        height: min(72vh, calc(100vh - 190px));
+        /* Biarkan halaman yang scroll, bukan kotak produk (hindari double scrollbar) */
+        height: auto;
         min-height: 420px;
-        overflow: hidden;
+        overflow: visible;
     }
 
     /* ===== FILTER SIDEBAR ===== */
@@ -40,8 +41,8 @@
         padding: 1.75rem;
         position: sticky;
         top: 88px;
-        height: 100%;
-        max-height: 100%;
+        /* Filter boleh scroll sendiri kalau isinya panjang */
+        max-height: calc(100vh - 110px);
         overflow-y: auto;
         overscroll-behavior: contain;
         box-shadow: 0 8px 24px rgba(201,122,140, 0.04);
@@ -402,10 +403,10 @@
     /* ===== PRODUCT CONTENT AREA ===== */
     .products-content {
         min-width: 0;
-        height: 100%;
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        padding-right: 0.35rem;
+        /* Ikut scroll halaman utama, jangan bikin scrollbar kotak sendiri */
+        height: auto;
+        overflow: visible;
+        padding-right: 0;
     }
     .products-content-header {
         display: flex;
@@ -602,6 +603,7 @@
     }
 
     /* Discount Badge */
+    .card-discount-badge:empty { display: none; }
     .card-discount-badge {
         position: absolute;
         top: 12px;
@@ -616,6 +618,26 @@
         letter-spacing: 0.02em;
         box-shadow: 0 2px 8px rgba(201,122,140, 0.3);
     }
+
+    /* Best seller: pita miring di pojok kanan atas foto */
+    .ribbon-best-seller {
+        position: absolute;
+        top: 16px;
+        right: -34px;
+        transform: rotate(45deg);
+        background: #d44d6e;
+        color: #fff;
+        font-size: 0.62rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 4px 38px;
+        box-shadow: 0 2px 8px rgba(212,77,110,0.4);
+        z-index: 2;
+        white-space: nowrap;
+    }
+    /* Tombol love turun sedikit biar tidak tertutup pita */
+    .katalog-product-card-img.has-ribbon .card-wishlist-btn { top: 58px; }
 
     /* Tags row */
     .product-tags {
@@ -663,6 +685,11 @@
     .product-rating-score {
         font-weight: 700;
         color: var(--ink);
+    }
+    .product-rating-empty {
+        font-weight: 500;
+        color: var(--ink-faint);
+        font-style: italic;
     }
     .katalog-product-card-body h3 {
         font-family: var(--font-heading);

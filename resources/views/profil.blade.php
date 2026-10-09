@@ -397,9 +397,17 @@
                 </div>
             </div>
 
-            <div class="modal-form-group">
-                <label for="address-input-postal">Kode Pos</label>
-                <input type="text" id="address-input-postal" class="modal-input" placeholder="Kode pos 5 digit" style="max-width: 220px;" required>
+            <div class="modal-row-2col">
+                <div class="modal-form-group">
+                    <label for="address-select-subdistrict">Kecamatan</label>
+                    <input id="address-select-subdistrict" class="modal-input" list="address-subdistrict-list" placeholder="Pilih atau ketik kecamatan" autocomplete="off" disabled>
+                    <datalist id="address-subdistrict-list"></datalist>
+                    <input type="hidden" id="address-input-subdistrict" value="">
+                </div>
+                <div class="modal-form-group">
+                    <label for="address-input-postal">Kode Pos</label>
+                    <input type="text" id="address-input-postal" class="modal-input" placeholder="Kode pos 5 digit" required>
+                </div>
             </div>
 
             <div class="modal-form-group" style="margin-top: 0.5rem;">
@@ -714,6 +722,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const addrInputProvId = document.getElementById('address-input-province-id');
     const addrInputCity = document.getElementById('address-input-city');
     const addrInputCityId = document.getElementById('address-input-city-id');
+    const addrSelectSub = document.getElementById('address-select-subdistrict');
+    const addrSubList = document.getElementById('address-subdistrict-list');
+    const addrInputSub = document.getElementById('address-input-subdistrict');
+    const addrInputPostal = document.getElementById('address-input-postal');
 
     let profileProvincesCache = null;
 
@@ -826,6 +838,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
             addrInputCity.value = '';
             addrInputCityId.value = '';
+            if (addrSelectSub) {
+                addrSelectSub.value = '';
+                addrSelectSub.placeholder = '-- Pilih Kota Dahulu --';
+                addrSelectSub.disabled = true;
+            }
+            if (addrSubList) addrSubList.innerHTML = '';
+            if (addrInputSub) addrInputSub.value = '';
             loadProfileAddressCities(provId);
         });
     }
@@ -836,7 +855,70 @@ document.addEventListener('DOMContentLoaded', function() {
             const cityName = this.options[this.selectedIndex]?.text || '';
             addrInputCity.value = cityId ? cityName : '';
             addrInputCityId.value = cityId || '';
+            // Kecamatan ikut kota (sama seperti form checkout)
+            loadProfileSubdistricts(cityId, null, cityName);
         });
+    }
+
+    function syncProfileSubdistrict() {
+        if (!addrSelectSub) return;
+        const typed = addrSelectSub.value.trim();
+        let matchedId = '';
+        let matchedPostal = '';
+        if (addrSubList) {
+            const opt = [...addrSubList.options].find(o => o.value.toLowerCase() === typed.toLowerCase());
+            if (opt) {
+                matchedId = opt.dataset.id || '';
+                matchedPostal = opt.dataset.postal || '';
+            }
+        }
+        if (addrInputSub) addrInputSub.value = typed;
+        if (addrInputPostal && !addrInputPostal.value && matchedPostal) {
+            addrInputPostal.value = matchedPostal;
+        }
+        return matchedId;
+    }
+
+    function loadProfileSubdistricts(cityId, preselectNameOrId = null, cityName = '') {
+        if (!addrSelectSub) return;
+        addrSelectSub.value = '';
+        if (addrInputSub) addrInputSub.value = '';
+        if (addrSubList) addrSubList.innerHTML = '';
+        if (!cityId) {
+            addrSelectSub.placeholder = '-- Pilih Kota Dahulu --';
+            addrSelectSub.disabled = true;
+            return;
+        }
+        addrSelectSub.placeholder = '-- Memuat Kecamatan... --';
+        addrSelectSub.disabled = true;
+        fetch(`/api/shipping/subdistricts?city_id=${cityId}&city=${encodeURIComponent(cityName || '')}`)
+            .then(res => res.json())
+            .then(list => {
+                if (addrSubList) {
+                    addrSubList.innerHTML = (list || []).map(s =>
+                        `<option value="${s.name}" data-id="${s.id}" data-postal="${s.postal_code || ''}"></option>`
+                    ).join('');
+                }
+                addrSelectSub.placeholder = 'Pilih atau ketik kecamatan';
+                addrSelectSub.disabled = false;
+                if (preselectNameOrId) {
+                    const want = String(preselectNameOrId).toLowerCase();
+                    const opt = addrSubList ? [...addrSubList.options].find(o =>
+                        o.value.toLowerCase() === want || String(o.dataset.id) === String(preselectNameOrId)
+                    ) : null;
+                    addrSelectSub.value = opt ? opt.value : preselectNameOrId;
+                    syncProfileSubdistrict();
+                }
+            })
+            .catch(() => {
+                addrSelectSub.placeholder = 'Ketik kecamatan manual';
+                addrSelectSub.disabled = false;
+            });
+    }
+
+    if (addrSelectSub) {
+        addrSelectSub.addEventListener('input', syncProfileSubdistrict);
+        addrSelectSub.addEventListener('change', syncProfileSubdistrict);
     }
 
     function openAddAddressModal() {
@@ -853,6 +935,13 @@ document.addEventListener('DOMContentLoaded', function() {
         addrInputProvId.value = '';
         addrInputCity.value = '';
         addrInputCityId.value = '';
+        if (addrSelectSub) {
+            addrSelectSub.value = '';
+            addrSelectSub.placeholder = '-- Pilih Kota Dahulu --';
+            addrSelectSub.disabled = true;
+        }
+        if (addrSubList) addrSubList.innerHTML = '';
+        if (addrInputSub) addrInputSub.value = '';
 
         loadProfileAddressProvinces();
 
@@ -883,8 +972,10 @@ document.addEventListener('DOMContentLoaded', function() {
         addrInputProvId.value = addr.province_id || '';
         addrInputCity.value = addr.city || '';
         addrInputCityId.value = addr.city_id || '';
+        if (addrInputSub) addrInputSub.value = addr.subdistrict || '';
 
         loadProfileAddressProvinces(addr.province_id || addr.province, addr.city_id || addr.city);
+        loadProfileSubdistricts(addr.city_id || null, addr.subdistrict || null, addr.city || '');
 
         addressModal.classList.add('open');
         document.getElementById('address-input-address').focus();
@@ -899,6 +990,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const address = document.getElementById('address-input-address').value.trim();
             const city = addrInputCity.value.trim() || document.getElementById('address-select-city').options[document.getElementById('address-select-city').selectedIndex]?.text || '';
             const city_id = addrInputCityId.value.trim() || document.getElementById('address-select-city').value;
+            const subSelect = document.getElementById('address-select-subdistrict');
+            const subdistrict = subSelect ? subSelect.value.trim() : '';
             const province = addrInputProv.value.trim() || document.getElementById('address-select-province').options[document.getElementById('address-select-province').selectedIndex]?.text || '';
             const province_id = addrInputProvId.value.trim() || document.getElementById('address-select-province').value;
             const postal_code = document.getElementById('address-input-postal').value.trim();
@@ -924,6 +1017,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 address: address,
                 city: city,
                 city_id: city_id,
+                subdistrict: subdistrict,
                 province: province,
                 province_id: province_id,
                 postal_code: postal_code,
@@ -977,7 +1071,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let html = '';
         addresses.forEach(addr => {
-            const locDetails = [addr.city, addr.province, addr.postal_code].filter(Boolean).join(', ');
+            const locDetails = [addr.subdistrict ? 'Kec. ' + addr.subdistrict : '', addr.city, addr.province, addr.postal_code].filter(Boolean).join(', ');
             html += `
                 <div class="address-card-item" data-id="${addr.id}">
                     <div class="address-card-header">

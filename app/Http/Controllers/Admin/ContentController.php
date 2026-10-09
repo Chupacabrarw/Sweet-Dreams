@@ -72,6 +72,8 @@ class ContentController extends Controller
             'products'           => $products,
             'featuredCategories' => $featuredCategories,
             'featuredProducts'   => $featuredProducts,
+            'couriers'           => \App\Http\Controllers\ShippingController::COURIERS,
+            'enabledCouriers'    => \App\Http\Controllers\ShippingController::enabledCouriers(),
         ]);
     }
 
@@ -97,11 +99,14 @@ class ContentController extends Controller
     public function updateBanner(Request $request)
     {
         $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'subtitle' => 'nullable|string|max:255',
-            'button_text' => 'nullable|string|max:100',
-            'link' => 'nullable|string|max:255',
-        ]);
+    'title'       => 'required|string|max:255',
+    'subtitle'    => 'nullable|string|max:255',
+    'button_text' => 'nullable|string|max:100',
+    'link'        => 'nullable|string|max:255',
+    'image'       => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120|dimensions:min_width=1920,min_height=800',
+], [
+    'image.dimensions' => 'Gambar banner minimal 1920×800 px (disarankan 2400×1000 px, landscape).',
+]);
 
         $banner = $this->getOrCreate('banner_homepage');
 
@@ -115,6 +120,27 @@ class ContentController extends Controller
         $banner->update($data);
 
         return redirect()->route('admin.content')->with('success', 'Banner homepage berhasil diperbarui.');
+    }
+
+    public function updateCouriers(Request $request)
+    {
+        $data = $request->validate([
+            'couriers'   => 'required|array|min:1',
+            'couriers.*' => 'in:' . implode(',', array_keys(\App\Http\Controllers\ShippingController::COURIERS)),
+        ], [
+            'couriers.min' => 'Pilih minimal 1 ekspedisi agar checkout tidak kosong.',
+        ]);
+
+        SiteContent::updateOrCreate(
+            ['key' => 'shipping_couriers'],
+            ['body' => json_encode(array_values($data['couriers']))]
+        );
+
+        // Tarif di-cache 24 jam per kota -> bersihkan agar pilihan baru langsung berlaku
+        \Illuminate\Support\Facades\Cache::flush();
+
+        return redirect()->route('admin.content')
+            ->with('success', 'Ekspedisi yang tampil di checkout berhasil disimpan.');
     }
 
     public function updateText(Request $request, string $key)

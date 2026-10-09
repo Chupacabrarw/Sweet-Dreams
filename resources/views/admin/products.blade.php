@@ -10,7 +10,7 @@
 @endpush
 
 <div class="admin-products-page">
-<div class="admin-toolbar">
+<div class="admin-toolbar is-sticky">
     <form method="GET" action="{{ route('admin.products') }}" style="display:flex; flex:1; max-width:400px; position:relative;">
         <i data-lucide="search" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#a8939a; width:18px; height:18px;"></i>
         <input type="text" name="q" value="{{ $search }}" class="admin-search-input" style="padding-left:36px; max-width:100%;" placeholder="Cari nama atau SKU produk...">
@@ -149,6 +149,7 @@
 
 </div>
 
+
 {{-- PRODUCT FORM --}}
 <div class="admin-card" id="product-form-card">
     <h3 id="product-form-title" style="font-size:1.2rem; color:#2a1f22; margin-bottom:1.5rem;">Tambah Produk Baru</h3>
@@ -171,34 +172,76 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Nama Produk</label>
-                        <input type="text" name="title" id="input-title" required placeholder="Contoh: Kimono Silk Premium">
+                        <input type="text" name="title" id="input-title" required placeholder="Contoh: Kimono Silk Premium" value="{{ old('title') }}">
                     </div>
                     <div class="form-group">
                         <label>Kategori</label>
                         <select name="category_id" id="input-category" required>
                             <option value="">Pilih kategori...</option>
                             @foreach($categories as $cat)
-                                <option value="{{ $cat->id }}" data-sku-prefix="{{ \App\Models\Product::skuPrefix($cat->slug) }}">{{ $cat->name }}</option>
+                                <option value="{{ $cat->id }}" data-sku-prefix="{{ \App\Models\Product::skuPrefix($cat->slug) }}" @selected(old('category_id') == $cat->id)>{{ $cat->name }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Harga (Rp)</label>
-                        <input type="number" name="price" id="input-price" required placeholder="Contoh: 150000" min="0">
+                        <input type="number" name="price" id="input-price" required placeholder="Contoh: 150000" min="0" value="{{ old('price') }}">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Harga Coret (Rp) <small style="font-weight:normal;color:#a8939a;">(Opsional)</small></label>
+                        <input type="number" name="original_price" id="input-original-price" placeholder="Contoh: 200000" min="0" value="{{ old('original_price') }}">
+                        <small style="color:#a8939a;">Diisi kalau produk diskon.</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Label Diskon <small style="font-weight:normal;color:#a8939a;">(Opsional)</small></label>
+                        <input type="text" name="discount" id="input-discount" placeholder="Contoh: -16%" maxlength="20" value="{{ old('discount') }}">
+                        <small style="color:#a8939a;">Kosongkan = otomatis dihitung dari harga coret.</small>
+                    </div>
+                </div>
+
+                {{-- Baris Pengiriman: berat + dimensi dalam satu grid horizontal --}}
+                <div class="form-row cols-4">
+                    <div class="form-group">
+                        <label>Berat (gram)</label>
+                        <input type="number" name="weight" id="input-weight" value="{{ old('weight', 250) }}" placeholder="Contoh: 250" min="1" max="50000">
+                    </div>
+                    <div class="form-group">
+                        <label>Panjang (cm) <small style="font-weight:normal;color:#a8939a;">(Opsional)</small></label>
+                        <input type="number" name="length" id="input-length" placeholder="Contoh: 30" min="1" max="500" value="{{ old('length') }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Lebar (cm) <small style="font-weight:normal;color:#a8939a;">(Opsional)</small></label>
+                        <input type="number" name="width" id="input-width" placeholder="Contoh: 20" min="1" max="500" value="{{ old('width') }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Tinggi (cm) <small style="font-weight:normal;color:#a8939a;">(Opsional)</small></label>
+                        <input type="number" name="height" id="input-height" placeholder="Contoh: 10" min="1" max="500" value="{{ old('height') }}">
+                    </div>
+                </div>
+                <small class="field-hint">Berat dipakai tiap checkout. Dimensi opsional — isi hanya jika packing besar; kosong = pakai berat aktual.</small>
+
+
+                <div class="form-row full">
+                    <div class="form-group">
+                        <label>Deskripsi Singkat</label>
+                        <textarea name="short_desc" id="input-desc" rows="2" placeholder="Deskripsi menarik tentang produk ini...">{{ old('short_desc') }}</textarea>
                     </div>
                 </div>
 
                 <div class="form-row full">
                     <div class="form-group">
-                        <label>Deskripsi Singkat</label>
-                        <textarea name="short_desc" id="input-desc" rows="2" placeholder="Deskripsi menarik tentang produk ini..."></textarea>
+                        <label>Deskripsi Lengkap</label>
+                        <textarea name="long_desc" id="input-long-desc" rows="6" placeholder="Detail bahan, perawatan, isi paket, dll...">{{ old('long_desc') }}</textarea>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label>Ukuran <small style="font-weight:normal;color:#a8939a;">(Pisah koma)</small></label>
-                        <input type="text" name="sizes" id="input-sizes" placeholder="S, M, L, XL">
+                        <input type="text" name="sizes" id="input-sizes" placeholder="S, M, L, XL" value="{{ old('sizes') }}">
                     </div>
                     <div class="form-group">
                         <div class="color-picker-heading">
@@ -208,7 +251,7 @@
                         <div class="product-color-options" id="product-color-options">
                             @foreach($colorOptions as $color)
                                 <label class="product-color-option" data-color-slug="{{ $color->slug }}">
-                                    <input type="checkbox" name="colors[]" value="{{ $color->id }}" data-color-name="{{ $color->name }}">
+                                    <input type="checkbox" name="colors[]" value="{{ $color->id }}" data-color-name="{{ $color->name }}" @checked(in_array($color->id, old('colors', [])))>
                                     <span class="product-color-swatch" style="--swatch-color:{{ $color->hex }}"></span>
                                     <span>{{ $color->name }}</span>
                                 </label>
@@ -217,10 +260,11 @@
                     </div>
                     <div class="form-group">
                         <label>SKU <small style="font-weight:normal;color:#a8939a;">(Opsional)</small></label>
-                        <input type="text" name="sku" id="input-sku" placeholder="Otomatis saat disimpan">
+                        <input type="text" name="sku" id="input-sku" placeholder="Otomatis saat disimpan" value="{{ old('sku') }}">
                         <small style="color:#a8939a;">Kosongkan untuk membuat SKU sesuai kategori, misalnya BT-00001.</small>
                     </div>
                 </div>
+
                 <section class="product-gallery-manager" aria-labelledby="gallery-manager-title">
                     <div class="product-gallery-manager-heading">
                         <div>
@@ -545,8 +589,22 @@
             preview.src = url;
             preview.style.display = 'block';
             document.getElementById('dropzone-text').style.display = 'none';
+            document.getElementById('dropzone-label').classList.remove('dropzone-error');
         }
     }
+
+    // Cegah submit saat tambah baru tapi gambar belum dipilih (file input
+    // tidak bisa diingat browser, jadi validasi di depan sebelum server me-reset)
+    productForm.addEventListener('submit', function(e) {
+        const isCreate = formMethod.value === 'POST';
+        const hasFile = document.getElementById('input-image').files.length > 0;
+        if (isCreate && !hasFile) {
+            e.preventDefault();
+            document.getElementById('dropzone-label').classList.add('dropzone-error');
+            if (window.adminToast) window.adminToast('Foto produk wajib diunggah dulu sebelum simpan.', 'error');
+            document.getElementById('product-form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
 
     function resetProductForm(categoryId = '') {
         productForm.reset();
@@ -555,6 +613,7 @@
         formTitle.textContent = 'Tambah Produk Baru';
         document.getElementById('dropzone-preview').style.display = 'none';
         document.getElementById('dropzone-text').style.display = 'block';
+        document.getElementById('dropzone-label').classList.remove('dropzone-error');
         document.getElementById('product-stock-summary').hidden = true;
         document.getElementById('product-variant-stock-list').replaceChildren();
         galleryGeneralPreviews.replaceChildren();
@@ -583,7 +642,14 @@
         document.getElementById('input-title').value = p.title;
         categoryInput.value = p.category_id;
         document.getElementById('input-price').value = p.price_raw;
+        document.getElementById('input-original-price').value = p.original_price_raw ?? '';
+        document.getElementById('input-discount').value = p.discount || '';
+        document.getElementById('input-weight').value = p.weight ?? 250;
         document.getElementById('input-desc').value = p.short_desc || '';
+        document.getElementById('input-long-desc').value = p.long_desc || '';
+        document.getElementById('input-length').value = p.length ?? '';
+        document.getElementById('input-width').value = p.width ?? '';
+        document.getElementById('input-height').value = p.height ?? '';
         document.getElementById('input-sizes').value = p.sizes_raw;
         const selectedColorIds = new Set((p.colors_ids || []).map(Number));
         productColorOptions.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
@@ -649,6 +715,7 @@
     function closeCategoryModal() {
         catModal.classList.remove('show');
     }
+
 
     // Close modal on outside click
     catModal.addEventListener('click', function(e) {

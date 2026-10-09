@@ -58,6 +58,13 @@ class ProductController extends Controller
                 ->all(),
             'price'        => 'Rp ' . number_format($p->price, 0, ',', '.'),
             'price_raw'    => $p->price,
+            'original_price_raw' => $p->original_price,
+            'discount'     => $p->discount,
+            'weight'       => (int) ($p->weight ?? 250),
+            'length'       => $p->length,
+            'width'        => $p->width,
+            'height'       => $p->height,
+            'long_desc'    => $p->long_desc,
             'stock'        => $stockTotal,
             'variant_stocks' => $p->variants->map(fn (ProductVariant $variant) => [
                 'size' => $variant->size,
@@ -135,7 +142,6 @@ class ProductController extends Controller
 
         $data['slug']  = Str::slug($data['title']) . '-' . Str::random(5);
         $data['stock'] = 0;
-
         DB::transaction(function () use ($data) {
             $product = Product::create($data);
             $this->syncVariants($product);
@@ -351,8 +357,16 @@ class ProductController extends Controller
             'title'       => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'price'       => 'required|integer|min:0',
+            'original_price' => 'nullable|integer|min:0',
+            'discount'    => 'nullable|string|max:20',
+            'weight'      => 'nullable|integer|min:1|max:50000',
             'image'       => [$imageRequirement, 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'short_desc'  => 'nullable|string',
+            'long_desc'   => 'nullable|string',
+            'weight'      => 'nullable|integer|min:1|max:50000',
+            'length'      => 'nullable|integer|min:1|max:500',
+            'width'       => 'nullable|integer|min:1|max:500',
+            'height'      => 'nullable|integer|min:1|max:500',
             'sizes'       => 'nullable|string',
             'colors'      => 'nullable|array',
             'colors.*'    => 'required|integer|distinct|exists:product_colors,id',
@@ -372,6 +386,15 @@ class ProductController extends Controller
         $validated['sizes']  = $validated['sizes']  ? array_map('trim', explode(',', $validated['sizes']))  : [];
         $validated['sizes'] = array_values(array_unique(array_filter($validated['sizes'], fn ($value) => $value !== '')));
         $validated['colors'] = array_values(array_unique($validated['colors'] ?? []));
+        $validated['weight'] = (int) ($validated['weight'] ?? 250);
+        // Label diskon otomatis dari harga coret bila tidak diisi manual
+        if (empty($validated['discount'])
+            && !empty($validated['original_price'])
+            && $validated['original_price'] > ($validated['price'] ?? 0)
+        ) {
+            $pct = (int) round(($validated['original_price'] - $validated['price']) / $validated['original_price'] * 100);
+            $validated['discount'] = $pct > 0 ? "-{$pct}%" : null;
+        }
 
         return $validated;
     }

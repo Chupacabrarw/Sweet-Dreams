@@ -54,6 +54,24 @@ class OrderController extends Controller
             ->with('success', 'Pesanan berhasil dibatalkan dan stok sudah dikembalikan.');
     }
 
+    public function complete(Request $request, string $orderNumber): RedirectResponse
+    {
+        $order = Order::query()
+            ->where('order_number', $orderNumber)
+            ->where('user_id', $request->user()->id)
+            ->firstOrFail();
+
+        if ($order->status !== 'shipped') {
+            return redirect()->route('pesanan.detail', $orderNumber)
+                ->with('error', 'Pesanan hanya bisa ditandai diterima setelah berstatus dikirim.');
+        }
+
+        $order->update(['status' => 'completed']);
+
+        return redirect()->route('pesanan.detail', $orderNumber)
+            ->with('success', 'Terima kasih! Pesanan ditandai selesai dan kamu sudah bisa memberi ulasan.');
+    }
+
     public function show(Request $request, $orderNumber, InventoryService $inventoryService)
     {
         $order = Order::with('items')
@@ -162,6 +180,7 @@ class OrderController extends Controller
 
         $data = [
             'order_id' => '#' . $order->order_number,
+            'status_raw' => $order->status,
             'headline' => $headline,
             'subtitle' => $subtitle,
             'status' => $this->statusLabel($order->status),

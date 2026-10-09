@@ -47,8 +47,9 @@ class Product extends Model
         'category_id', 'title', 'slug', 'collection',
         'price', 'original_price', 'discount', 'rating',
         'review_count', 'sizes', 'colors', 'badge',
-        'short_desc', 'image', 'gallery', 'sales_count',
-        'sku', 'stock', 'is_active'
+        'short_desc', 'long_desc', 'image', 'gallery', 'sales_count',
+        'sku', 'stock', 'is_active', 'weight',
+        'length', 'width', 'height'
     ];
 
     protected $casts = [

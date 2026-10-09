@@ -111,24 +111,25 @@
         transform: scale(1.02);
     }
 
-    /* Badges on main image */
-    .badge-bestseller {
+    /* Badges on main image: pita miring best seller di pojok kanan atas */
+    .ribbon-best-seller {
         position: absolute;
-        top: 1.25rem;
-        left: 1.25rem;
-        background: #ffffff;
-        color: var(--ink-muted);
+        top: 18px;
+        right: -38px;
+        transform: rotate(45deg);
+        background: #d44d6e;
+        color: #fff;
         font-family: var(--font-body);
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.05em;
+        font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
-        padding: 6px 14px;
-        border-radius: 8px;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+        padding: 5px 42px;
+        box-shadow: 0 4px 14px rgba(212,77,110,0.4);
         z-index: 2;
-        border: 1px solid #f0e6e8;
+        white-space: nowrap;
     }
+    .product-main-img-box.has-ribbon .btn-wishlist-float { top: 4rem; }
     .btn-wishlist-float {
         position: absolute;
         top: 1.25rem;
@@ -801,6 +802,7 @@
     .related-card:hover .related-card-img-box img {
         transform: scale(1.05);
     }
+    .related-badge-discount:empty { display: none; }
     .related-badge-discount {
         position: absolute;
         top: 0.85rem;

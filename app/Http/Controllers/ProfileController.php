@@ -87,6 +87,7 @@ class ProfileController extends Controller
                     'address' => $addr->address,
                     'city' => $addr->city,
                     'city_id' => $addr->city_id,
+                    'subdistrict' => $addr->subdistrict,
                     'province' => $addr->province,
                     'province_id' => $addr->province_id,
                     'postal_code' => $addr->postal_code,

@@ -64,10 +64,12 @@ class CheckoutController extends Controller
         $checkoutItems = $cartItems->map(function ($item) {
             return [
                 'id' => $item->id,
+                'product_id' => $item->product_id,
                 'title' => $item->product->title,
                 'variant' => "{$item->color} · Size {$item->size} · Qty: {$item->quantity}",
                 'price' => $item->product->price,
                 'qty' => $item->quantity,
+                'weight' => (int) ($item->product->weight ?? 250),
                 'image' => $item->product->image,
             ];
         })->toArray();
@@ -86,6 +88,7 @@ class CheckoutController extends Controller
                     'address' => $addr->address,
                     'city' => $addr->city,
                     'city_id' => $addr->city_id,
+                    'subdistrict' => $addr->subdistrict,
                     'province' => $addr->province,
                     'province_id' => $addr->province_id,
                     'postal_code' => $addr->postal_code,
@@ -114,6 +117,7 @@ class CheckoutController extends Controller
             'address'          => 'required|string',
             'city'             => 'required|string|max:255',
             'city_id'          => 'nullable',
+            'subdistrict'      => 'nullable|string|max:255',
             'province'         => 'required|string|max:255',
             'province_id'      => 'nullable',
             'postal_code'      => 'required|string|max:10',
@@ -200,7 +204,8 @@ class CheckoutController extends Controller
                 'user_id' => $user->id,
                 'shipping_recipient_name' => $data['name'],
                 'shipping_phone' => $data['phone'],
-                'shipping_address' => $data['address'],
+                // Kecamatan digabung ke alamat (kolom khusus butuh migration baru)
+                'shipping_address' => trim($data['address'] . (!empty($data['subdistrict']) ? ', Kec. ' . $data['subdistrict'] : '')),
                 'shipping_city' => $data['city'],
                 'shipping_province' => $data['province'],
                 'shipping_postal_code' => $data['postal_code'],

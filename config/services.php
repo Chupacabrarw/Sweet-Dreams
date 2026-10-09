@@ -35,9 +35,10 @@ return [
         ],
     ],
 
-    'gemini' => [
-        'key' => env('GEMINI_API_KEY'),
-    ],
+   'gemini' => [
+    'key'   => env('GEMINI_API_KEY'),
+    'model' => env('GEMINI_MODEL', 'gemini-3.8-flash'),
+],
 
     'rajaongkir' => [
         'key'            => env('RAJAONGKIR_API_KEY'),

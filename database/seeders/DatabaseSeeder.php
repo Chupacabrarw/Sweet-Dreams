@@ -15,11 +15,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-
+        // Admin saja. Tanpa Test User agar dasbor/laporan tidak terkontaminasi data demo.
+        // (Akun admin dibuat oleh AdminSeeder yang tidak diubah.)
         $this->call(AdminSeeder::class);
         $this->call(ProductSeeder::class); // tambahin ini
         $this->call(OrderSeeder::class);

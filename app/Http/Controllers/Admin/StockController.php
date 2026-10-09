@@ -18,9 +18,21 @@ class StockController extends Controller
         return ['label' => 'Aman', 'class' => 'aman'];
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $variants = ProductVariant::with('product')->latest('updated_at')->get();
+        $search = trim((string) $request->query('q', ''));
+
+        $variants = ProductVariant::with('product')
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('sku', 'like', "%{$search}%")
+                        ->orWhere('size', 'like', "%{$search}%")
+                        ->orWhere('color', 'like', "%{$search}%")
+                        ->orWhereHas('product', fn ($query) => $query->where('title', 'like', "%{$search}%"));
+                });
+            })
+            ->latest('updated_at')
+            ->get();
 
         $rows = $variants->map(function ($v) {
             $ind = $this->indicator($v->stock);
@@ -38,6 +50,7 @@ class StockController extends Controller
 
         return view('admin.stock', [
             'rows' => $rows,
+            'search' => $search,
             'totalUnit' => $variants->sum('stock'),
             'menipis' => $variants->filter(fn ($v) => in_array($this->indicator($v->stock)['class'], ['kritis', 'menipis']))->count(),
             'habis' => $variants->where('stock', 0)->count(),

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\InventoryService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
@@ -113,7 +114,11 @@ class OrderController extends Controller
     {
         $data = $request->validate([
             'status' => 'required|in:pending,processing,shipped,completed,cancelled',
-            'tracking_number' => 'nullable|string|max:100',
+            // Resi wajib saat paket dinyatakan dikirim
+            'tracking_number' => [
+                Rule::requiredIf($request->input('status') === 'shipped'),
+                'nullable', 'string', 'max:100',
+            ],
         ]);
 
         if ($order->status === 'cancelled') {

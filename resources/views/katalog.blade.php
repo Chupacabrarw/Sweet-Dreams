@@ -146,25 +146,33 @@
             @endphp
             @foreach($initialList as $prod)
                 <div class="katalog-product-card" data-slug="{{ $prod['slug'] }}" onclick="window.location.href='/produk/{{ $prod['slug'] }}'">
-                    <div class="katalog-product-card-img">
+                    <div class="katalog-product-card-img {{ !empty($prod['is_best_seller']) ? 'has-ribbon' : '' }}">
                         <img src="{{ asset($prod['image']) }}" alt="{{ $prod['title'] }}" loading="lazy">
-                        @if(!empty($prod['discount']))
+                        @if(!empty(trim($prod['discount'] ?? '')))
                             <span class="card-discount-badge">{{ $prod['discount'] }}</span>
+                        @endif
+                        @if(!empty($prod['is_best_seller']))
+                            <span class="ribbon-best-seller">Best Seller</span>
                         @endif
                         <button type="button" class="card-wishlist-btn {{ in_array($prod['id'], $wishlistIds ?? []) ? 'active' : '' }}" data-product-id="{{ $prod['id'] }}" aria-label="Tambah ke Wishlist" onclick="toggleWishlist(event, {{ $prod['id'] }}, this);">
                             <i data-lucide="heart" style="width:18px;height:18px;"></i>
                         </button>
                     </div>
                     <div class="product-tags">
-                        <span class="product-tag-badge">{{ $prod['badge'] ?? $prod['category_name'] }}</span>
+                        <span class="product-tag-badge">{{ $prod['badge'] }}</span>
                         <span class="product-tag-size">Ukuran {{ implode(', ', $prod['sizes']) }}</span>
                         <span class="product-tag-stock" style="font-size: 0.75rem; color: var(--ink-muted); white-space: nowrap;">Stok: {{ $prod['stock'] ?? 0 }}</span>
                     </div>
                     <div class="katalog-product-card-body">
                         <div class="product-rating">
-                            <i data-lucide="star" style="width:14px;height:14px;"></i>
-                            <span class="product-rating-score">{{ $prod['review_count'] > 0 ? $prod['rating'] : '—' }}</span>
-                            <span>({{ $prod['review_count'] }})</span>
+                            @if($prod['review_count'] > 0)
+                                <i data-lucide="star" style="width:14px;height:14px;"></i>
+                                <span class="product-rating-score">{{ $prod['rating'] }}</span>
+                                <span>({{ $prod['review_count'] }})</span>
+                            @else
+                                <i data-lucide="star" style="width:14px;height:14px;opacity:0.35;"></i>
+                                <span class="product-rating-empty">Belum ada ulasan</span>
+                            @endif
                         </div>
                         <h3><a href="/produk/{{ $prod['slug'] }}" style="color:inherit;text-decoration:none;" onclick="event.stopPropagation();">{{ $prod['title'] }}</a></h3>
                         <p class="product-desc">{{ $prod['short_desc'] }}</p>
@@ -735,8 +743,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Build HTML
         const html = pageItems.map((prod, index) => {
             const isWishlisted = wishlist.map(Number).includes(Number(prod.id));
-            const discountBadge = prod.discount 
-                ? `<span class="card-discount-badge">${prod.discount}</span>` 
+            const discountBadge = (prod.discount || '').trim()
+                ? `<span class="card-discount-badge">${prod.discount}</span>`
                 : '';
             const origPrice = prod.original_price 
                 ? `<span class="original-price">${prod.original_price}</span>` 
@@ -745,12 +753,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 ? prod.sizes.join(', ')
                 : 'Belum diatur';
             const badgeLabel = prod.badge || prod.category_name;
+            const bestSellerRibbon = prod.is_best_seller ? `<span class="ribbon-best-seller">Best Seller</span>` : '';
 
             return `
                 <div class="katalog-product-card" data-slug="${prod.slug}" onclick="window.location.href='/produk/${prod.slug}'">
-                    <div class="katalog-product-card-img">
+                    <div class="katalog-product-card-img${prod.is_best_seller ? ' has-ribbon' : ''}">
                         <img src="/${prod.image}" alt="${prod.title}" loading="lazy">
                         ${discountBadge}
+                        ${bestSellerRibbon}
                         <button type="button" 
                                 class="card-wishlist-btn ${isWishlisted ? 'active' : ''}" 
                                 data-product-id="${prod.id}" 
@@ -766,9 +776,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <div class="katalog-product-card-body">
                         <div class="product-rating">
-                            <i data-lucide="star" style="width:14px;height:14px;"></i>
-                            <span class="product-rating-score">${prod.review_count > 0 ? prod.rating : '—'}</span>
-                            <span>(${prod.review_count})</span>
+                            ${prod.review_count > 0
+                                ? `<i data-lucide="star" style="width:14px;height:14px;"></i>
+                                   <span class="product-rating-score">${prod.rating}</span>
+                                   <span>(${prod.review_count})</span>`
+                                : `<i data-lucide="star" style="width:14px;height:14px;opacity:0.35;"></i>
+                                   <span class="product-rating-empty">Belum ada ulasan</span>`}
                         </div>
                         <h3><a href="/produk/${prod.slug}" style="color:inherit;text-decoration:none;" onclick="event.stopPropagation();">${prod.title}</a></h3>
                         <p class="product-desc">${prod.short_desc}</p>

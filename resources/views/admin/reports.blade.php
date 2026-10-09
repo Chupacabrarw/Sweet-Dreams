@@ -13,6 +13,7 @@
     <input type="date" name="start" value="{{ $start }}">
     <input type="date" name="end" value="{{ $end }}">
     <button type="submit" style="background:#d44d6e;color:#fff;border:none;border-radius:10px;padding:0.6rem 1.2rem;font-weight:600;cursor:pointer;">Terapkan filter</button>
+    <a href="{{ route('admin.reports.export', ['start' => $start, 'end' => $end]) }}" style="background:#fff;color:#d44d6e;border:1px solid #f2c9d3;border-radius:10px;padding:0.6rem 1.2rem;font-weight:600;text-decoration:none;">Export Excel (CSV)</a>
 </form>
 
 <div class="admin-stat-grid">

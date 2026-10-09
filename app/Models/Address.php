@@ -9,7 +9,7 @@ class Address extends Model
 {
     protected $fillable = [
         'user_id', 'label', 'recipient_name', 'phone',
-        'address', 'city', 'city_id', 'province', 'province_id', 'postal_code', 'is_primary',
+        'address', 'city', 'city_id', 'subdistrict', 'province', 'province_id', 'postal_code', 'is_primary',
     ];
 
     protected $casts = [

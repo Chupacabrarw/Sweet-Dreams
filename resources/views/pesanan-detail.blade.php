@@ -152,6 +152,14 @@
             <button class="btn-lihat-detail" id="btn-toggle-timeline">Lihat detail</button>
         </div>
 
+        {{-- Konfirmasi terima (ala Shopee): hanya saat paket sedang dikirim --}}
+        @if(($order['status_raw'] ?? '') === 'shipped')
+            <form method="POST" action="{{ route('pesanan.complete', $order['raw_order_number']) }}" onsubmit="return confirm('Paket sudah sampai di tanganmu?');">
+                @csrf
+                <button type="submit" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;width:100%;margin-top:1rem;background:#e06b88;color:#ffffff;font-weight:700;font-size:0.9rem;padding:12px 24px;border:none;border-radius:10px;cursor:pointer;box-shadow:0 3px 10px rgba(224,107,136,0.3);">Paket Sudah Diterima</button>
+            </form>
+        @endif
+
         {{-- Timeline Detail (Expandable) --}}
         <div class="tracking-timeline-wrapper" id="timeline-wrapper">
             <div class="tracking-timeline">

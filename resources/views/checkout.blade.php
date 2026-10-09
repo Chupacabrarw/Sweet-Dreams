@@ -60,8 +60,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="input-alamat">Alamat Lengkap <span class="required">*</span></label>
-                    <textarea id="input-alamat" class="form-control" rows="2" placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan/kecamatan" required></textarea>
+                    <label for="input-alamat">Alamat Lengkap Rumah <span class="required">*</span></label>
+                    <textarea id="input-alamat" class="form-control" rows="3" placeholder="Nama jalan, nomor rumah, RT/RW, patokan (contoh: Jl. Mawar No.10 RT 02/RW 05, depan masjid)" required></textarea>
                     <span class="field-error-msg" id="err-alamat">Alamat pengiriman lengkap wajib diisi.</span>
                 </div>
 
@@ -91,10 +91,21 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="input-kodepos">Kode Pos <span class="required">*</span></label>
-                    <input type="text" id="input-kodepos" class="form-control" placeholder="Kode pos" required>
-                    <span class="field-error-msg" id="err-kodepos">Kode pos wajib diisi (minimal 4-5 digit).</span>
+                <div class="form-row-2col">
+                    <div class="form-group">
+                        <label for="select-kecamatan">Kecamatan <span class="required">*</span></label>
+                        <input id="select-kecamatan" class="form-control" list="kecamatan-datalist" placeholder="Pilih atau ketik kecamatan" autocomplete="off" required disabled>
+                        <datalist id="kecamatan-datalist"></datalist>
+                        <input type="hidden" id="input-kecamatan" value="">
+                        <input type="hidden" id="input-kecamatan-id" value="">
+                        <span class="field-error-msg" id="err-kecamatan">Kecamatan wajib diisi (pilih dari daftar atau ketik manual).</span>
+                        {{-- Kombo: daftar dari API/statis, tapi boleh ketik bebas untuk kota yang belum terdaftar --}}
+                    </div>
+                    <div class="form-group">
+                        <label for="input-kodepos">Kode Pos <span class="required">*</span></label>
+                        <input type="text" id="input-kodepos" class="form-control" placeholder="Otomatis dari kecamatan" required readonly>
+                        <span class="field-error-msg" id="err-kodepos">Kode pos terisi otomatis setelah kecamatan dipilih.</span>
+                    </div>
                 </div>
             </section>
 
@@ -335,6 +346,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const inputProvinsi = document.getElementById('input-provinsi');
         const inputProvinsiId = document.getElementById('input-provinsi-id');
         const inputKodepos = document.getElementById('input-kodepos');
+        const inputKec = document.getElementById('input-kecamatan');
+        const inputKecId = document.getElementById('input-kecamatan-id');
+
+        window._savedSubdistrict = primaryAddr.subdistrict || null;
 
         if (inputNama && !inputNama.value) inputNama.value = primaryAddr.name || '';
         if (inputPhone && !inputPhone.value) inputPhone.value = primaryAddr.phone || '';
@@ -344,6 +359,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (inputProvinsi && !inputProvinsi.value) inputProvinsi.value = primaryAddr.province || '';
         if (inputProvinsiId && !inputProvinsiId.value) inputProvinsiId.value = primaryAddr.province_id || '';
         if (inputKodepos && !inputKodepos.value) inputKodepos.value = primaryAddr.postal_code || '';
+        if (inputKec && !inputKec.value) inputKec.value = primaryAddr.subdistrict || '';
     }
 
     function validateCheckoutForm() {
@@ -384,10 +400,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 msg: 'Kota / Kabupaten wajib dipilih.'
             },
             {
+                el: document.getElementById('select-kecamatan'),
+                err: document.getElementById('err-kecamatan'),
+                check: val => (val || '').trim().length >= 2,
+                msg: 'Kecamatan wajib diisi (pilih dari daftar atau ketik manual).'
+            },
+            {
                 el: document.getElementById('input-kodepos'),
                 err: document.getElementById('err-kodepos'),
                 check: val => /^[0-9]{4,6}$/.test(val.trim()),
-                msg: 'Kode pos wajib diisi berupa 4-5 digit angka.'
+                msg: 'Pilih kecamatan agar kode pos terisi otomatis.'
             }
         ];
 
@@ -515,6 +537,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // ===== RAJAONGKIR PROVINCES, CITIES & SHIPPING CALCULATION =====
     const selectProvinsi = document.getElementById('select-provinsi');
     const selectKota = document.getElementById('select-kota');
+    const selectKecamatan = document.getElementById('select-kecamatan');
+    const inputKecamatan = document.getElementById('input-kecamatan');
+    const inputKecamatanId = document.getElementById('input-kecamatan-id');
+    const inputKodepos = document.getElementById('input-kodepos');
     const inputProvinsi = document.getElementById('input-provinsi');
     const inputProvinsiId = document.getElementById('input-provinsi-id');
     const inputKota = document.getElementById('input-kota');
@@ -637,7 +663,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
-        const totalWeight = Math.max(500, items.reduce((sum, item) => sum + (item.qty * 250), 0));
+        const totalWeight = Math.max(500, items.reduce((sum, item) => sum + (item.qty * (parseInt(item.weight) || 250)), 0));
         const effectiveProvId = provId || (selectProvinsi ? selectProvinsi.value : null);
 
         fetch('/api/shipping/cost', {
@@ -651,7 +677,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 destination_city_id: cityId || null,
                 city: cityName || null,
                 province_id: effectiveProvId || null,
-                weight: totalWeight
+                weight: totalWeight,
+                // Berat tagih dihitung ulang server dari dimensi DB (anti manipulasi)
+                items: items.map(i => ({ product_id: i.product_id, qty: i.qty }))
             })
         })
         .then(async res => {
@@ -729,6 +757,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     selectKota.value = matchedOption.id;
                     inputKota.value = matchedOption.name;
                     inputKotaId.value = matchedOption.id;
+                    // Muat kecamatan juga (bug sebelumnya: hanya dimuat saat ganti manual)
+                    loadSubdistrictsForCity(matchedOption.id, window._savedSubdistrict || null, matchedOption.name);
                     fetchShippingRates(matchedOption.id, matchedOption.name, provId);
                 }
             })
@@ -748,9 +778,97 @@ document.addEventListener('DOMContentLoaded', function() {
 
             inputKota.value = '';
             inputKotaId.value = '';
+            // Reset tingkat di bawahnya: kecamatan + kode pos
+            if (selectKecamatan) {
+                selectKecamatan.value = '';
+                selectKecamatan.placeholder = '-- Pilih Kota Dahulu --';
+                selectKecamatan.disabled = true;
+            }
+            if (kecList) kecList.innerHTML = '';
+            if (inputKecamatan) inputKecamatan.value = '';
+            if (inputKecamatanId) inputKecamatanId.value = '';
+            if (inputKodepos) inputKodepos.value = '';
             loadCitiesForProvince(provId);
 
         });
+    }
+
+    // ===== KECAMATAN KOMBO: dropdown saran + boleh ketik manual =====
+    const kecList = document.getElementById('kecamatan-datalist');
+
+    function syncKecamatanFromInput() {
+        if (!selectKecamatan) return;
+        const typed = selectKecamatan.value.trim();
+        let matchedId = '';
+        let matchedPostal = '';
+        if (kecList) {
+            const opt = [...kecList.options].find(o => o.value.toLowerCase() === typed.toLowerCase());
+            if (opt) {
+                matchedId = opt.dataset.id || '';
+                matchedPostal = opt.dataset.postal || '';
+            }
+        }
+        if (inputKecamatan) inputKecamatan.value = typed;
+        if (inputKecamatanId) inputKecamatanId.value = matchedId;
+        // Kode pos otomatis hanya bila masih kosong (jangan timpa kode pos asli)
+        if (inputKodepos && !inputKodepos.value && matchedPostal) {
+            inputKodepos.value = matchedPostal;
+        }
+    }
+
+    function loadSubdistrictsForCity(cityId, preselectNameOrId = null, cityName = '') {
+        if (!selectKecamatan) return;
+        selectKecamatan.value = '';
+        if (inputKecamatan) inputKecamatan.value = '';
+        if (inputKecamatanId) inputKecamatanId.value = '';
+        if (kecList) kecList.innerHTML = '';
+        if (!cityId) {
+            selectKecamatan.placeholder = '-- Pilih Kota Dahulu --';
+            selectKecamatan.disabled = true;
+            return;
+        }
+        selectKecamatan.placeholder = '-- Memuat Kecamatan... --';
+        selectKecamatan.disabled = true;
+        fetch(`/api/shipping/subdistricts?city_id=${cityId}&city=${encodeURIComponent(cityName || '')}`)
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP error ' + res.status);
+                return res.json();
+            })
+            .then(list => {
+                if (kecList) {
+                    kecList.innerHTML = (list || []).map(s =>
+                        `<option value="${escapeHtml(s.name)}" data-id="${escapeHtml(String(s.id))}" data-postal="${escapeHtml(s.postal_code || '')}"></option>`
+                    ).join('');
+                }
+                selectKecamatan.placeholder = 'Pilih atau ketik kecamatan';
+                selectKecamatan.disabled = false;
+                // Preselect (misal dari alamat tersimpan) bila cocok dengan saran
+                if (preselectNameOrId && kecList) {
+                    const opt = [...kecList.options].find(o =>
+                        o.value.toLowerCase() === String(preselectNameOrId).toLowerCase() ||
+                        String(o.dataset.id) === String(preselectNameOrId)
+                    );
+                    if (opt) {
+                        selectKecamatan.value = opt.value;
+                        syncKecamatanFromInput();
+                    } else {
+                        // Tidak ada di saran -> isi manual apa adanya
+                        selectKecamatan.value = preselectNameOrId;
+                        syncKecamatanFromInput();
+                    }
+                }
+            })
+            .catch(err => {
+                console.error('Error loading subdistricts:', err);
+                // Gagal total: tetap bisa ketik manual
+                selectKecamatan.placeholder = 'Ketik kecamatan manual';
+                selectKecamatan.disabled = false;
+            });
+    }
+
+    if (selectKecamatan) {
+        selectKecamatan.addEventListener('input', syncKecamatanFromInput);
+        selectKecamatan.addEventListener('change', syncKecamatanFromInput);
     }
 
     if (selectKota) {
@@ -760,6 +878,8 @@ document.addEventListener('DOMContentLoaded', function() {
             inputKota.value = cityId ? cityName : '';
             inputKotaId.value = cityId || '';
 
+            // Kecamatan ikut kota yang baru; tarif ikut kota (Starter: level kota)
+            loadSubdistrictsForCity(cityId, null, cityName);
             if (cityId) {
                 fetchShippingRates(cityId, cityName, selectProvinsi ? selectProvinsi.value : null);
             } else {
@@ -802,6 +922,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 inputProvinsiId.value = matchedProv.id;
                 loadCitiesForProvince(matchedProv.id, primaryAddr.city_id || primaryAddr.city);
             } else if (primaryAddr.city_id || primaryAddr.city) {
+                loadSubdistrictsForCity(primaryAddr.city_id || null, primaryAddr.subdistrict || null, primaryAddr.city || '');
                 fetchShippingRates(primaryAddr.city_id || null, primaryAddr.city || null);
             }
         }
@@ -896,6 +1017,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     address: document.getElementById('input-alamat').value.trim(),
                     city: document.getElementById('input-kota').value.trim(),
                     city_id: document.getElementById('input-kota-id')?.value || null,
+                    subdistrict: document.getElementById('input-kecamatan')?.value || null,
                     province: document.getElementById('input-provinsi').value.trim(),
                     province_id: document.getElementById('input-provinsi-id')?.value || null,
                     postal_code: document.getElementById('input-kodepos').value.trim(),

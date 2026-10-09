@@ -36,8 +36,10 @@
             </div>
 
             {{-- Main Image Box --}}
-            <div class="product-main-img-box" id="product-main-img-box">
-                <span class="badge-bestseller">{{ $product['badge'] ?? 'BEST SELLER' }}</span>
+            <div class="product-main-img-box{{ !empty($product['is_best_seller']) ? ' has-ribbon' : '' }}" id="product-main-img-box">
+                @if(!empty($product['is_best_seller']))
+                <span class="ribbon-best-seller">Best Seller</span>
+                @endif
                                 <button class="btn-wishlist-float {{ ($product['is_wishlisted'] ?? false) ? 'active' : '' }}" id="btn-wishlist-toggle" aria-label="Tambah ke Wishlist">
                     <i data-lucide="heart" style="width:20px;height:20px;"></i>
                 </button>
@@ -56,8 +58,6 @@
                 </div>
                 <span class="rating-text">{{ $product['review_count'] > 0 ? $product['rating'] . ' | ' . $product['review_count'] . ' ulasan' : 'Belum ada ulasan' }}</span>
             </div>
-
-            <span class="collection-tag">{{ $product['collection'] }}</span>
 
             <h1 class="product-title">{{ $product['title'] }}</h1>
 
@@ -199,17 +199,9 @@
             <button class="tab-nav-btn" data-tab="ulasan" id="tab-btn-ulasan">Ulasan ({{ $product['review_count'] }})</button>
         </div>
 
-        {{-- Tab Panel: Deskripsi --}}
+        {{-- Tab Panel: Deskripsi (tanpa judul, langsung isi) --}}
         <div class="tab-panel active" id="tab-panel-deskripsi">
-            <h3 class="tab-content-title">{{ $product['long_desc_title'] }}</h3>
             <p class="tab-content-text">{{ $product['long_desc'] }}</p>
-
-            <h4 class="tab-features-title">Fitur Produk:</h4>
-            <ul class="tab-features-list">
-                @foreach($product['features'] as $feature)
-                    <li>{{ $feature }}</li>
-                @endforeach
-            </ul>
         </div>
 
         {{-- Tab Panel: Ulasan --}}
@@ -313,7 +305,9 @@
         @foreach($relatedProducts as $idx => $rel)
             <a href="/produk/{{ $rel['slug'] }}" class="related-card" id="related-prod-{{ $idx + 1 }}">
                 <div class="related-card-img-box">
+                    @if(!empty(trim($rel['discount'] ?? '')))
                     <span class="related-badge-discount">{{ $rel['discount'] }}</span>
+                    @endif
                     <button class="related-btn-wishlist {{ ($rel['is_wishlisted'] ?? false) ? 'active' : '' }}" 
                             aria-label="Wishlist" 
                             data-product-id="{{ $rel['id'] }}" 

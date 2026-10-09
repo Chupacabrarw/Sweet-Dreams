@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;
 use App\Models\Product;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class OrderSeeder extends Seeder
@@ -17,10 +18,15 @@ class OrderSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::where('email', 'test@example.com')->first();
-        if (!$user) {
-            $user = User::first();
-        }
+        // Pembeli demo khusus (JANGAN pakai Test User / admin agar dasbor bersih)
+        $user = User::firstOrCreate(
+            ['email' => 'pembeli.demo@example.com'],
+            [
+                'name' => 'Pelanggan Demo',
+                'password' => Hash::make('demo123'),
+                'role' => 'customer',
+            ]
+        );
 
         $products = Product::inRandomOrder()->take(3)->get();
         

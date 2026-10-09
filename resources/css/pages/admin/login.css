@@ -16,6 +16,8 @@
         .admin-login-logo {
             display:flex; align-items:center; justify-content:center;
             margin:0 auto 1.25rem;
+            background:transparent;
+            padding:0;
         }
         .admin-login-logo img {
             height:150px; width:auto; object-fit:contain;

@@ -16,7 +16,28 @@ class ProductController extends Controller
         return $amount === null ? null : 'Rp ' . number_format($amount, 0, ',', '.');
     }
 
-    protected function mapForCatalog(Product $product, array $wishlistIds = [], array $colorHexBySlug = []): array
+    protected function topSellerIds(int $limit = 3): array
+    {
+        // BEST SELLER otomatis: maksimal 3 produk terlaris per kategori.
+        // - Hanya produk yang sudah laku (sales_count > 0) yang dinilai.
+        // - Kategori yang semua produknya 0 penjualan = tanpa badge.
+        // - Dinamis mengikuti sales_count: kalau F menyalip C, C lepas, F dapat.
+        $ids = [];
+        foreach (Category::pluck('id') as $categoryId) {
+            $top = Product::where('is_active', true)
+                ->where('category_id', $categoryId)
+                ->where('sales_count', '>', 0)
+                ->orderByDesc('sales_count')
+                ->limit($limit)
+                ->pluck('id');
+            foreach ($top as $id) {
+                $ids[$id] = true;
+            }
+        }
+        return $ids;
+    }
+
+    protected function mapForCatalog(Product $product, array $wishlistIds = [], array $colorHexBySlug = [], array $topSellerIds = []): array
     {
         $configuredVariants = $product->variants->map(fn ($variant) => [
             'size' => $variant->size,
@@ -44,7 +65,9 @@ class ProductController extends Controller
             'colors' => $product->colors ?? [],
             'configured_variants' => $configuredVariants->values(),
             'variants' => $availableVariants->values(),
-            'badge' => $product->badge,
+            // Pil hitam = nama kategori. BEST SELLER jadi ribbon miring (is_best_seller).
+            'badge' => $product->category->name,
+            'is_best_seller' => isset($topSellerIds[$product->id]),
             'short_desc' => $product->short_desc,
             'image' => $product->image,
             'created_at' => optional($product->created_at)->format('Y-m-d'),
@@ -96,7 +119,7 @@ class ProductController extends Controller
             ->withAvg('reviews', 'rating')
             ->where('is_active', true)
             ->get()
-            ->map(fn ($p) => $this->mapForCatalog($p, $wishlistIds, $colorHexBySlug))
+            ->map(fn ($p) => $this->mapForCatalog($p, $wishlistIds, $colorHexBySlug, $this->topSellerIds()))
             ->toArray();
 
         return view('katalog', [
@@ -134,8 +157,18 @@ class ProductController extends Controller
             : null;
         $canReview = $request->user()
             ? $request->user()->orders()
-                ->where('status', 'completed')
-                ->whereHas('items', fn ($query) => $query->where('product_id', $product->id))
+                ->where(function ($query) use ($product) {
+                    // completed = bisa ulasan; atau shipped > 7 hari (pengaman
+                    // bila pembeli lupa klik "diterima", tanpa cron)
+                    $query->where(function ($query) use ($product) {
+                        $query->where('status', 'completed')
+                            ->whereHas('items', fn ($query) => $query->where('product_id', $product->id));
+                    })->orWhere(function ($query) use ($product) {
+                        $query->where('status', 'shipped')
+                            ->where('updated_at', '<=', now()->subDays(7))
+                            ->whereHas('items', fn ($query) => $query->where('product_id', $product->id));
+                    });
+                })
                 ->exists()
             : false;
         $storedGallery = $this->normalizeGallery($product->gallery);
@@ -193,7 +226,8 @@ class ProductController extends Controller
             'user_review' => $userReview,
             'can_review' => $canReview,
             'short_desc' => $product->short_desc,
-            'badge' => $product->badge,
+            'badge' => $product->category->name,
+            'is_best_seller' => isset($this->topSellerIds()[$product->id]),
             'main_image' => $product->image,
             'gallery' => $gallery,
             'gallery_by_color' => $galleryByColor,
@@ -202,14 +236,10 @@ class ProductController extends Controller
             'variants' => $variants,
             'stock' => $product->variants->sum('stock'),
             'default_size' => $defaultSize,
-            'long_desc_title' => 'Kemewahan & Kenyamanan Terbaik',
-            'long_desc' => $product->short_desc . ' Dirancang dengan material terpilih berstandar internasional yang menjamin kenyamanan maksimal saat Anda beristirahat di rumah.',
-            'features' => [
-                'Bahan adem, lembut dan sangat ramah di kulit',
-                'Jahitan presisi dan kuat untuk daya tahan pemakaian harian',
-                'Warna tahan luntur meski dicuci berulang kali',
-                'Hypoallergenic dan aman untuk kulit sensitif',
-            ],
+            'long_desc_title' => 'Deskripsi Produk',
+            'long_desc' => filled($product->long_desc)
+                ? $product->long_desc
+                : 'Tidak ada deskripsi.',
             'is_wishlisted' => $isWishlisted,
         ];
 

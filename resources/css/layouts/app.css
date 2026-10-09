@@ -67,6 +67,9 @@
             display: flex;
             align-items: center;
             flex-shrink: 0;
+            background: transparent;
+            padding: 0;
+            box-shadow: none;
         }
         .nav-logo img {
             height: 50px;

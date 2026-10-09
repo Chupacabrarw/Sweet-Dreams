@@ -87,6 +87,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/pelanggan/{customer}', [App\Http\Controllers\Admin\CustomerController::class, 'show'])->name('customers.show');
 
         Route::get('/konten', [App\Http\Controllers\Admin\ContentController::class, 'index'])->name('content');
+        Route::put('/konten/ekspedisi', [App\Http\Controllers\Admin\ContentController::class, 'updateCouriers'])->name('content.couriers');
     Route::put('/konten/banner', [App\Http\Controllers\Admin\ContentController::class, 'updateBanner'])->name('content.banner');
     Route::put('/konten/featured', [App\Http\Controllers\Admin\ContentController::class, 'updateFeatured'])->name('content.featured');
     Route::put('/konten/text/{key}', [App\Http\Controllers\Admin\ContentController::class, 'updateText'])->name('content.text');
@@ -97,6 +98,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('/promo/{voucher}', [App\Http\Controllers\Admin\VoucherController::class, 'destroy'])->name('vouchers.destroy');
 
         Route::get('/laporan', [App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports');
+        Route::get('/laporan/export', [App\Http\Controllers\Admin\ReportController::class, 'export'])->name('reports.export');
 });
 
 Route::middleware('auth')->group(function () {
@@ -145,6 +147,8 @@ Route::post('/api/chatbot', [App\Http\Controllers\ChatbotController::class, 'cha
 // ===== SHIPPING (RAJAONGKIR) =====
 Route::get('/api/shipping/provinces', [App\Http\Controllers\ShippingController::class, 'provinces']);
 Route::get('/api/shipping/cities', [App\Http\Controllers\ShippingController::class, 'cities']);
+// Mock kecamatan (Starter hanya sampai kota; ganti live /subdistrict saat PRO)
+Route::get('/api/shipping/subdistricts', [App\Http\Controllers\ShippingController::class, 'subdistricts']);
 Route::post('/api/shipping/cost', [App\Http\Controllers\ShippingController::class, 'cost']);
 
 // ===== PAYMENT GATEWAY (MIDTRANS) =====
@@ -158,6 +162,9 @@ Route::get('/pesanan/{orderNumber}', [App\Http\Controllers\OrderController::clas
 Route::post('/pesanan/{orderNumber}/batalkan', [App\Http\Controllers\OrderController::class, 'cancel'])
     ->middleware('auth')
     ->name('pesanan.cancel');
+Route::post('/pesanan/{orderNumber}/diterima', [App\Http\Controllers\OrderController::class, 'complete'])
+    ->middleware('auth')
+    ->name('pesanan.complete');
 
 Route::get('/login', function () {
     return view('auth.login', ['initialMode' => 'login']);

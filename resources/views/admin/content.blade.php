@@ -35,13 +35,23 @@
                                 <span>Klik untuk ganti gambar</span>
                             </div>
                         </div>
-                        <input type="file" id="banner-file-input" name="image" accept="image/*" style="display:none;"
+                                                <input type="file" id="banner-file-input" name="image" accept="image/*" style="display:none;"
                                onchange="previewBanner(this)">
                         <div class="banner-badge">
                             <span class="banner-badge-dot"></span>
                             Banner Utama · {{ $banner->status === 'published' ? 'Aktif' : 'Draft' }}
                         </div>
+
+                        {{-- Petunjuk ukuran gambar --}}
+                        <small style="display:block; margin-top:8px; color:#8a7a7f; line-height:1.4;">
+                            Ukuran disarankan 2400×1000 px (landscape), minimal 1920×800 px. Format JPG/WebP.
+                        </small>
+
+                        @error('image')
+                            <small style="display:block; margin-top:6px; color:#d44d6e;">{{ $message }}</small>
+                        @enderror
                     </div>
+
 
                     {{-- Fields --}}
                     <div>
@@ -152,6 +162,53 @@
                     </button>
                     <span style="font-size:0.78rem; color:#9a7a82;">
                         Perubahan langsung tampil di landing page setelah disimpan.
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="cms-card">
+        <div class="cms-card-header">
+            <div class="cms-card-header-left">
+                <div class="cms-card-icon"><i data-lucide="truck"></i></div>
+                <div>
+                    <p class="cms-card-title">Ekspedisi Aktif</p>
+                    <p class="cms-card-desc">Pilih kurir yang muncul sebagai opsi di checkout pembeli</p>
+                </div>
+            </div>
+        </div>
+        <div class="cms-card-body">
+            <form method="POST" action="{{ route('admin.content.couriers') }}">
+                @csrf @method('PUT')
+                <div class="sections-grid">
+                    <div class="section-panel">
+                        <div class="section-panel-header">
+                            <i data-lucide="package"></i>
+                            <span class="section-panel-title">Kurir Ditampilkan</span>
+                            <span class="section-panel-count" id="courier-count">{{ count($enabledCouriers) }}</span>
+                        </div>
+                        <div class="section-panel-body" id="courier-list">
+                            @foreach($couriers as $code => $name)
+                            <label class="check-item">
+                                <input type="checkbox"
+                                       name="couriers[]"
+                                       value="{{ $code }}"
+                                       {{ in_array($code, $enabledCouriers) ? 'checked' : '' }}
+                                       onchange="updateCount('courier-list', 'courier-count')">
+                                <span class="check-box"><i data-lucide="check"></i></span>
+                                <span class="check-label">{{ $name }} ({{ strtoupper($code) }})</span>
+                            </label>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:1.5rem; display:flex; align-items:center; gap:1rem;">
+                    <button type="submit" class="btn-save">
+                        <i data-lucide="save"></i> Simpan Ekspedisi
+                    </button>
+                    <span style="font-size:0.78rem; color:#9a7a82;">
+                        Minimal 1 kurir. Tarif tersimpan di-cache, jadi pilihan baru langsung berlaku.
                     </span>
                 </div>
             </form>
