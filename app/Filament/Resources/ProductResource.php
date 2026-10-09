@@ -61,6 +61,28 @@ class ProductResource extends Resource
                     ->maxLength(255),
                 Forms\Components\Textarea::make('short_desc')
                     ->columnSpanFull(),
+                Forms\Components\Textarea::make('long_desc')
+                    ->label('Deskripsi Lengkap')
+                    ->rows(6)
+                    ->columnSpanFull(),
+                Forms\Components\TextInput::make('weight')
+                    ->label('Berat (gram)')
+                    ->required()
+                    ->numeric()
+                    ->minValue(1)
+                    ->default(250),
+                Forms\Components\TextInput::make('length')
+                    ->label('Panjang (cm)')
+                    ->numeric()
+                    ->minValue(1),
+                Forms\Components\TextInput::make('width')
+                    ->label('Lebar (cm)')
+                    ->numeric()
+                    ->minValue(1),
+                Forms\Components\TextInput::make('height')
+                    ->label('Tinggi (cm)')
+                    ->numeric()
+                    ->minValue(1),
                 Forms\Components\FileUpload::make('image')
                     ->image(),
                 Forms\Components\TextInput::make('sales_count')
@@ -71,6 +93,12 @@ class ProductResource extends Resource
                     ->required()
                     ->numeric()
                     ->default(0),
+                Forms\Components\TextInput::make('weight')
+                    ->label('Berat (gram)')
+                    ->required()
+                    ->numeric()
+                    ->minValue(1)
+                    ->default(250),
                 Forms\Components\Toggle::make('is_active')
                     ->label('Active')
                     ->default(true),
@@ -115,6 +143,10 @@ class ProductResource extends Resource
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('stock')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('weight')
+                    ->label('Berat (gr)')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\ToggleColumn::make('is_active')

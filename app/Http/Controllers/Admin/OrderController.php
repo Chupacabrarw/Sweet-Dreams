@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\InventoryService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
@@ -42,7 +44,7 @@ class OrderController extends Controller
                 'id' => $o->id,
                 'order_number' => $o->order_number,
                 'customer' => $o->user->name,
-                'date' => $o->created_at->translatedFormat('d M, H:i'),
+                'date' => $o->created_at->copy()->setTimezone('Asia/Jakarta')->translatedFormat('d M, H:i'),
                 'status' => $o->status,
                 'status_label' => $this->statusLabel($o->status),
                 'total' => 'Rp ' . number_format($o->total, 0, ',', '.'),
@@ -62,7 +64,7 @@ class OrderController extends Controller
 
         return response()->json([
             'order_number'   => $order->order_number,
-            'created_at'     => $order->created_at->translatedFormat('d M Y, H:i'),
+            'created_at'     => $order->created_at->copy()->setTimezone('Asia/Jakarta')->translatedFormat('d M Y, H:i'),
 
             // Customer
             'customer_name'  => $order->user?->name,
@@ -108,14 +110,30 @@ class OrderController extends Controller
         ]);
     }
 
-    public function update(Request $request, Order $order)
+    public function update(Request $request, Order $order, InventoryService $inventoryService)
     {
         $data = $request->validate([
             'status' => 'required|in:pending,processing,shipped,completed,cancelled',
-            'tracking_number' => 'nullable|string|max:100',
+            // Resi wajib saat paket dinyatakan dikirim
+            'tracking_number' => [
+                Rule::requiredIf($request->input('status') === 'shipped'),
+                'nullable', 'string', 'max:100',
+            ],
         ]);
 
-        $order->update($data);
+        if ($order->status === 'cancelled') {
+            return redirect()->route('admin.orders')
+                ->with('error', 'Pesanan yang sudah dibatalkan tidak dapat diubah lagi.');
+        }
+
+        if ($data['status'] === 'cancelled') {
+            if (!$inventoryService->cancelOrder($order, $data)) {
+                return redirect()->route('admin.orders')
+                    ->with('error', 'Pesanan ini sudah berada pada status akhir dan tidak dapat dibatalkan lagi.');
+            }
+        } else {
+            $order->update($data);
+        }
 
         return redirect()->route('admin.orders')->with('success', 'Status pesanan berhasil diperbarui.');
     }

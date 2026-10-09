@@ -3,797 +3,9 @@
 @section('title', 'Checkout - Sweet Dreams')
 
 @section('content')
-<style>
-    /* ===== STEPPER HEADER ===== */
-    .checkout-stepper-wrapper {
-        padding: 1.5rem 2rem;
-        background: #ffffff;
-        border-bottom: 1px solid #fceef2;
-    }
-    .checkout-stepper {
-        max-width: 600px;
-        margin: 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.85rem;
-        font-size: 0.82rem;
-    }
-    .stepper-step {
-        display: flex;
-        align-items: center;
-        gap: 0.45rem;
-        color: var(--ink-muted);
-        font-weight: 500;
-        text-decoration: none;
-    }
-    .stepper-step.completed {
-        color: var(--blush);
-    }
-    .stepper-step.completed .step-circle {
-        background: #fce7ee;
-        color: var(--blush);
-        border-color: var(--border);
-    }
-    .stepper-step.active {
-        color: var(--ink);
-        font-weight: 700;
-    }
-    .stepper-step.active .step-pill {
-        background: #e06b88;
-        color: #ffffff;
-        padding: 4px 14px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-        box-shadow: 0 2px 8px rgba(224, 107, 136, 0.3);
-    }
-    .step-circle {
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        border: 1px solid rgba(180,140,150,0.35);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.72rem;
-        font-weight: 700;
-    }
-    .stepper-arrow {
-        color: rgba(180,140,150,0.35);
-        width: 14px;
-        height: 14px;
-    }
-
-    /* ===== CHECKOUT MAIN LAYOUT ===== */
-    .checkout-page-container {
-        max-width: 1320px;
-        margin: 0 auto;
-        padding: 2.5rem 2rem 5rem;
-    }
-    .checkout-grid {
-        display: grid;
-        grid-template-columns: 1.45fr 1fr;
-        gap: 3.5rem;
-        align-items: start;
-    }
-
-    /* ===== SECTION HEADINGS ===== */
-    .section-accent-heading {
-        display: flex;
-        align-items: center;
-        gap: 0.65rem;
-        margin: 0 0 1.25rem 0;
-    }
-    .accent-bar {
-        width: 4px;
-        height: 20px;
-        background: #b87b58;
-        border-radius: 2px;
-        flex-shrink: 0;
-    }
-    .section-accent-heading h2 {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 1.15rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0;
-    }
-
-    /* ===== FORMS ===== */
-    .checkout-form-section {
-        margin-bottom: 2.5rem;
-    }
-    .form-group {
-        margin-bottom: 1.1rem;
-    }
-    .form-group label {
-        display: block;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--ink-muted);
-        margin-bottom: 0.4rem;
-    }
-    .form-group label .required {
-        color: #f43f5e;
-    }
-    .form-control {
-        width: 100%;
-        height: 46px;
-        padding: 0 1rem;
-        border: 1.5px solid #f2e2e6;
-        border-radius: 12px;
-        background: #ffffff;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.88rem;
-        color: var(--ink);
-        outline: none;
-        transition: all 0.2s ease;
-        box-sizing: border-box;
-    }
-    select.form-control {
-        cursor: pointer;
-        appearance: none;
-        -webkit-appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a6a72' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 1rem center;
-        padding-right: 2.5rem;
-    }
-    select.form-control:disabled {
-        background-color: #faf5f6;
-        cursor: not-allowed;
-        opacity: 0.7;
-    }
-    .shipping-loading-indicator {
-        padding: 1.4rem;
-        text-align: center;
-        background: #fff8f9;
-        border: 1.5px dashed #fbd5df;
-        border-radius: 14px;
-        color: #8a6a72;
-        font-size: 0.88rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.75rem;
-    }
-    .shipping-courier-tag {
-        display: inline-block;
-        padding: 2px 7px;
-        border-radius: 6px;
-        font-size: 0.7rem;
-        font-weight: 700;
-        margin-left: 6px;
-        letter-spacing: 0.03em;
-        vertical-align: middle;
-    }
-    .shipping-courier-tag.jne {
-        background: #e0f2fe;
-        color: #0284c7;
-    }
-    .shipping-courier-tag.pos {
-        background: #ffedd5;
-        color: #ea580c;
-    }
-    .shipping-courier-tag.jnt {
-        background: #fee2e2;
-        color: #dc2626;
-    }
-    .shipping-courier-tag.lion {
-        background: #fef3c7;
-        color: #d97706;
-    }
-    .shipping-courier-tag.sap {
-        background: #ecfdf5;
-        color: #059669;
-    }
-    .form-control:focus {
-        border-color: var(--blush);
-        box-shadow: 0 0 0 3px rgba(201,122,140, 0.1);
-    }
-    .form-control.is-invalid {
-        border-color: #f43f5e !important;
-        background: #fff8f9 !important;
-        box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.12) !important;
-        animation: shakeField 0.3s ease-in-out;
-    }
-    @keyframes shakeField {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-4px); }
-        75% { transform: translateX(4px); }
-    }
-    .field-error-msg {
-        display: none;
-        color: #f43f5e;
-        font-size: 0.76rem;
-        font-weight: 500;
-        margin-top: 0.35rem;
-    }
-    .field-error-msg.visible {
-        display: block;
-    }
-
-    /* Checkout Floating Alert Toast */
-    .checkout-alert-toast {
-        position: fixed;
-        top: 90px;
-        right: 2rem;
-        z-index: 1100;
-        background: #ffffff;
-        border-left: 4px solid #f43f5e;
-        border-radius: 14px;
-        box-shadow: 0 10px 30px rgba(42,31,34, 0.16);
-        padding: 1rem 1.25rem;
-        display: flex;
-        align-items: flex-start;
-        gap: 0.85rem;
-        max-width: 440px;
-        transform: translateX(120%);
-        opacity: 0;
-        transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-        pointer-events: none;
-    }
-    .checkout-alert-toast.show {
-        transform: translateX(0);
-        opacity: 1;
-        pointer-events: auto;
-    }
-    .checkout-alert-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: #fff1f2;
-        color: #f43f5e;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-    .checkout-alert-content h4 {
-        margin: 0 0 0.2rem 0;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.92rem;
-        font-weight: 700;
-        color: var(--ink);
-    }
-    .checkout-alert-content p {
-        margin: 0;
-        font-size: 0.82rem;
-        color: #6a4a52;
-        line-height: 1.45;
-    }
-    .checkout-alert-close {
-        background: none;
-        border: none;
-        color: var(--ink-faint);
-        cursor: pointer;
-        padding: 0;
-        margin-left: auto;
-        font-size: 1.25rem;
-        line-height: 1;
-        transition: color 0.2s;
-    }
-    .checkout-alert-close:hover {
-        color: var(--ink);
-    }
-    textarea.form-control {
-        height: auto;
-        padding: 0.85rem 1rem;
-        resize: vertical;
-        line-height: 1.5;
-    }
-    .form-row-2col {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-
-    /* ===== RADIO SELECTION CARDS ===== */
-    .radio-card-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.85rem;
-    }
-    .radio-card-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1.1rem 1.35rem;
-        background: #ffffff;
-        border: 1.5px solid #f0dee2;
-        border-radius: 14px;
-        cursor: pointer;
-        transition: all 0.25s ease;
-        position: relative;
-    }
-    .radio-card-item:hover {
-        border-color: var(--blush);
-    }
-    .radio-card-item.active {
-        background: #fffbfa;
-        border-color: #e88b9e;
-        box-shadow: 0 2px 12px rgba(201,122,140, 0.08);
-    }
-    .radio-card-left {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-    .custom-radio-circle {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        border: 2px solid rgba(180,140,150,0.35);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        transition: all 0.2s ease;
-    }
-    .radio-card-item.active .custom-radio-circle {
-        border-color: var(--blush);
-    }
-    .custom-radio-circle::after {
-        content: '';
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: var(--blush);
-        transform: scale(0);
-        transition: transform 0.2s ease;
-    }
-    .radio-card-item.active .custom-radio-circle::after {
-        transform: scale(1);
-    }
-    .radio-card-text {
-        display: flex;
-        flex-direction: column;
-        gap: 0.2rem;
-    }
-    .radio-card-title {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: var(--ink);
-    }
-    .radio-card-desc {
-        font-size: 0.8rem;
-        color: var(--ink-muted);
-    }
-    .radio-card-price {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: var(--ink);
-    }
-    .radio-card-item.active .radio-card-price {
-        color: var(--blush);
-    }
-    .radio-card-badges {
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.05em;
-        color: var(--ink-muted);
-        text-transform: uppercase;
-    }
-    .shipping-courier-tag {
-        display: inline-block;
-        font-size: 0.68rem;
-        font-weight: 700;
-        padding: 2px 7px;
-        border-radius: 6px;
-        margin-left: 6px;
-        background: #fce7ee;
-        color: #d44d6e;
-        vertical-align: middle;
-        letter-spacing: 0.02em;
-    }
-    .shipping-courier-tag.jne { background: #e8f0fe; color: #1a73e8; }
-    .shipping-courier-tag.jnt { background: #fce8e6; color: #d93025; }
-    .shipping-courier-tag.sicepat { background: #fef7e0; color: #b06000; }
-    .shipping-courier-tag.pos { background: #feefe3; color: #e37400; }
-    .shipping-courier-tag.lion { background: #fce8e6; color: #c5221f; }
-    .shipping-courier-tag.spx { background: #fef0eb; color: #ee4d2d; }
-    .shipping-courier-tag.sap { background: #e6f4ea; color: #137333; }
-
-    /* ===== RIGHT: ORDER SUMMARY CARD ===== */
-    .checkout-summary-card {
-        background: var(--bg-warm);
-        border: 1px solid var(--border);
-        border-radius: 24px;
-        padding: 2.25rem 2rem;
-        position: sticky;
-        top: 88px;
-        box-shadow: 0 6px 24px rgba(201,122,140, 0.05);
-    }
-    .summary-card-title {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 1.45rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0 0 1.5rem 0;
-    }
-
-    /* Mini Items List */
-    .summary-items-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-    .summary-item-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-    }
-    .summary-item-left {
-        display: flex;
-        align-items: center;
-        gap: 0.85rem;
-    }
-    .summary-item-img {
-        width: 58px;
-        height: 58px;
-        border-radius: 10px;
-        overflow: hidden;
-        border: 1px solid var(--border);
-        background: #ffffff;
-        flex-shrink: 0;
-    }
-    .summary-item-img img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-    .summary-item-title {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.88rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0 0 0.2rem 0;
-    }
-    .summary-item-sub {
-        font-size: 0.78rem;
-        color: var(--ink-muted);
-        margin: 0;
-    }
-    .summary-item-price {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.92rem;
-        font-weight: 700;
-        color: var(--ink);
-        white-space: nowrap;
-    }
-
-    /* Voucher Input Box */
-    .summary-voucher-group {
-        display: flex;
-        gap: 0.5rem;
-        margin-bottom: 1.5rem;
-    }
-    .summary-voucher-group input {
-        flex: 1;
-        height: 44px;
-        padding: 0 1rem;
-        border: 1.5px solid #e8d0d6;
-        border-radius: 10px;
-        background: #ffffff;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.88rem;
-        font-weight: 600;
-        color: var(--ink);
-        outline: none;
-        transition: border-color 0.2s;
-        text-transform: uppercase;
-    }
-    .summary-voucher-group input:focus {
-        border-color: var(--blush);
-    }
-    .btn-summary-voucher {
-        height: 44px;
-        padding: 0 1.25rem;
-        background: #e06b88;
-        border: none;
-        border-radius: 10px;
-        color: #ffffff;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.85rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    .btn-summary-voucher:hover {
-        background: var(--blush);
-    }
-
-    /* Cost Breakdown */
-    .cost-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.75rem;
-        font-size: 0.88rem;
-        color: #6a4a52;
-    }
-    .cost-row .cost-val {
-        font-weight: 600;
-        color: var(--ink);
-    }
-    .cost-row .cost-val.discount {
-        color: #f43f5e;
-    }
-
-    .cost-divider {
-        height: 1px;
-        background: #f4dbe2;
-        border: none;
-        margin: 1.25rem 0;
-    }
-
-    .total-cost-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-        margin-bottom: 1.5rem;
-    }
-    .total-cost-label {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 1.15rem;
-        font-weight: 700;
-        color: var(--ink);
-    }
-    .total-cost-val {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 1.65rem;
-        font-weight: 800;
-        color: #e06b88;
-    }
-
-    /* Bayar Sekarang Button */
-    .btn-pay-now {
-        width: 100%;
-        height: 52px;
-        border: none;
-        border-radius: 8px;
-        background: #e06b88;
-        color: #ffffff;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 18px rgba(224, 107, 136, 0.35);
-        transition: all 0.25s ease;
-        margin-bottom: 1.25rem;
-    }
-    .btn-pay-now:hover {
-        background: var(--blush);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 22px rgba(201,122,140, 0.45);
-    }
-
-    .ssl-trust-note {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.4rem;
-        font-size: 0.76rem;
-        color: var(--ink-muted);
-    }
-    .ssl-trust-note svg {
-        width: 13px;
-        height: 13px;
-        color: var(--ink-muted);
-    }
-
-    /* ===== CONFIRMATION MODAL ===== */
-    .order-success-modal {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(42,31,34, 0.5);
-        backdrop-filter: blur(5px);
-        z-index: 1000;
-        align-items: center;
-        justify-content: center;
-        padding: 1.5rem;
-    }
-    .order-success-modal.open {
-        display: flex;
-    }
-    .success-modal-card {
-        background: #ffffff;
-        border-radius: 24px;
-        max-width: 480px;
-        width: 100%;
-        padding: 2.5rem 2rem;
-        text-align: center;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-        animation: popModal 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    @keyframes popModal {
-        from { transform: scale(0.9); opacity: 0; }
-        to { transform: scale(1); opacity: 1; }
-    }
-    .success-icon-badge {
-        width: 72px;
-        height: 72px;
-        border-radius: 50%;
-        background: #fdf2f5;
-        color: var(--blush);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.25rem;
-    }
-    .success-title {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 1.6rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0 0 0.5rem 0;
-    }
-    .success-invoice-id {
-        display: inline-block;
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: var(--blush);
-        background: #fce7ee;
-        padding: 4px 12px;
-        border-radius: 8px;
-        margin-bottom: 1rem;
-    }
-    .success-desc {
-        font-size: 0.9rem;
-        color: #6a4a52;
-        line-height: 1.6;
-        margin: 0 0 1.75rem 0;
-    }
-    .btn-home-return {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        width: 100%;
-        height: 48px;
-        border-radius: 8px;
-        background: var(--blush);
-        color: #ffffff;
-        font-weight: 600;
-        text-decoration: none;
-        font-size: 0.95rem;
-        transition: background 0.2s;
-    }
-    .btn-home-return:hover {
-        background: var(--blush-dark);
-    }
-
-    /* Modal Payment Additions */
-    .modal-amount-display {
-        background: #fdf6f8;
-        border: 1px solid #fce7ee;
-        border-radius: 12px;
-        padding: 0.75rem 1rem;
-        margin-bottom: 1rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .modal-amount-display .amount-label {
-        font-size: 0.85rem;
-        color: var(--ink-muted);
-        font-weight: 500;
-    }
-    .modal-amount-display .amount-val {
-        font-size: 1.15rem;
-        font-weight: 800;
-        color: var(--ink);
-    }
-    .va-payment-box {
-        background: #faf8f8;
-        border: 1.5px dashed #e06b88;
-        border-radius: 14px;
-        padding: 1rem 1.25rem;
-        margin-bottom: 1.25rem;
-        text-align: left;
-    }
-    .va-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.65rem;
-    }
-    .va-bank-badge {
-        font-size: 0.78rem;
-        font-weight: 700;
-        background: #ffffff;
-        border: 1px solid #e06b88;
-        color: #e06b88;
-        padding: 3px 10px;
-        border-radius: 6px;
-    }
-    .va-status-tag {
-        font-size: 0.72rem;
-        color: #b87b58;
-        font-weight: 600;
-    }
-    .va-number-wrapper {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: #ffffff;
-        border: 1px solid #eedbdf;
-        border-radius: 8px;
-        padding: 0.5rem 0.85rem;
-        margin-bottom: 0.5rem;
-    }
-    .va-number-text {
-        font-family: 'DM Mono', monospace, sans-serif;
-        font-size: 1.15rem;
-        font-weight: 700;
-        color: #2a1f22;
-        letter-spacing: 0.08em;
-    }
-    .btn-copy-va {
-        background: transparent;
-        border: none;
-        color: #e06b88;
-        font-weight: 700;
-        font-size: 0.8rem;
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-        cursor: pointer;
-        padding: 4px 8px;
-        border-radius: 6px;
-        transition: background 0.15s;
-    }
-    .btn-copy-va:hover {
-        background: #fce7ee;
-    }
-    .va-note {
-        font-size: 0.74rem;
-        color: #8c7379;
-        margin: 0;
-        line-height: 1.4;
-    }
-    .payment-actions-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        margin-top: 1rem;
-    }
-    .btn-pay-gateway {
-        background: linear-gradient(135deg, #e06b88 0%, #c44d6b 100%) !important;
-        box-shadow: 0 4px 14px rgba(224, 107, 136, 0.35);
-    }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 1024px) {
-        .checkout-grid {
-            grid-template-columns: 1fr;
-            gap: 2.5rem;
-        }
-    }
-    @media (max-width: 640px) {
-        .form-row-2col {
-            grid-template-columns: 1fr;
-        }
-        .checkout-stepper {
-            gap: 0.45rem;
-            font-size: 0.72rem;
-        }
-        .checkout-page-container {
-            padding: 1.5rem 1rem 3rem;
-        }
-    }
-</style>
+@push('page-styles')
+    @vite('resources/css/pages/checkout.css')
+@endpush
 
 {{-- STEPPER HEADER --}}
 <div class="checkout-stepper-wrapper">
@@ -848,8 +60,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="input-alamat">Alamat Lengkap <span class="required">*</span></label>
-                    <textarea id="input-alamat" class="form-control" rows="2" placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan/kecamatan" required></textarea>
+                    <label for="input-alamat">Alamat Lengkap Rumah <span class="required">*</span></label>
+                    <textarea id="input-alamat" class="form-control" rows="3" placeholder="Nama jalan, nomor rumah, RT/RW, patokan (contoh: Jl. Mawar No.10 RT 02/RW 05, depan masjid)" required></textarea>
                     <span class="field-error-msg" id="err-alamat">Alamat pengiriman lengkap wajib diisi.</span>
                 </div>
 
@@ -879,10 +91,21 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="input-kodepos">Kode Pos <span class="required">*</span></label>
-                    <input type="text" id="input-kodepos" class="form-control" placeholder="Kode pos" required>
-                    <span class="field-error-msg" id="err-kodepos">Kode pos wajib diisi (minimal 4-5 digit).</span>
+                <div class="form-row-2col">
+                    <div class="form-group">
+                        <label for="select-kecamatan">Kecamatan <span class="required">*</span></label>
+                        <input id="select-kecamatan" class="form-control" list="kecamatan-datalist" placeholder="Pilih atau ketik kecamatan" autocomplete="off" required disabled>
+                        <datalist id="kecamatan-datalist"></datalist>
+                        <input type="hidden" id="input-kecamatan" value="">
+                        <input type="hidden" id="input-kecamatan-id" value="">
+                        <span class="field-error-msg" id="err-kecamatan">Kecamatan wajib diisi (pilih dari daftar atau ketik manual).</span>
+                        {{-- Kombo: daftar dari API/statis, tapi boleh ketik bebas untuk kota yang belum terdaftar --}}
+                    </div>
+                    <div class="form-group">
+                        <label for="input-kodepos">Kode Pos <span class="required">*</span></label>
+                        <input type="text" id="input-kodepos" class="form-control" placeholder="Otomatis dari kecamatan" required readonly>
+                        <span class="field-error-msg" id="err-kodepos">Kode pos terisi otomatis setelah kecamatan dipilih.</span>
+                    </div>
                 </div>
             </section>
 
@@ -891,29 +114,14 @@
                 <div class="section-accent-heading">
                     <div class="accent-bar"></div>
                     <h2>Metode Pengiriman</h2>
-                    <span style="font-size: 0.8rem; color: #8a6a72; margin-left: auto; font-weight: 500;" id="rajaongkir-badge-status">
+                    <span class="shipping-rate-status" id="rajaongkir-badge-status">
                         <i data-lucide="truck" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 3px; color: var(--blush);"></i>
-                        RajaOngkir Live
+                        Pilih kota/kabupaten
                     </span>
                 </div>
 
                 <div class="radio-card-list" id="courier-list-container">
-                    @foreach($shippingMethods as $courier)
-                        <div class="radio-card-item {{ $courier['active'] ? 'active' : '' }}" 
-                             data-type="shipping" 
-                             data-id="{{ $courier['id'] }}" 
-                             data-name="{{ $courier['name'] }}" 
-                             data-cost="{{ $courier['cost'] }}">
-                            <div class="radio-card-left">
-                                <div class="custom-radio-circle"></div>
-                                <div class="radio-card-text">
-                                    <span class="radio-card-title">{{ $courier['name'] }}</span>
-                                    <span class="radio-card-desc">{{ $courier['desc'] }}</span>
-                                </div>
-                            </div>
-                            <span class="radio-card-price">Rp {{ number_format($courier['cost'], 0, ',', '.') }}</span>
-                        </div>
-                    @endforeach
+                    <div class="shipping-rate-placeholder">Pilih provinsi dan kota/kabupaten untuk melihat tarif pengiriman.</div>
                 </div>
             </section>
 
@@ -969,8 +177,8 @@
                 </div>
 
                 <div class="cost-row">
-                    <span>Biaya Pengiriman (<span id="summary-courier-label">{{ $shippingMethods[0]['name'] ?? 'J&T Express EZ' }}</span>)</span>
-                    <span class="cost-val" id="checkout-shipping">Rp {{ number_format($shippingCost ?? 16000, 0, ',', '.') }}</span>
+                    <span>Biaya Pengiriman (<span id="summary-courier-label">Belum dipilih</span>)</span>
+                    <span class="cost-val" id="checkout-shipping">Pilih kota/kabupaten</span>
                 </div>
 
                 <div class="cost-row" id="row-checkout-discount">
@@ -982,10 +190,10 @@
 
                 <div class="total-cost-row">
                     <span class="total-cost-label">Total Pembayaran</span>
-                    <span class="total-cost-val" id="checkout-total">Rp 0</span>
+                    <span class="total-cost-val" id="checkout-total">Menunggu ongkir</span>
                 </div>
 
-                <button class="btn-pay-now" id="btn-pay-now">
+                <button class="btn-pay-now" id="btn-pay-now" disabled>
                     Bayar Sekarang
                 </button>
 
@@ -1076,7 +284,9 @@ document.addEventListener('DOMContentLoaded', function() {
     lucide.createIcons();
 
         let items = @json($checkoutItems);
-    let currentShippingCost = {{ $shippingCost ?? 16000 }};
+    let currentShippingCost = null;
+    let shippingRatesReady = false;
+    let shippingRateRequest = 0;
     let appliedVoucher = '';
 
     const itemsContainer = document.getElementById('checkout-items-list');
@@ -1136,6 +346,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const inputProvinsi = document.getElementById('input-provinsi');
         const inputProvinsiId = document.getElementById('input-provinsi-id');
         const inputKodepos = document.getElementById('input-kodepos');
+        const inputKec = document.getElementById('input-kecamatan');
+        const inputKecId = document.getElementById('input-kecamatan-id');
+
+        window._savedSubdistrict = primaryAddr.subdistrict || null;
 
         if (inputNama && !inputNama.value) inputNama.value = primaryAddr.name || '';
         if (inputPhone && !inputPhone.value) inputPhone.value = primaryAddr.phone || '';
@@ -1145,6 +359,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (inputProvinsi && !inputProvinsi.value) inputProvinsi.value = primaryAddr.province || '';
         if (inputProvinsiId && !inputProvinsiId.value) inputProvinsiId.value = primaryAddr.province_id || '';
         if (inputKodepos && !inputKodepos.value) inputKodepos.value = primaryAddr.postal_code || '';
+        if (inputKec && !inputKec.value) inputKec.value = primaryAddr.subdistrict || '';
     }
 
     function validateCheckoutForm() {
@@ -1185,10 +400,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 msg: 'Kota / Kabupaten wajib dipilih.'
             },
             {
+                el: document.getElementById('select-kecamatan'),
+                err: document.getElementById('err-kecamatan'),
+                check: val => (val || '').trim().length >= 2,
+                msg: 'Kecamatan wajib diisi (pilih dari daftar atau ketik manual).'
+            },
+            {
                 el: document.getElementById('input-kodepos'),
                 err: document.getElementById('err-kodepos'),
                 check: val => /^[0-9]{4,6}$/.test(val.trim()),
-                msg: 'Kode pos wajib diisi berupa 4-5 digit angka.'
+                msg: 'Pilih kecamatan agar kode pos terisi otomatis.'
             }
         ];
 
@@ -1286,7 +507,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (subtotalEl) subtotalEl.textContent = formatRupiah(subtotal);
 
         // Shipping
-        if (shippingEl) shippingEl.textContent = formatRupiah(currentShippingCost);
+        if (shippingEl) {
+            shippingEl.textContent = currentShippingCost === null
+                ? 'Pilih kota/kabupaten'
+                : formatRupiah(currentShippingCost);
+        }
 
         // Voucher Calculation
         let discount = 0;
@@ -1302,20 +527,46 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Final total
-        let grandTotal = Math.max(0, subtotal + currentShippingCost - discount);
-        if (totalEl) totalEl.textContent = formatRupiah(grandTotal);
+        let grandTotal = Math.max(0, subtotal + (currentShippingCost || 0) - discount);
+        if (totalEl) {
+            totalEl.textContent = shippingRatesReady ? formatRupiah(grandTotal) : 'Menunggu ongkir';
+        }
+        if (btnPayNow) btnPayNow.disabled = !shippingRatesReady;
     }
 
     // ===== RAJAONGKIR PROVINCES, CITIES & SHIPPING CALCULATION =====
     const selectProvinsi = document.getElementById('select-provinsi');
     const selectKota = document.getElementById('select-kota');
+    const selectKecamatan = document.getElementById('select-kecamatan');
+    const inputKecamatan = document.getElementById('input-kecamatan');
+    const inputKecamatanId = document.getElementById('input-kecamatan-id');
+    const inputKodepos = document.getElementById('input-kodepos');
     const inputProvinsi = document.getElementById('input-provinsi');
     const inputProvinsiId = document.getElementById('input-provinsi-id');
     const inputKota = document.getElementById('input-kota');
     const inputKotaId = document.getElementById('input-kota-id');
     const courierContainer = document.getElementById('courier-list-container');
+    const shippingStatus = document.getElementById('rajaongkir-badge-status');
 
     let allProvinces = [];
+
+    function setShippingStatus(text, type = '') {
+        if (!shippingStatus) return;
+        shippingStatus.className = `shipping-rate-status${type ? ` ${type}` : ''}`;
+        shippingStatus.textContent = text;
+    }
+
+    function resetShippingRates(message, statusText = 'Pilih kota/kabupaten') {
+        shippingRateRequest++;
+        currentShippingCost = null;
+        shippingRatesReady = false;
+        if (courierContainer) {
+            courierContainer.innerHTML = `<div class="shipping-rate-placeholder">${escapeHtml(message)}</div>`;
+        }
+        if (courierLabel) courierLabel.textContent = 'Belum dipilih';
+        setShippingStatus(statusText);
+        renderCheckoutSummary();
+    }
 
     function bindCourierSelection() {
         const shippingCards = document.querySelectorAll('.radio-card-item[data-type="shipping"]');
@@ -1332,16 +583,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 currentShippingCost = courierCost;
+                shippingRatesReady = true;
+                if (btnPayNow) btnPayNow.disabled = false;
                 renderCheckoutSummary();
             });
         });
     }
 
-    // Bind initial cards
-    bindCourierSelection();
-
-    function renderLiveCourierCards(services) {
+    function renderCourierCards(services, source) {
         if (!courierContainer || !services || services.length === 0) return;
+
+        const isEstimate = source !== 'live_api' && source !== 'live_cache';
+        setShippingStatus(
+            isEstimate ? 'Estimasi zona (bukan tarif live)' : 'Tarif berdasarkan kota dari RajaOngkir',
+            isEstimate ? 'is-estimate' : 'is-live'
+        );
 
         let html = '';
         services.forEach((s, idx) => {
@@ -1383,6 +639,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const first = services[0];
         if (first) {
             currentShippingCost = first.cost;
+            shippingRatesReady = true;
+            if (btnPayNow) btnPayNow.disabled = false;
             if (courierLabel) courierLabel.textContent = first.name;
             renderCheckoutSummary();
         }
@@ -1390,15 +648,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function fetchShippingRates(cityId, cityName, provId = null) {
         if (!courierContainer) return;
+        const requestId = ++shippingRateRequest;
+        currentShippingCost = null;
+        shippingRatesReady = false;
+        if (btnPayNow) btnPayNow.disabled = true;
+        if (courierLabel) courierLabel.textContent = 'Menghitung...';
+        setShippingStatus('Menghitung tarif kota/kabupaten...');
+        renderCheckoutSummary();
 
         courierContainer.innerHTML = `
             <div class="shipping-loading-indicator">
                 <div class="spinner-sm" style="width:20px;height:20px;border:2.5px solid #fbd5df;border-top-color:#d44d6e;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
-                <span>Menghubungkan ke RajaOngkir & menghitung ongkir...</span>
+                <span>Mencari tarif untuk kota/kabupaten yang dipilih...</span>
             </div>
         `;
 
-        const totalWeight = Math.max(500, items.reduce((sum, item) => sum + (item.qty * 250), 0));
+        const totalWeight = Math.max(500, items.reduce((sum, item) => sum + (item.qty * (parseInt(item.weight) || 250)), 0));
         const effectiveProvId = provId || (selectProvinsi ? selectProvinsi.value : null);
 
         fetch('/api/shipping/cost', {
@@ -1412,25 +677,41 @@ document.addEventListener('DOMContentLoaded', function() {
                 destination_city_id: cityId || null,
                 city: cityName || null,
                 province_id: effectiveProvId || null,
-                weight: totalWeight
+                weight: totalWeight,
+                // Berat tagih dihitung ulang server dari dimensi DB (anti manipulasi)
+                items: items.map(i => ({ product_id: i.product_id, qty: i.qty }))
             })
         })
-        .then(res => res.json())
+        .then(async res => {
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Tarif pengiriman tidak dapat dimuat.');
+            return data;
+        })
         .then(data => {
+            if (requestId !== shippingRateRequest) return;
             if (data && data.services && data.services.length > 0) {
-                renderLiveCourierCards(data.services);
+                renderCourierCards(data.services, data.source);
             } else {
-                showCheckoutAlert('Info Pengiriman', data.message || 'Menggunakan opsi pengiriman standar.');
+                resetShippingRates(
+                    data.message || 'Tarif tidak tersedia untuk tujuan ini. Coba pilih kota/kabupaten lain atau hubungi admin.',
+                    'Tarif tidak tersedia'
+                );
             }
         })
         .catch(err => {
+            if (requestId !== shippingRateRequest) return;
             console.error('Error fetching shipping rates:', err);
-            showCheckoutAlert('Koneksi Ongkir', 'Gagal memuat tarif live RajaOngkir, menggunakan tarif standar.');
+            resetShippingRates('Tarif gagal dimuat. Periksa koneksi lalu pilih ulang kota/kabupaten.', 'Gagal memuat tarif');
         });
     }
 
     function loadCitiesForProvince(provId, selectedCityIdOrName = null) {
         if (!selectKota) return;
+        resetShippingRates(
+            provId
+                ? 'Pilih kota/kabupaten untuk melihat tarif pengiriman.'
+                : 'Pilih provinsi dan kota/kabupaten untuk melihat tarif pengiriman.'
+        );
         selectKota.innerHTML = '<option value="">-- Memuat Kota / Kabupaten... --</option>';
         selectKota.disabled = true;
 
@@ -1476,6 +757,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     selectKota.value = matchedOption.id;
                     inputKota.value = matchedOption.name;
                     inputKotaId.value = matchedOption.id;
+                    // Muat kecamatan juga (bug sebelumnya: hanya dimuat saat ganti manual)
+                    loadSubdistrictsForCity(matchedOption.id, window._savedSubdistrict || null, matchedOption.name);
                     fetchShippingRates(matchedOption.id, matchedOption.name, provId);
                 }
             })
@@ -1495,13 +778,97 @@ document.addEventListener('DOMContentLoaded', function() {
 
             inputKota.value = '';
             inputKotaId.value = '';
+            // Reset tingkat di bawahnya: kecamatan + kode pos
+            if (selectKecamatan) {
+                selectKecamatan.value = '';
+                selectKecamatan.placeholder = '-- Pilih Kota Dahulu --';
+                selectKecamatan.disabled = true;
+            }
+            if (kecList) kecList.innerHTML = '';
+            if (inputKecamatan) inputKecamatan.value = '';
+            if (inputKecamatanId) inputKecamatanId.value = '';
+            if (inputKodepos) inputKodepos.value = '';
             loadCitiesForProvince(provId);
 
-            // Langsung update estimasi ongkir ke zona provinsi tersebut
-            if (provId) {
-                fetchShippingRates(null, provName, provId);
-            }
         });
+    }
+
+    // ===== KECAMATAN KOMBO: dropdown saran + boleh ketik manual =====
+    const kecList = document.getElementById('kecamatan-datalist');
+
+    function syncKecamatanFromInput() {
+        if (!selectKecamatan) return;
+        const typed = selectKecamatan.value.trim();
+        let matchedId = '';
+        let matchedPostal = '';
+        if (kecList) {
+            const opt = [...kecList.options].find(o => o.value.toLowerCase() === typed.toLowerCase());
+            if (opt) {
+                matchedId = opt.dataset.id || '';
+                matchedPostal = opt.dataset.postal || '';
+            }
+        }
+        if (inputKecamatan) inputKecamatan.value = typed;
+        if (inputKecamatanId) inputKecamatanId.value = matchedId;
+        // Kode pos otomatis hanya bila masih kosong (jangan timpa kode pos asli)
+        if (inputKodepos && !inputKodepos.value && matchedPostal) {
+            inputKodepos.value = matchedPostal;
+        }
+    }
+
+    function loadSubdistrictsForCity(cityId, preselectNameOrId = null, cityName = '') {
+        if (!selectKecamatan) return;
+        selectKecamatan.value = '';
+        if (inputKecamatan) inputKecamatan.value = '';
+        if (inputKecamatanId) inputKecamatanId.value = '';
+        if (kecList) kecList.innerHTML = '';
+        if (!cityId) {
+            selectKecamatan.placeholder = '-- Pilih Kota Dahulu --';
+            selectKecamatan.disabled = true;
+            return;
+        }
+        selectKecamatan.placeholder = '-- Memuat Kecamatan... --';
+        selectKecamatan.disabled = true;
+        fetch(`/api/shipping/subdistricts?city_id=${cityId}&city=${encodeURIComponent(cityName || '')}`)
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP error ' + res.status);
+                return res.json();
+            })
+            .then(list => {
+                if (kecList) {
+                    kecList.innerHTML = (list || []).map(s =>
+                        `<option value="${escapeHtml(s.name)}" data-id="${escapeHtml(String(s.id))}" data-postal="${escapeHtml(s.postal_code || '')}"></option>`
+                    ).join('');
+                }
+                selectKecamatan.placeholder = 'Pilih atau ketik kecamatan';
+                selectKecamatan.disabled = false;
+                // Preselect (misal dari alamat tersimpan) bila cocok dengan saran
+                if (preselectNameOrId && kecList) {
+                    const opt = [...kecList.options].find(o =>
+                        o.value.toLowerCase() === String(preselectNameOrId).toLowerCase() ||
+                        String(o.dataset.id) === String(preselectNameOrId)
+                    );
+                    if (opt) {
+                        selectKecamatan.value = opt.value;
+                        syncKecamatanFromInput();
+                    } else {
+                        // Tidak ada di saran -> isi manual apa adanya
+                        selectKecamatan.value = preselectNameOrId;
+                        syncKecamatanFromInput();
+                    }
+                }
+            })
+            .catch(err => {
+                console.error('Error loading subdistricts:', err);
+                // Gagal total: tetap bisa ketik manual
+                selectKecamatan.placeholder = 'Ketik kecamatan manual';
+                selectKecamatan.disabled = false;
+            });
+    }
+
+    if (selectKecamatan) {
+        selectKecamatan.addEventListener('input', syncKecamatanFromInput);
+        selectKecamatan.addEventListener('change', syncKecamatanFromInput);
     }
 
     if (selectKota) {
@@ -1511,8 +878,12 @@ document.addEventListener('DOMContentLoaded', function() {
             inputKota.value = cityId ? cityName : '';
             inputKotaId.value = cityId || '';
 
+            // Kecamatan ikut kota yang baru; tarif ikut kota (Starter: level kota)
+            loadSubdistrictsForCity(cityId, null, cityName);
             if (cityId) {
                 fetchShippingRates(cityId, cityName, selectProvinsi ? selectProvinsi.value : null);
+            } else {
+                resetShippingRates('Pilih kota/kabupaten untuk melihat tarif pengiriman.');
             }
         });
 
@@ -1551,6 +922,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 inputProvinsiId.value = matchedProv.id;
                 loadCitiesForProvince(matchedProv.id, primaryAddr.city_id || primaryAddr.city);
             } else if (primaryAddr.city_id || primaryAddr.city) {
+                loadSubdistrictsForCity(primaryAddr.city_id || null, primaryAddr.subdistrict || null, primaryAddr.city || '');
                 fetchShippingRates(primaryAddr.city_id || null, primaryAddr.city || null);
             }
         }
@@ -1645,6 +1017,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     address: document.getElementById('input-alamat').value.trim(),
                     city: document.getElementById('input-kota').value.trim(),
                     city_id: document.getElementById('input-kota-id')?.value || null,
+                    subdistrict: document.getElementById('input-kecamatan')?.value || null,
                     province: document.getElementById('input-provinsi').value.trim(),
                     province_id: document.getElementById('input-provinsi-id')?.value || null,
                     postal_code: document.getElementById('input-kodepos').value.trim(),
@@ -1751,6 +1124,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     lucide.createIcons();
                     modal.classList.add('open');
                 } else {
+                    if (body.redirect_url) {
+                        window.location.assign(body.redirect_url);
+                        return;
+                    }
+
                     showCheckoutAlert(
                         'Gagal Membuat Pesanan',
                         body.message || 'Terjadi kesalahan, silakan coba lagi.'

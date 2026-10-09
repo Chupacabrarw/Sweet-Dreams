@@ -16,6 +16,7 @@ class AddressController extends Controller
             'address'        => 'required|string',
             'city'           => 'nullable|string|max:255',
             'city_id'        => 'nullable|string|max:20',
+            'subdistrict'    => 'nullable|string|max:255',
             'province'       => 'nullable|string|max:255',
             'province_id'    => 'nullable|string|max:20',
             'postal_code'    => 'nullable|string|max:10',
@@ -29,6 +30,11 @@ class AddressController extends Controller
         }
 
         $address = $user->addresses()->create($data);
+
+        // Satu sumber telepon: kalau profil belum punya nomor, pakai dari alamat
+        if (empty($user->phone) && !empty($data['phone'])) {
+            $user->update(['phone' => $data['phone']]);
+        }
 
         return response()->json(['message' => 'Alamat berhasil ditambahkan.', 'address' => $address], 201);
     }
@@ -44,6 +50,7 @@ class AddressController extends Controller
             'address'        => 'required|string',
             'city'           => 'nullable|string|max:255',
             'city_id'        => 'nullable|string|max:20',
+            'subdistrict'    => 'nullable|string|max:255',
             'province'       => 'nullable|string|max:255',
             'province_id'    => 'nullable|string|max:20',
             'postal_code'    => 'nullable|string|max:10',
@@ -55,6 +62,10 @@ class AddressController extends Controller
         }
 
         $address->update($data);
+
+        if (empty($request->user()->phone) && !empty($data['phone'])) {
+            $request->user()->update(['phone' => $data['phone']]);
+        }
 
         return response()->json(['message' => 'Alamat berhasil diubah.', 'address' => $address]);
     }

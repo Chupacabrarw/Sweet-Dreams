@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\CartItem;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class CartController extends Controller
 {
@@ -57,30 +60,54 @@ class CartController extends Controller
     {
         $data = $request->validate([
             'product_id' => 'required|exists:products,id',
-            'size' => 'nullable|string|max:20',
-            'color' => 'nullable|string|max:50',
+            'size' => 'required|string|max:20',
+            'color' => 'required|string|max:50',
             'quantity' => 'nullable|integer|min:1',
         ]);
 
         $quantity = $data['quantity'] ?? 1;
 
-        $item = CartItem::where('user_id', $request->user()->id)
-            ->where('product_id', $data['product_id'])
-            ->where('size', $data['size'] ?? null)
-            ->where('color', $data['color'] ?? null)
-            ->first();
+        DB::transaction(function () use ($request, $data, $quantity) {
+            $item = CartItem::query()
+                ->where('user_id', $request->user()->id)
+                ->where('product_id', $data['product_id'])
+                ->where('size', $data['size'])
+                ->where('color', $data['color'])
+                ->lockForUpdate()
+                ->first();
 
-        if ($item) {
-            $item->increment('quantity', $quantity);
-        } else {
-            $item = CartItem::create([
-                'user_id' => $request->user()->id,
-                'product_id' => $data['product_id'],
-                'size' => $data['size'] ?? null,
-                'color' => $data['color'] ?? null,
-                'quantity' => $quantity,
-            ]);
-        }
+            $product = Product::query()
+                ->where('is_active', true)
+                ->lockForUpdate()
+                ->find($data['product_id']);
+            $item = CartItem::query()
+                ->where('user_id', $request->user()->id)
+                ->where('product_id', $data['product_id'])
+                ->where('size', $data['size'])
+                ->where('color', $data['color'])
+                ->lockForUpdate()
+                ->first();
+            $variant = $this->findAvailableVariant($product, $data['size'], $data['color'], true);
+
+            $requestedTotal = ($item?->quantity ?? 0) + $quantity;
+            if ($requestedTotal > $variant->stock) {
+                throw ValidationException::withMessages([
+                    'stock' => "Stok tersedia {$variant->stock} unit untuk warna {$data['color']} ukuran {$data['size']}.",
+                ]);
+            }
+
+            if ($item) {
+                $item->update(['quantity' => $requestedTotal]);
+            } else {
+                CartItem::create([
+                    'user_id' => $request->user()->id,
+                    'product_id' => $data['product_id'],
+                    'size' => $data['size'],
+                    'color' => $data['color'],
+                    'quantity' => $quantity,
+                ]);
+            }
+        });
 
         $cartCount = $request->user()->cartItems()->sum('quantity');
 
@@ -95,7 +122,22 @@ class CartController extends Controller
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $cartItem->update(['quantity' => $data['quantity']]);
+        DB::transaction(function () use ($cartItem, $data) {
+            $lockedItem = CartItem::query()->lockForUpdate()->findOrFail($cartItem->id);
+            $product = Product::query()
+                ->where('is_active', true)
+                ->lockForUpdate()
+                ->find($lockedItem->product_id);
+            $variant = $this->findAvailableVariant($product, $lockedItem->size, $lockedItem->color, true);
+
+            if ($data['quantity'] > $variant->stock) {
+                throw ValidationException::withMessages([
+                    'stock' => "Stok tersedia {$variant->stock} unit untuk warna {$lockedItem->color} ukuran {$lockedItem->size}.",
+                ]);
+            }
+
+            $lockedItem->update(['quantity' => $data['quantity']]);
+        });
 
         return response()->json(['message' => 'Kuantitas berhasil diubah.']);
     }
@@ -106,5 +148,30 @@ class CartController extends Controller
         $cartItem->delete();
 
         return response()->json(['message' => 'Item berhasil dihapus dari keranjang.']);
+    }
+
+    private function findAvailableVariant(?Product $product, string $size, string $color, bool $lock): ProductVariant
+    {
+        $isConfigured = $product
+            && collect($product->sizes ?? [])->contains(fn ($value) => strcasecmp((string) $value, $size) === 0)
+            && collect($product->colors ?? [])->contains(fn ($value) => strcasecmp((string) $value, $color) === 0);
+
+        $query = ProductVariant::query()
+            ->where('product_id', $product?->id)
+            ->whereRaw('LOWER(size) = ?', [strtolower($size)])
+            ->whereRaw('LOWER(color) = ?', [strtolower($color)]);
+
+        if ($lock) {
+            $query->lockForUpdate();
+        }
+
+        $variant = $isConfigured ? $query->first() : null;
+        if (!$variant || $variant->stock <= 0) {
+            throw ValidationException::withMessages([
+                'stock' => 'Varian yang dipilih tidak tersedia atau stoknya sudah habis.',
+            ]);
+        }
+
+        return $variant;
     }
 }

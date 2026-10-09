@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Services\InventoryService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\RedirectResponse;
 
 class OrderController extends Controller
 {
@@ -24,11 +27,52 @@ class OrderController extends Controller
         return match ($status) {
             'shipped' => 'shipping',
             'completed' => 'completed',
+            'cancelled' => 'cancelled',
             default => 'pending',
         };
     }
 
-    public function show(Request $request, $orderNumber)
+    public function cancel(Request $request, string $orderNumber, InventoryService $inventoryService): RedirectResponse
+    {
+        $order = Order::query()
+            ->where('order_number', $orderNumber)
+            ->where('user_id', $request->user()->id)
+            ->firstOrFail();
+
+        $cancelled = $inventoryService->cancelOrder(
+            $order,
+            ['status' => 'cancelled'],
+            customerInitiated: true,
+        );
+
+        if (!$cancelled) {
+            return redirect()->route('profil', ['tab' => 'pesanan'])
+                ->with('error', 'Pesanan ini sudah dibayar, dikirim, selesai, atau sebelumnya dibatalkan sehingga tidak bisa dibatalkan lagi.');
+        }
+
+        return redirect()->route('profil', ['tab' => 'pesanan'])
+            ->with('success', 'Pesanan berhasil dibatalkan dan stok sudah dikembalikan.');
+    }
+
+    public function complete(Request $request, string $orderNumber): RedirectResponse
+    {
+        $order = Order::query()
+            ->where('order_number', $orderNumber)
+            ->where('user_id', $request->user()->id)
+            ->firstOrFail();
+
+        if ($order->status !== 'shipped') {
+            return redirect()->route('pesanan.detail', $orderNumber)
+                ->with('error', 'Pesanan hanya bisa ditandai diterima setelah berstatus dikirim.');
+        }
+
+        $order->update(['status' => 'completed']);
+
+        return redirect()->route('pesanan.detail', $orderNumber)
+            ->with('success', 'Terima kasih! Pesanan ditandai selesai dan kamu sudah bisa memberi ulasan.');
+    }
+
+    public function show(Request $request, $orderNumber, InventoryService $inventoryService)
     {
         $order = Order::with('items')
             ->where('order_number', $orderNumber)
@@ -42,53 +86,83 @@ class OrderController extends Controller
                 if (!empty($statusCheck['success'])) {
                     $remoteStatus = strtolower($statusCheck['status'] ?? '');
                     if (in_array($remoteStatus, ['capture', 'settlement'])) {
-                        $order->update(['payment_status' => 'paid', 'status' => 'processing']);
-                        $order->refresh();
+                        if ($order->status === 'cancelled') {
+                            Log::warning("Payment confirmed after order {$order->order_number} was cancelled.");
+                        } else {
+                            $order->update(['payment_status' => 'paid', 'status' => 'processing']);
+                            $order->refresh();
+                        }
                     } elseif (in_array($remoteStatus, ['expire', 'cancel', 'deny'])) {
-                        $order->update(['payment_status' => 'expired', 'status' => 'cancelled']);
+                        $inventoryService->cancelOrder($order, [
+                            'payment_status' => 'expired',
+                            'status' => 'cancelled',
+                        ], true);
                         $order->refresh();
                     }
                 }
             } catch (\Throwable $e) {
-                // Jangan gagalkan halaman tracking jika API status sedang timeout
+                Log::warning('Order payment status synchronization failed.', [
+                    'order_number' => $order->order_number,
+                    'message' => $e->getMessage(),
+                ]);
             }
         }
 
+        $localCreatedAt = $order->created_at->copy()->setTimezone('Asia/Jakarta');
+        $localUpdatedAt = $order->updated_at->copy()->setTimezone('Asia/Jakarta');
         $steps = ['Diproses', 'Dikirim', 'Selesai'];
         $stepMap = ['pending' => 0, 'processing' => 0, 'shipped' => 1, 'completed' => 2, 'cancelled' => 0];
         $currentStep = $stepMap[$order->status] ?? 0;
 
-        $progress = collect($steps)->map(function ($label, $idx) use ($order, $currentStep) {
+        $progress = $order->status === 'cancelled' ? [] : collect($steps)->map(function ($label, $idx) use ($order, $currentStep, $localCreatedAt, $localUpdatedAt) {
             return [
                 'label' => $label,
                 'date' => $idx === 0
-                    ? $order->created_at->translatedFormat('d M, H:i')
-                    : ($idx <= $currentStep ? $order->updated_at->translatedFormat('d M, H:i') : 'Menunggu'),
+                    ? $localCreatedAt->translatedFormat('d M, H:i')
+                    : ($idx <= $currentStep ? $localUpdatedAt->translatedFormat('d M, H:i') : 'Menunggu'),
                 'completed' => $idx <= $currentStep,
             ];
         })->toArray();
 
         $latestUpdate = match ($order->status) {
-            'shipped' => ['text' => 'Paket sedang dalam perjalanan menuju alamatmu', 'time' => $order->updated_at->translatedFormat('d M Y, H:i') . ' WIB'],
-            'completed' => ['text' => 'Paket telah diterima', 'time' => $order->updated_at->translatedFormat('d M Y, H:i') . ' WIB'],
-            'cancelled' => ['text' => 'Pesanan dibatalkan', 'time' => $order->updated_at->translatedFormat('d M Y, H:i') . ' WIB'],
-            default => ['text' => 'Pesanan dikonfirmasi dan sedang diproses', 'time' => $order->created_at->translatedFormat('d M Y, H:i') . ' WIB'],
+            'shipped' => ['text' => 'Paket sedang dalam perjalanan menuju alamatmu', 'time' => $localUpdatedAt->translatedFormat('d M Y, H:i') . ' WIB'],
+            'completed' => ['text' => 'Paket telah diterima', 'time' => $localUpdatedAt->translatedFormat('d M Y, H:i') . ' WIB'],
+            'cancelled' => ['text' => 'Pesanan dibatalkan', 'time' => $localUpdatedAt->translatedFormat('d M Y, H:i') . ' WIB'],
+            default => [
+                'text' => $order->payment_status === 'paid'
+                    ? 'Pesanan dikonfirmasi dan sedang diproses'
+                    : 'Pesanan dibuat dan menunggu pembayaran',
+                'time' => $localCreatedAt->translatedFormat('d M Y, H:i') . ' WIB',
+            ],
         };
 
-        $timeline = [[
-            'date' => $order->created_at->translatedFormat('d M Y'),
-            'events' => [
-                ['time' => $order->created_at->format('H:i'), 'text' => 'Pesanan dikonfirmasi dan sedang diproses'],
-            ],
-        ]];
-
-        if (!$order->updated_at->eq($order->created_at)) {
+        if ($order->status === 'cancelled') {
             $timeline[] = [
-                'date' => $order->updated_at->translatedFormat('d M Y'),
+                'date' => $localUpdatedAt->translatedFormat('d M Y'),
                 'events' => [
-                    ['time' => $order->updated_at->format('H:i'), 'text' => $latestUpdate['text']],
+                    ['time' => $localUpdatedAt->format('H:i'), 'text' => 'Pesanan dibatalkan'],
                 ],
             ];
+        } else {
+            $timeline = [[
+                'date' => $localCreatedAt->translatedFormat('d M Y'),
+                'events' => [[
+                    'time' => $localCreatedAt->format('H:i'),
+                    'text' => $order->payment_status === 'paid'
+                        ? 'Pesanan dikonfirmasi dan sedang diproses'
+                        : 'Pesanan dibuat dan menunggu pembayaran',
+                ]],
+            ]];
+
+            if (!$localUpdatedAt->eq($localCreatedAt)) {
+                $timeline[] = [
+                    'date' => $localUpdatedAt->translatedFormat('d M Y'),
+                    'events' => [[
+                        'time' => $localUpdatedAt->format('H:i'),
+                        'text' => $latestUpdate['text'],
+                    ]],
+                ];
+            }
         }
 
         $headline = match ($order->status) {
@@ -106,6 +180,7 @@ class OrderController extends Controller
 
         $data = [
             'order_id' => '#' . $order->order_number,
+            'status_raw' => $order->status,
             'headline' => $headline,
             'subtitle' => $subtitle,
             'status' => $this->statusLabel($order->status),

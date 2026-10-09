@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StockController extends Controller
 {
@@ -16,9 +18,21 @@ class StockController extends Controller
         return ['label' => 'Aman', 'class' => 'aman'];
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $variants = ProductVariant::with('product')->latest('updated_at')->get();
+        $search = trim((string) $request->query('q', ''));
+
+        $variants = ProductVariant::with('product')
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('sku', 'like', "%{$search}%")
+                        ->orWhere('size', 'like', "%{$search}%")
+                        ->orWhere('color', 'like', "%{$search}%")
+                        ->orWhereHas('product', fn ($query) => $query->where('title', 'like', "%{$search}%"));
+                });
+            })
+            ->latest('updated_at')
+            ->get();
 
         $rows = $variants->map(function ($v) {
             $ind = $this->indicator($v->stock);
@@ -36,6 +50,7 @@ class StockController extends Controller
 
         return view('admin.stock', [
             'rows' => $rows,
+            'search' => $search,
             'totalUnit' => $variants->sum('stock'),
             'menipis' => $variants->filter(fn ($v) => in_array($this->indicator($v->stock)['class'], ['kritis', 'menipis']))->count(),
             'habis' => $variants->where('stock', 0)->count(),
@@ -47,8 +62,12 @@ class StockController extends Controller
     {
         $data = $request->validate(['stock' => 'required|integer|min:0']);
 
-        $variant->update(['stock' => $data['stock']]);
-        $variant->product->update(['stock' => $variant->product->variants()->sum('stock')]);
+        DB::transaction(function () use ($variant, $data) {
+            $product = Product::query()->lockForUpdate()->findOrFail($variant->product_id);
+            $lockedVariant = ProductVariant::query()->lockForUpdate()->findOrFail($variant->id);
+            $lockedVariant->update(['stock' => $data['stock']]);
+            $product->update(['stock' => $product->variants()->sum('stock')]);
+        });
 
         return redirect()->route('admin.stock')->with('success', 'Stok berhasil diperbarui.');
     }

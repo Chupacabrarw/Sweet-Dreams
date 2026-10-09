@@ -5,19 +5,9 @@
 @section('page-subtitle', 'Kenali pelanggan dan riwayat pembelian mereka')
 
 @section('content')
-<style>
-    .admin-table { width:100%; border-collapse:collapse; }
-    .admin-table th { text-align:left; font-size:0.72rem; text-transform:uppercase; color:#8a6a72; padding:0.75rem 0.5rem; border-bottom:1px solid #f1e4e7; }
-    .admin-table td { padding:0.9rem 0.5rem; border-bottom:1px solid #f1e4e7; font-size:0.88rem; }
-    .cust-cell { display:flex; align-items:center; gap:0.7rem; }
-    .cust-avatar { width:36px; height:36px; border-radius:50%; background:#f2c9d3; display:flex; align-items:center; justify-content:center; font-weight:700; color:#a13655; font-size:0.85rem; }
-    .status-pill { padding:0.25rem 0.7rem; border-radius:20px; font-size:0.76rem; font-weight:600; }
-    .status-pill.vip { background:#fde2e6; color:#c53660; }
-    .status-pill.lama { background:#e2ecfd; color:#2f5fc9; }
-    .status-pill.baru { background:#e3f9ee; color:#1e9e64; }
-    .action-link { color:#d44d6e; font-weight:600; font-size:0.85rem; cursor:pointer; }
-    .history-card { display:flex; flex-direction:column; gap:0.3rem; padding:1rem; border:1px solid #f1e4e7; border-radius:12px; }
-</style>
+@push('page-styles')
+    @vite('resources/css/pages/admin/customers.css')
+@endpush
 
 <div class="admin-stat-grid" style="grid-template-columns:repeat(3,1fr);">
     <div class="admin-stat-card">

@@ -1,0 +1,29 @@
+    .admin-table { width:100%; border-collapse:collapse; }
+    .admin-table th { text-align:left; font-size:0.72rem; text-transform:uppercase; color:#8a6a72; padding:0.75rem 0.5rem; border-bottom:1px solid #f1e4e7; }
+    .admin-table td { padding:0.9rem 0.5rem; border-bottom:1px solid #f1e4e7; font-size:0.88rem; vertical-align:middle; }
+    .status-pill { padding:0.25rem 0.7rem; border-radius:20px; font-size:0.76rem; font-weight:600; }
+    .status-pill.aman { background:#e3f9ee; color:#1e9e64; }
+    .status-pill.menipis { background:#fff3d9; color:#b7791f; }
+    .status-pill.kritis { background:#fde2e6; color:#c53660; }
+    .status-pill.habis { background:#f1e4e7; color:#8a6a72; }
+    .action-link { color:#d44d6e; font-weight:600; font-size:0.85rem; cursor:pointer; background:none; border:none; padding:0; text-decoration:none; }
+    .action-link:hover { text-decoration:underline; }
+    .stock-toolbar { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; }
+    .stock-search-form { display:flex; align-items:center; gap:0.6rem; }
+    .stock-search-input {
+        width:280px; max-width:60vw; padding:0.6rem 0.9rem; border:1px solid #e5dde0;
+        border-radius:10px; font-size:0.85rem; background:#fff; font-family:inherit;
+    }
+    .stock-search-input:focus { outline:none; border-color:#d44d6e; box-shadow:0 0 0 3px rgba(212,77,110,0.12); }
+    .stock-edit-toggle {
+        display:inline-flex; align-items:center; gap:0.3rem;
+        color:#d44d6e; font-weight:600; font-size:0.85rem; cursor:pointer;
+        background:#fff; border:1px solid #f2c9d3; border-radius:999px; padding:0.3rem 0.8rem;
+        transition:background 0.2s, border-color 0.2s;
+    }
+    .stock-edit-toggle:hover { background:#fff0f4; border-color:#d44d6e; }
+    .stock-edit-form { display:none; align-items:center; gap:0.4rem; }
+    .stock-edit-form input { width:70px; padding:0.35rem 0.5rem; border:1px solid #e5dde0; border-radius:8px; }
+    .stock-edit-form input:focus { outline:none; border-color:#d44d6e; }
+    .stock-edit-form button { background:#d44d6e; color:#fff; border:none; border-radius:8px; padding:0.35rem 0.7rem; font-size:0.78rem; cursor:pointer; }
+    .stock-edit-form button:hover { background:#b83d5c; }

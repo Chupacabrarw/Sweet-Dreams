@@ -13,6 +13,41 @@ class ShippingController extends Controller
     protected string $baseUrl;
     protected string $apiKey;
 
+    /** Daftar kurir yang bisa ditampilkan di checkout (key = kode API Komerce) */
+    public const COURIERS = [
+        'jne'      => 'JNE',
+        'jnt'      => 'J&T',
+        'pos'      => 'POS Indonesia',
+        'spx'      => 'Shopee Express',
+        'sicepat'  => 'SiCepat',
+        'sap'      => 'SAP Express',
+        'lion'     => 'Lion Parcel',
+        'anteraja' => 'Anteraja',
+        'ide'      => 'ID Express',
+        'gosend'   => 'GoSend',
+    ];
+
+    /**
+     * Kurir yang diaktifkan admin via CMS (SiteContent key shipping_couriers).
+     * Kosong/rusak = semua aktif (checkout tidak boleh macet).
+     */
+    public static function enabledCouriers(): array
+    {
+        try {
+            $raw = \App\Models\SiteContent::where('key', 'shipping_couriers')->value('body');
+            $list = $raw ? json_decode($raw, true) : null;
+            if (is_array($list) && $list !== []) {
+                $valid = array_values(array_intersect($list, array_keys(self::COURIERS)));
+                if ($valid !== []) {
+                    return $valid;
+                }
+            }
+        } catch (\Throwable $e) {
+            // abaikan, pakai semua
+        }
+        return array_keys(self::COURIERS);
+    }
+
     public function __construct()
     {
         $this->baseUrl      = config('services.rajaongkir.base_url', 'https://rajaongkir.komerce.id/api/v1');
@@ -648,11 +683,141 @@ class ShippingController extends Controller
         return response()->json([]);
     }
 
+    /**
+     * Daftar kecamatan ASLI per kota (data statis terverifikasi).
+     * Dipakai karena akun Starter hanya sampai level kota — Pro baru ada /subdistrict.
+     * Kota yang belum terdaftar mengembalikan opsi "tulis manual" (jujur, bukan data palsu).
+     * Kode pos TIDAK ditebak dari sini; tetap dari input/prefill pengguna.
+     */
+    protected static array $realSubdistricts = [
+        // Kabupaten Banyumas, Jawa Tengah (27 kecamatan)
+        'banyumas' => [
+            'Ajibarang', 'Banyumas', 'Baturaden', 'Cilongok', 'Gumelar',
+            'Jatilawang', 'Kalibagor', 'Karanglewas', 'Kebasen', 'Kedungbanteng',
+            'Kembaran', 'Kemranjen', 'Lumbir', 'Patikraja', 'Pekuncen',
+            'Purwojati', 'Purwokerto Barat', 'Purwokerto Selatan', 'Purwokerto Timur',
+            'Purwokerto Utara', 'Rawalo', 'Sokaraja', 'Somagede', 'Sumbang',
+            'Sumpiuh', 'Tambak', 'Wangon',
+        ],
+        // DKI Jakarta
+        'jakarta selatan' => [
+            'Tebet', 'Kebayoran Baru', 'Kebayoran Lama', 'Cilandak', 'Pasar Minggu',
+            'Jagakarsa', 'Mampang Prapatan', 'Pancoran', 'Pesanggrahan', 'Setiabudi',
+        ],
+        'jakarta timur' => [
+            'Matraman', 'Pulo Gadung', 'Jatinegara', 'Duren Sawit', 'Cakung',
+            'Cipayung', 'Ciracas', 'Pasar Rebo', 'Kramat Jati', 'Makasar',
+        ],
+        'jakarta pusat' => [
+            'Menteng', 'Tanah Abang', 'Senen', 'Cempaka Putih', 'Kemayoran',
+            'Sawah Besar', 'Gambir', 'Taman Sari',
+        ],
+        'jakarta barat' => [
+            'Grogol Petamburan', 'Kalideres', 'Kebon Jeruk', 'Kembangan',
+            'Palmerah', 'Taman Sari', 'Tambora', 'Cengkareng',
+        ],
+        'jakarta utara' => [
+            'Penjaringan', 'Pademangan', 'Tanjung Priok', 'Koja',
+            'Kelapa Gading', 'Cilincing',
+        ],
+    ];
+
+    /**
+     * GET /api/shipping/subdistricts?city_id=457&city=BANYUMAS
+     *
+     * CATATAN STARTER vs PRO:
+     * - Akun RajaOngkir Starter (gratis) HANYA sampai level kota. Endpoint ini
+     *   untuk sekarang mengembalikan MOCK agar alur checkout bertingkat
+     *   (Provinsi -> Kota -> Kecamatan -> Kode Pos) sudah bisa dites end-to-end.
+     * - Saat upgrade ke RajaOngkir PRO, ganti isi method ini dengan panggilan
+     *   live berikut (endpoint resmi /subdistrict):
+     *
+     *     $res = Http::withoutVerifying()
+     *         ->withHeaders(['key' => $this->apiKey])
+     *         ->timeout(10)
+     *         ->get("{$this->baseUrl}/destination/subdistrict/{$cityId}");
+     *     if ($res->successful()) return response()->json($res->json('data', []));
+     *
+     *   Format live: [{id, city_id, name, postal_code}, ...]. Kode frontend
+     *   sudah ditulis mengikuti format itu, jadi tidak perlu diubah lagi.
+     */
+    public function subdistricts(Request $request)
+    {
+        $cityId = (string) $request->query('city_id', '');
+        $cityName = strtolower((string) $request->query('city', ''));
+        if ($cityId === '') {
+            return response()->json([]);
+        }
+        foreach (self::$realSubdistricts as $key => $names) {
+            if ($cityName !== '' && str_contains($cityName, $key)) {
+                return response()->json(array_map(
+                    fn ($i, $name) => [
+                        'id' => $cityId . '-' . str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT),
+                        'city_id' => $cityId,
+                        'name' => $name,
+                        'postal_code' => '',
+                    ],
+                    array_keys($names),
+                    $names
+                ));
+            }
+        }
+        // Kota belum terdaftar: opsi jujur, tulis detail di Alamat Lengkap
+        return response()->json([
+            ['id' => $cityId . '-00', 'city_id' => $cityId, 'name' => 'Lainnya (tulis di Alamat Lengkap)', 'postal_code' => ''],
+        ]);
+    }
+
         /**
      * POST /api/shipping/cost
      * Hitung ongkos kirim secara live dari RajaOngkir dengan auto-fallback zona logistik
      * Body: { destination_city_id?, city?, province_id?, weight?, courier? }
      */
+    /**
+     * Berat volumetrik (gram) rumus kurir lokal Indonesia: P x L x T / 6000 (kg) x 1000.
+     * Berat tagih = max(berat aktual, berat volumetrik) agar owner tidak nombok
+     * ongkir untuk paket ringan tapi berdimensi besar.
+     */
+    public static function chargeableWeightGram(?int $length, ?int $width, ?int $height, int $actualGram): int
+    {
+        $actual = max(1, $actualGram);
+        if (empty($length) || empty($width) || empty($height)) {
+            return $actual;
+        }
+        $volumetricGram = (int) round(($length * $width * $height) / 6000 * 1000);
+        return max($actual, $volumetricGram);
+    }
+
+    /**
+     * Total berat tagih seluruh item. Kalau frontend mengirim daftar
+     * product_id + qty, dimensi diambil dari database (anti manipulasi).
+     * Kalau tidak, pakai berat kiriman frontend (kompatibel lama).
+     */
+    protected function resolveBillableWeight(?array $items, int $fallbackWeight): int
+    {
+        if (empty($items)) {
+            return max(1, $fallbackWeight);
+        }
+        $productIds = collect($items)->pluck('product_id')->filter()->unique()->values();
+        // Eloquent binding otomatis -> aman dari SQL injection
+        $products = \App\Models\Product::whereIn('id', $productIds)
+            ->get(['id', 'weight', 'length', 'width', 'height'])
+            ->keyBy('id');
+        $total = 0;
+        foreach ($items as $item) {
+            $product = $products->get($item['product_id'] ?? null);
+            if (!$product) {
+                continue;
+            }
+            $qty = max(1, (int) ($item['qty'] ?? 1));
+            $total += self::chargeableWeightGram(
+                $product->length, $product->width, $product->height,
+                (int) ($product->weight ?? 250)
+            ) * $qty;
+        }
+        return $total > 0 ? $total : max(1, $fallbackWeight);
+    }
+
     public function cost(Request $request)
     {
         $data = $request->validate([
@@ -661,12 +826,16 @@ class ShippingController extends Controller
             'province_id'         => 'nullable',
             'weight'              => 'nullable|integer|min:1',
             'courier'             => 'nullable|string',
+            'items'               => 'nullable|array',
+            'items.*.product_id'  => 'required_with:items|integer|exists:products,id',
+            'items.*.qty'         => 'nullable|integer|min:1|max:100',
         ]);
 
         $destinationId = $data['destination_city_id'] ?? null;
         $cityName      = $data['city'] ?? null;
         $provinceId    = $data['province_id'] ?? null;
-        $weight        = $data['weight'] ?? 500;
+        // Berat tagih volumetrik (diambil dari DB bila items dikirim, anti manipulasi)
+        $weight        = $this->resolveBillableWeight($data['items'] ?? null, (int) ($data['weight'] ?? 500));
 
         // Jika ID belum ada tapi nama kota dikirim, coba resolusi ID
         if (empty($destinationId) && !empty($cityName)) {
@@ -689,7 +858,7 @@ class ShippingController extends Controller
 
         $couriers = !empty($data['courier']) && $data['courier'] !== 'all' 
             ? [$data['courier']] 
-            : ['jnt', 'jne', 'spx', 'sap', 'pos', 'lion', 'sicepat', 'ide', 'anteraja'];
+            : \App\Http\Controllers\ShippingController::enabledCouriers();
 
         $services = [];
 
@@ -795,6 +964,16 @@ class ShippingController extends Controller
 
         // Fallback realistis sesuai zona wilayah & berat barang jika API offline atau quota 429
         $fallbackServices = $this->fallbackServicesForLocation((int) $provinceId, $cityName, $weight);
+        // Samakan dengan pilihan admin (id fallback = "{kode}-{layanan}")
+        $enabled = \App\Http\Controllers\ShippingController::enabledCouriers();
+        $fallbackServices = array_values(array_filter(
+            $fallbackServices,
+            fn ($s) => in_array(strtolower(explode('-', $s['id'] ?? '')[0]), $enabled, true)
+        ));
+        // Pengaman: jangan sampai checkout kosong gara-gara filter zona
+        if ($fallbackServices === []) {
+            $fallbackServices = $this->fallbackServicesForLocation((int) $provinceId, $cityName, $weight);
+        }
 
         return response()->json([
             'success'        => true,

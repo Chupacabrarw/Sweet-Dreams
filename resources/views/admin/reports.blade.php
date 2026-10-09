@@ -5,20 +5,15 @@
 @section('page-subtitle', 'Analisis performa transaksi')
 
 @section('content')
-<style>
-    .report-filter { display:flex; gap:0.75rem; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; }
-    .report-filter input { padding:0.6rem 0.9rem; border:1px solid #e5dde0; border-radius:10px; font-size:0.85rem; }
-    .chart-bar-wrap { display:flex; align-items:flex-end; gap:0.6rem; height:220px; padding-top:1rem; }
-    .chart-bar { flex:1; background:#fbe2e8; border-radius:8px 8px 0 0; }
-    .admin-table { width:100%; border-collapse:collapse; }
-    .admin-table th { text-align:left; font-size:0.72rem; text-transform:uppercase; color:#8a6a72; padding:0.75rem 0.5rem; border-bottom:1px solid #f1e4e7; }
-    .admin-table td { padding:0.9rem 0.5rem; border-bottom:1px solid #f1e4e7; font-size:0.88rem; }
-</style>
+@push('page-styles')
+    @vite('resources/css/pages/admin/reports.css')
+@endpush
 
 <form method="GET" action="{{ route('admin.reports') }}" class="report-filter">
     <input type="date" name="start" value="{{ $start }}">
     <input type="date" name="end" value="{{ $end }}">
     <button type="submit" style="background:#d44d6e;color:#fff;border:none;border-radius:10px;padding:0.6rem 1.2rem;font-weight:600;cursor:pointer;">Terapkan filter</button>
+    <a href="{{ route('admin.reports.export', ['start' => $start, 'end' => $end]) }}" style="background:#fff;color:#d44d6e;border:1px solid #f2c9d3;border-radius:10px;padding:0.6rem 1.2rem;font-weight:600;text-decoration:none;">Export Excel (CSV)</a>
 </form>
 
 <div class="admin-stat-grid">

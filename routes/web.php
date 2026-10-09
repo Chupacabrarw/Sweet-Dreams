@@ -26,7 +26,12 @@ Route::get('/', function () {
         ? auth()->user()->wishlists()->pluck('product_id')->map(fn($id) => (int)$id)->toArray()
         : [];
 
-    return view('welcome', compact('banner', 'homeCategories', 'homeProducts', 'wishlistIds'));
+    $featuredReviews = \App\Models\ProductReview::with(['user:id,name', 'product:id,title,slug'])
+        ->latest()
+        ->take(3)
+        ->get();
+
+    return view('welcome', compact('banner', 'homeCategories', 'homeProducts', 'wishlistIds', 'featuredReviews'));
 });
 
 Route::get('/tentang', function () {
@@ -56,11 +61,15 @@ Route::post('/admin/logout', [App\Http\Controllers\Admin\AuthController::class, 
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/pesan-kontak', [App\Http\Controllers\Admin\ContactMessageController::class, 'index'])->name('contact-messages');
+    Route::get('/pesan-kontak/{contactMessage}', [App\Http\Controllers\Admin\ContactMessageController::class, 'show'])->name('contact-messages.show');
+    Route::put('/pesan-kontak/{contactMessage}', [App\Http\Controllers\Admin\ContactMessageController::class, 'update'])->name('contact-messages.update');
 
     Route::get('/produk', [App\Http\Controllers\Admin\ProductController::class, 'index'])->name('products');
     Route::post('/produk', [App\Http\Controllers\Admin\ProductController::class, 'store'])->name('products.store');
     Route::put('/produk/{product}', [App\Http\Controllers\Admin\ProductController::class, 'update'])->name('products.update');
     Route::delete('/produk/{product}', [App\Http\Controllers\Admin\ProductController::class, 'destroy'])->name('products.destroy');
+    Route::post('/warna', [App\Http\Controllers\Admin\ProductColorController::class, 'store'])->name('colors.store');
 
     // Category management
     Route::post('/kategori', [App\Http\Controllers\Admin\ProductController::class, 'storeCategory'])->name('categories.store');
@@ -78,6 +87,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/pelanggan/{customer}', [App\Http\Controllers\Admin\CustomerController::class, 'show'])->name('customers.show');
 
         Route::get('/konten', [App\Http\Controllers\Admin\ContentController::class, 'index'])->name('content');
+        Route::put('/konten/ekspedisi', [App\Http\Controllers\Admin\ContentController::class, 'updateCouriers'])->name('content.couriers');
     Route::put('/konten/banner', [App\Http\Controllers\Admin\ContentController::class, 'updateBanner'])->name('content.banner');
     Route::put('/konten/featured', [App\Http\Controllers\Admin\ContentController::class, 'updateFeatured'])->name('content.featured');
     Route::put('/konten/text/{key}', [App\Http\Controllers\Admin\ContentController::class, 'updateText'])->name('content.text');
@@ -88,6 +98,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('/promo/{voucher}', [App\Http\Controllers\Admin\VoucherController::class, 'destroy'])->name('vouchers.destroy');
 
         Route::get('/laporan', [App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports');
+        Route::get('/laporan/export', [App\Http\Controllers\Admin\ReportController::class, 'export'])->name('reports.export');
 });
 
 Route::middleware('auth')->group(function () {
@@ -117,6 +128,9 @@ Route::get('/profil', [App\Http\Controllers\ProfileController::class, 'index'])
 Route::get('/wishlist', [App\Http\Controllers\WishlistController::class, 'index'])->middleware('auth')->name('wishlist');
 Route::get('/katalog/{category?}', [App\Http\Controllers\ProductController::class, 'index'])->name('katalog');
 Route::get('/produk/{slug}', [App\Http\Controllers\ProductController::class, 'show'])->middleware('auth')->name('produk.detail');
+Route::post('/produk/{slug}/ulasan', [App\Http\Controllers\ProductReviewController::class, 'store'])
+    ->middleware('auth')
+    ->name('produk.reviews.store');
 Route::get('/keranjang', [App\Http\Controllers\CartController::class, 'index'])->middleware('auth')->name('keranjang');
 
 
@@ -125,11 +139,16 @@ Route::get('/checkout', [App\Http\Controllers\CheckoutController::class, 'index'
 Route::post('/api/checkout', [App\Http\Controllers\CheckoutController::class, 'store'])->middleware('auth');
 Route::post('/api/checkout/validate-voucher', [App\Http\Controllers\CheckoutController::class, 'validateVoucher'])->middleware('auth');
 
+Route::post('/api/contact-messages', [App\Http\Controllers\ContactMessageController::class, 'store'])
+    ->middleware('throttle:10,1')
+    ->name('contact-messages.store');
 Route::post('/api/chatbot', [App\Http\Controllers\ChatbotController::class, 'chat']);
 
 // ===== SHIPPING (RAJAONGKIR) =====
 Route::get('/api/shipping/provinces', [App\Http\Controllers\ShippingController::class, 'provinces']);
 Route::get('/api/shipping/cities', [App\Http\Controllers\ShippingController::class, 'cities']);
+// Mock kecamatan (Starter hanya sampai kota; ganti live /subdistrict saat PRO)
+Route::get('/api/shipping/subdistricts', [App\Http\Controllers\ShippingController::class, 'subdistricts']);
 Route::post('/api/shipping/cost', [App\Http\Controllers\ShippingController::class, 'cost']);
 
 // ===== PAYMENT GATEWAY (MIDTRANS) =====
@@ -140,6 +159,12 @@ Route::post('/api/payment/webhook', [App\Http\Controllers\PaymentController::cla
 Route::get('/pesanan/{orderNumber}', [App\Http\Controllers\OrderController::class, 'show'])
     ->middleware('auth')
     ->name('pesanan.detail');
+Route::post('/pesanan/{orderNumber}/batalkan', [App\Http\Controllers\OrderController::class, 'cancel'])
+    ->middleware('auth')
+    ->name('pesanan.cancel');
+Route::post('/pesanan/{orderNumber}/diterima', [App\Http\Controllers\OrderController::class, 'complete'])
+    ->middleware('auth')
+    ->name('pesanan.complete');
 
 Route::get('/login', function () {
     return view('auth.login', ['initialMode' => 'login']);
@@ -160,4 +185,3 @@ Route::match(['get', 'post'], '/logout', function (Illuminate\Http\Request $requ
 
     return redirect('/login?status=logout');
 })->name('logout');
-

@@ -3,899 +3,9 @@
 @section('title', $product['title'] . ' - Sweet Dreams')
 
 @section('content')
-<style>
-    /* ===== BREADCRUMB ===== */
-    .breadcrumb-nav {
-        max-width: 1320px;
-        margin: 0 auto;
-        padding: 1.5rem 2rem 1rem;
-    }
-    .breadcrumb-container {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.82rem;
-        color: var(--ink-muted);
-    }
-    .breadcrumb-container a {
-        color: var(--ink-muted);
-        text-decoration: none;
-        transition: color 0.2s ease;
-    }
-    .breadcrumb-container a:hover {
-        color: var(--blush);
-    }
-    .breadcrumb-container svg {
-        width: 14px;
-        height: 14px;
-        color: rgba(180,140,150,0.35);
-    }
-    .breadcrumb-container span.active {
-        color: var(--ink);
-        font-weight: 600;
-    }
-
-    /* ===== PRODUCT MAIN SECTION ===== */
-    .product-main-section {
-        max-width: 1320px;
-        margin: 0 auto;
-        padding: 0.5rem 2rem 3rem;
-    }
-    .product-main-grid {
-        display: grid;
-        grid-template-columns: 1.15fr 1fr;
-        gap: 3.5rem;
-        align-items: start;
-    }
-
-    /* Gallery (Left) */
-    .product-gallery-wrapper {
-        display: flex;
-        gap: 1.25rem;
-        position: sticky;
-        top: 88px;
-    }
-    .product-thumbnails-col {
-        display: flex;
-        flex-direction: column;
-        gap: 0.85rem;
-        width: 84px;
-        flex-shrink: 0;
-    }
-    .gallery-thumb-btn {
-        width: 84px;
-        height: 84px;
-        border-radius: 12px;
-        overflow: hidden;
-        border: 2px solid #f2e2e6;
-        background: #fff;
-        cursor: pointer;
-        padding: 0;
-        transition: all 0.25s ease;
-        position: relative;
-    }
-    .gallery-thumb-btn img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-        transition: transform 0.3s ease;
-    }
-    .gallery-thumb-btn:hover {
-        border-color: var(--blush);
-    }
-    .gallery-thumb-btn:hover img {
-        transform: scale(1.05);
-    }
-    .gallery-thumb-btn.active {
-        border-color: var(--blush);
-        box-shadow: 0 0 0 2px rgba(201,122,140, 0.2);
-    }
-
-    /* Main Product Image */
-    .product-main-img-box {
-        flex: 1;
-        position: relative;
-        border-radius: var(--radius-lg);
-        overflow: hidden;
-        background: #f7f6f5;
-        border: 1px solid var(--border);
-        aspect-ratio: 3/4;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .product-main-img-box img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center top;
-        display: block;
-        transition: opacity 0.3s ease, transform 0.4s ease;
-    }
-    .product-main-img-box:hover img {
-        transform: scale(1.02);
-    }
-
-    /* Badges on main image */
-    .badge-bestseller {
-        position: absolute;
-        top: 1.25rem;
-        left: 1.25rem;
-        background: #ffffff;
-        color: var(--ink-muted);
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        padding: 6px 14px;
-        border-radius: 8px;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-        z-index: 2;
-        border: 1px solid #f0e6e8;
-    }
-    .btn-wishlist-float {
-        position: absolute;
-        top: 1.25rem;
-        right: 1.25rem;
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
-        background: #ffffff;
-        border: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        color: var(--blush);
-        box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-        transition: all 0.25s ease;
-        z-index: 2;
-    }
-    .btn-wishlist-float:hover {
-        transform: scale(1.1);
-        background: #fff5f7;
-        box-shadow: 0 6px 18px rgba(201,122,140, 0.2);
-    }
-    .btn-wishlist-float.active {
-        background: var(--blush);
-        color: #fff;
-        border-color: var(--blush);
-    }
-    .btn-wishlist-float.active svg {
-        fill: currentColor;
-    }
-
-    /* Product Info (Right) */
-    .product-info-wrapper {
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* Rating & Collection */
-    .product-meta-row {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 0.75rem;
-    }
-    .rating-stars {
-        display: flex;
-        align-items: center;
-        gap: 2px;
-        color: #eab308;
-    }
-    .rating-text {
-        font-size: 0.85rem;
-        color: var(--ink-muted);
-        font-weight: 500;
-    }
-    .collection-tag {
-        display: inline-block;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #b83b5e;
-        background: #fce7ee;
-        padding: 4px 10px;
-        border-radius: 6px;
-        margin-bottom: 0.6rem;
-        width: fit-content;
-    }
-
-    /* Title & Price */
-    .product-title {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 2.35rem;
-        font-weight: 700;
-        color: var(--ink);
-        line-height: 1.2;
-        margin: 0 0 0.75rem 0;
-    }
-    .product-price-box {
-        display: flex;
-        align-items: baseline;
-        gap: 0.75rem;
-        margin-bottom: 1.25rem;
-    }
-    .product-current-price {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: var(--blush);
-    }
-    .product-original-price {
-        font-size: 1.05rem;
-        color: var(--ink-faint);
-        text-decoration: line-through;
-    }
-
-    /* Short Description */
-    .product-short-desc {
-        font-size: 0.92rem;
-        line-height: 1.65;
-        color: #6a4a52;
-        margin: 0 0 1.75rem 0;
-    }
-
-    /* Divider */
-    .product-section-divider {
-        height: 1px;
-        background: #f4dbe2;
-        border: none;
-        margin: 0 0 1.5rem 0;
-    }
-
-    /* Color Swatches */
-    .option-group {
-        margin-bottom: 1.5rem;
-    }
-    .option-label-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.65rem;
-    }
-    .option-title {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--ink);
-    }
-    .option-value-name {
-        font-weight: 400;
-        color: var(--ink-muted);
-    }
-    .link-size-guide {
-        font-size: 0.82rem;
-        color: var(--blush);
-        text-decoration: underline;
-        cursor: pointer;
-        transition: color 0.2s;
-    }
-    .link-size-guide:hover {
-        color: var(--blush-dark);
-    }
-
-    .color-swatch-list {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-    .color-swatch-item {
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        cursor: pointer;
-        position: relative;
-        transition: all 0.2s ease;
-        border: 2px solid transparent;
-        padding: 0;
-    }
-    .color-swatch-item::after {
-        content: '';
-        position: absolute;
-        inset: -4px;
-        border-radius: 50%;
-        border: 2px solid transparent;
-        transition: all 0.2s ease;
-    }
-    .color-swatch-item.active::after {
-        border-color: var(--blush);
-    }
-
-    /* Size Buttons */
-    .size-btn-list {
-        display: flex;
-        gap: 0.65rem;
-    }
-    .size-pill-btn {
-        min-width: 48px;
-        height: 44px;
-        border-radius: 10px;
-        border: 1.5px solid #e8d0d6;
-        background: #fff;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--ink);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0 14px;
-        transition: all 0.2s ease;
-    }
-    .size-pill-btn:hover {
-        border-color: var(--blush);
-        color: var(--blush);
-    }
-    .size-pill-btn.active {
-        background: #e06b88;
-        border-color: #e06b88;
-        color: #ffffff;
-        box-shadow: 0 3px 10px rgba(224, 107, 136, 0.35);
-    }
-
-    /* Action Row (Quantity + Add to Cart) */
-    .product-action-row {
-        display: flex;
-        gap: 1rem;
-        margin-top: 1.75rem;
-        margin-bottom: 1.5rem;
-    }
-    .quantity-counter {
-        display: flex;
-        align-items: center;
-        border: 1.5px solid #e8d0d6;
-        border-radius: 8px;
-        background: #fff;
-        height: 52px;
-        padding: 0 6px;
-    }
-    .qty-btn {
-        width: 36px;
-        height: 36px;
-        border: none;
-        background: transparent;
-        border-radius: 50%;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--ink-muted);
-        font-size: 1.1rem;
-        transition: all 0.2s ease;
-    }
-    .qty-btn:hover {
-        background: #fce7ee;
-        color: var(--blush);
-    }
-    .qty-display {
-        min-width: 32px;
-        text-align: center;
-        font-weight: 600;
-        font-size: 0.95rem;
-        color: var(--ink);
-        user-select: none;
-    }
-    .btn-add-to-cart {
-        flex: 1;
-        height: 52px;
-        border: none;
-        border-radius: 8px;
-        background: linear-gradient(135deg, #e87b94 0%, var(--blush) 100%);
-        color: #ffffff;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.98rem;
-        font-weight: 600;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.65rem;
-        box-shadow: 0 6px 20px rgba(201,122,140, 0.35);
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .btn-add-to-cart:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(201,122,140, 0.45);
-        background: linear-gradient(135deg, var(--blush) 0%, #ba3253 100%);
-    }
-    .btn-add-to-cart:active {
-        transform: translateY(0);
-    }
-
-    /* Trust & Guarantee Badges */
-    .trust-badges-row {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        padding-top: 0.75rem;
-        border-top: 1px solid #f6e6ea;
-    }
-    .trust-badge-item {
-        display: flex;
-        align-items: center;
-        gap: 0.45rem;
-        font-size: 0.8rem;
-        color: var(--ink-muted);
-        font-weight: 500;
-    }
-    .trust-badge-item svg {
-        width: 17px;
-        height: 17px;
-        color: #10b981;
-        flex-shrink: 0;
-    }
-
-    /* ===== PANDUAN UKURAN (CM) ===== */
-    .size-guide-section {
-        max-width: 1320px;
-        margin: 1.5rem auto 3.5rem;
-        padding: 0 2rem;
-    }
-    .size-guide-title {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 1.65rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0 0 1.25rem 0;
-    }
-    .size-table-container {
-        background: #ffffff;
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        overflow: hidden;
-        box-shadow: 0 4px 20px rgba(201,122,140, 0.04);
-        transition: box-shadow 0.3s ease;
-    }
-    .size-table-container.highlight {
-        box-shadow: 0 0 0 3px var(--blush);
-    }
-    .size-table {
-        width: 100%;
-        border-collapse: collapse;
-        text-align: left;
-    }
-    .size-table thead {
-        background: #fcdde5;
-    }
-    .size-table th {
-        padding: 1.1rem 1.5rem;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.88rem;
-        font-weight: 600;
-        color: var(--ink);
-    }
-    .size-table tbody tr {
-        border-top: 1px solid #fae6ec;
-        transition: background 0.2s;
-    }
-    .size-table tbody tr:hover {
-        background: #fdf5f7;
-    }
-    .size-table td {
-        padding: 1rem 1.5rem;
-        font-size: 0.88rem;
-        color: var(--ink-muted);
-    }
-    .size-table td:first-child {
-        font-weight: 700;
-        color: var(--ink);
-    }
-
-    /* ===== TABS & CARE SECTION ===== */
-    .tabs-and-care-section {
-        max-width: 1320px;
-        margin: 0 auto 4rem;
-        padding: 0 2rem;
-        display: grid;
-        grid-template-columns: 1.4fr 1fr;
-        gap: 3rem;
-        align-items: start;
-    }
-
-    /* Tabs Header */
-    .product-tabs-header {
-        display: flex;
-        align-items: center;
-        gap: 2rem;
-        border-bottom: 2px solid #fae6ec;
-        margin-bottom: 1.75rem;
-    }
-    .tab-nav-btn {
-        background: none;
-        border: none;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 1.05rem;
-        font-weight: 600;
-        color: var(--ink-muted);
-        padding: 0.75rem 0.25rem 1rem;
-        cursor: pointer;
-        position: relative;
-        transition: all 0.2s ease;
-    }
-    .tab-nav-btn:hover {
-        color: var(--blush);
-    }
-    .tab-nav-btn.active {
-        color: var(--ink);
-    }
-    .tab-nav-btn.active::after {
-        content: '';
-        position: absolute;
-        bottom: -2px;
-        left: 0;
-        right: 0;
-        height: 2.5px;
-        background: var(--blush);
-        border-radius: 2px;
-    }
-
-    /* Tab Content - Deskripsi */
-    .tab-panel {
-        display: none;
-        animation: fadeInTab 0.3s ease;
-    }
-    .tab-panel.active {
-        display: block;
-    }
-    @keyframes fadeInTab {
-        from { opacity: 0; transform: translateY(6px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    .tab-content-title {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 1.35rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0 0 1rem 0;
-    }
-    .tab-content-text {
-        font-size: 0.92rem;
-        line-height: 1.75;
-        color: #6a4a52;
-        margin: 0 0 1.5rem 0;
-    }
-    .tab-features-title {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0 0 0.85rem 0;
-    }
-    .tab-features-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-    .tab-features-list li {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.65rem;
-        font-size: 0.88rem;
-        line-height: 1.6;
-        color: var(--ink-muted);
-    }
-    .tab-features-list li::before {
-        content: '•';
-        color: var(--blush);
-        font-size: 1.2rem;
-        line-height: 1;
-        margin-top: 0.1rem;
-    }
-
-    /* Tab Content - Ulasan */
-    .reviews-summary-card {
-        display: flex;
-        align-items: center;
-        gap: 2rem;
-        padding: 1.5rem;
-        background: #fdf5f7;
-        border-radius: 14px;
-        border: 1px solid var(--border);
-        margin-bottom: 1.5rem;
-    }
-    .reviews-score {
-        font-size: 2.75rem;
-        font-family: 'Cormorant Garamond', serif;
-        font-weight: 700;
-        color: var(--ink);
-        line-height: 1;
-    }
-    .review-item-card {
-        border-bottom: 1px solid #f6e6ea;
-        padding: 1.25rem 0;
-    }
-    .review-item-card:last-child {
-        border-bottom: none;
-    }
-    .review-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.45rem;
-    }
-    .reviewer-name {
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: var(--ink);
-    }
-    .review-date {
-        font-size: 0.78rem;
-        color: #9a7a82;
-    }
-
-    /* Care Instructions Card (Right) */
-    .care-instructions-card {
-        background: var(--bg-warm);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-lg);
-        padding: 1.75rem 2rem;
-        box-shadow: 0 4px 18px rgba(201,122,140, 0.04);
-    }
-    .care-card-title {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0 0 1.5rem 0;
-    }
-    .care-items-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-    }
-    .care-item {
-        display: flex;
-        align-items: center;
-        gap: 1.1rem;
-    }
-    .care-icon-circle {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        background: #ffffff;
-        border: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--blush);
-        flex-shrink: 0;
-    }
-    .care-item-text {
-        font-size: 0.88rem;
-        color: var(--ink-muted);
-        line-height: 1.5;
-        margin: 0;
-    }
-
-    /* ===== PRODUK SERUPA ===== */
-    .related-products-section {
-        max-width: 1320px;
-        margin: 0 auto 5rem;
-        padding: 0 2rem;
-    }
-    .related-section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-    .related-section-title {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 1.85rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin: 0;
-    }
-    .related-view-all {
-        font-size: 0.88rem;
-        font-weight: 600;
-        color: var(--blush);
-        text-decoration: none;
-        transition: color 0.2s;
-    }
-    .related-view-all:hover {
-        color: var(--blush-dark);
-    }
-
-    .related-products-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1.5rem;
-    }
-    .related-card {
-        background: #ffffff;
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        overflow: hidden;
-        text-decoration: none;
-        display: flex;
-        flex-direction: column;
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        position: relative;
-    }
-    .related-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 12px 28px rgba(201,122,140, 0.12);
-        border-color: var(--blush);
-    }
-    .related-card-img-box {
-        width: 100%;
-        aspect-ratio: 3/4;
-        background: #faf7f8;
-        position: relative;
-        overflow: hidden;
-    }
-    .related-card-img-box img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-        transition: transform 0.4s ease;
-    }
-    .related-card:hover .related-card-img-box img {
-        transform: scale(1.05);
-    }
-    .related-badge-discount {
-        position: absolute;
-        top: 0.85rem;
-        left: 0.85rem;
-        background: #f43f5e;
-        color: #fff;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.75rem;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 6px;
-        z-index: 2;
-    }
-    .related-btn-wishlist {
-        position: absolute;
-        top: 0.85rem;
-        right: 0.85rem;
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.9);
-        border: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--blush);
-        cursor: pointer;
-        z-index: 2;
-        transition: all 0.2s ease;
-    }
-    .related-btn-wishlist:hover {
-        background: #fff;
-        transform: scale(1.1);
-    }
-    .related-btn-wishlist.active {
-        background: var(--blush);
-        color: #fff;
-        border-color: var(--blush);
-    }
-    .related-btn-wishlist.active svg {
-        fill: currentColor;
-    }
-    .related-card-body {
-        padding: 1.15rem 1.25rem 1.35rem;
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-    }
-    .related-card-title {
-        font-family: 'DM Sans', sans-serif;
-        font-size: 0.92rem;
-        font-weight: 600;
-        color: var(--ink);
-        margin: 0 0 0.5rem 0;
-        line-height: 1.4;
-    }
-    .related-price-row {
-        display: flex;
-        align-items: baseline;
-        gap: 0.65rem;
-        margin-top: auto;
-    }
-    .related-price-current {
-        font-weight: 700;
-        color: var(--ink);
-        font-size: 0.98rem;
-    }
-    .related-price-original {
-        font-size: 0.82rem;
-        color: var(--ink-faint);
-        text-decoration: line-through;
-    }
-
-    /* Toast Notification */
-    .toast-notification {
-        position: fixed;
-        bottom: 2rem;
-        right: 2rem;
-        background: var(--ink);
-        color: #fff;
-        padding: 1rem 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        font-size: 0.9rem;
-        z-index: 999;
-        transform: translateY(100px);
-        opacity: 0;
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        pointer-events: none;
-    }
-    .toast-notification.show {
-        transform: translateY(0);
-        opacity: 1;
-        pointer-events: auto;
-    }
-    .toast-notification svg {
-        color: #10b981;
-    }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 1024px) {
-        .product-main-grid {
-            grid-template-columns: 1fr;
-            gap: 2.5rem;
-        }
-        .tabs-and-care-section {
-            grid-template-columns: 1fr;
-            gap: 2.5rem;
-        }
-        .related-products-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-    @media (max-width: 640px) {
-        .product-gallery-wrapper {
-            flex-direction: column-reverse;
-        }
-        .product-thumbnails-col {
-            flex-direction: row;
-            width: 100%;
-            justify-content: flex-start;
-        }
-        .gallery-thumb-btn {
-            width: 70px;
-            height: 70px;
-        }
-        .product-title {
-            font-size: 1.85rem;
-        }
-        .trust-badges-row {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.75rem;
-        }
-        .product-action-row {
-            flex-direction: column;
-        }
-        .quantity-counter {
-            justify-content: center;
-        }
-        .related-products-grid {
-            grid-template-columns: 1fr;
-        }
-        .size-table th, .size-table td {
-            padding: 0.75rem 0.85rem;
-            font-size: 0.8rem;
-        }
-    }
-</style>
+@push('page-styles')
+    @vite('resources/css/pages/produk-detail.css')
+@endpush
 
 {{-- BREADCRUMB --}}
 <nav class="breadcrumb-nav" id="breadcrumb-nav">
@@ -918,24 +28,22 @@
         <div class="product-gallery-wrapper" id="product-gallery">
             {{-- Vertical Thumbnails --}}
             <div class="product-thumbnails-col" id="product-thumbnails">
-                <button class="gallery-thumb-btn active" data-img-src="{{ asset($product['main_image']) }}" aria-label="Thumbnail 1">
-                    <img src="{{ asset($product['gallery'][0] ?? $product['main_image']) }}" alt="Thumbnail 1">
-                </button>
-                <button class="gallery-thumb-btn" data-img-src="{{ asset($product['gallery'][1] ?? $product['main_image']) }}" aria-label="Thumbnail 2">
-                    <img src="{{ asset($product['gallery'][1] ?? $product['main_image']) }}" alt="Thumbnail 2">
-                </button>
-                <button class="gallery-thumb-btn" data-img-src="{{ asset($product['gallery'][2] ?? $product['main_image']) }}" aria-label="Thumbnail 3">
-                    <img src="{{ asset($product['gallery'][2] ?? $product['main_image']) }}" alt="Thumbnail 3">
-                </button>
+                @foreach($product['gallery'] as $index => $image)
+                    <button class="gallery-thumb-btn {{ $index === 0 ? 'active' : '' }}" data-img-src="{{ asset($image) }}" aria-label="Thumbnail {{ $index + 1 }}">
+                        <img src="{{ asset($image) }}" alt="{{ $product['title'] }} foto {{ $index + 1 }}">
+                    </button>
+                @endforeach
             </div>
 
             {{-- Main Image Box --}}
-            <div class="product-main-img-box" id="product-main-img-box">
-                <span class="badge-bestseller">{{ $product['badge'] ?? 'BEST SELLER' }}</span>
+            <div class="product-main-img-box{{ !empty($product['is_best_seller']) ? ' has-ribbon' : '' }}" id="product-main-img-box">
+                @if(!empty($product['is_best_seller']))
+                <span class="ribbon-best-seller">Best Seller</span>
+                @endif
                                 <button class="btn-wishlist-float {{ ($product['is_wishlisted'] ?? false) ? 'active' : '' }}" id="btn-wishlist-toggle" aria-label="Tambah ke Wishlist">
                     <i data-lucide="heart" style="width:20px;height:20px;"></i>
                 </button>
-                <img id="main-product-img" src="{{ asset($product['main_image']) }}" alt="{{ $product['title'] }}" loading="eager">
+                <img id="main-product-img" src="{{ asset($product['gallery'][0] ?? $product['main_image']) }}" alt="{{ $product['title'] }}" loading="eager">
             </div>
         </div>
 
@@ -944,16 +52,12 @@
             {{-- Rating & Collection --}}
             <div class="product-meta-row">
                 <div class="rating-stars">
-                    <i data-lucide="star" style="width:16px;height:16px;fill:#eab308;"></i>
-                    <i data-lucide="star" style="width:16px;height:16px;fill:#eab308;"></i>
-                    <i data-lucide="star" style="width:16px;height:16px;fill:#eab308;"></i>
-                    <i data-lucide="star" style="width:16px;height:16px;fill:#eab308;"></i>
-                    <i data-lucide="star" style="width:16px;height:16px;fill:#eab308;"></i>
+                    @for($star = 1; $star <= 5; $star++)
+                        <i data-lucide="star" style="width:16px;height:16px;fill:{{ $product['review_count'] > 0 && $star <= round((float) $product['rating']) ? '#eab308' : 'none' }};"></i>
+                    @endfor
                 </div>
-                <span class="rating-text">{{ $product['rating'] }} &middot; {{ $product['review_count'] }} ulasan</span>
+                <span class="rating-text">{{ $product['review_count'] > 0 ? $product['rating'] . ' | ' . $product['review_count'] . ' ulasan' : 'Belum ada ulasan' }}</span>
             </div>
-
-            <span class="collection-tag">{{ $product['collection'] }}</span>
 
             <h1 class="product-title">{{ $product['title'] }}</h1>
 
@@ -971,7 +75,7 @@
             {{-- Color Selection --}}
             <div class="option-group" id="group-color">
                 <div class="option-label-row">
-                    <span class="option-title">Warna: <span class="option-value-name" id="selected-color-label">Red</span></span>
+                    <span class="option-title">Warna: <span class="option-value-name" id="selected-color-label">{{ $product['colors'][0]['name'] ?? 'Tidak tersedia' }}</span></span>
                 </div>
                 <div class="color-swatch-list">
                     @foreach($product['colors'] as $color)
@@ -979,6 +83,7 @@
                             class="color-swatch-item {{ $color['active'] ? 'active' : '' }}" 
                             style="background-color: {{ $color['hex'] }};" 
                             data-color-name="{{ $color['name'] }}"
+                            data-color-slug="{{ $color['slug'] }}"
                             aria-label="Pilih warna {{ $color['name'] }}">
                         </button>
                     @endforeach
@@ -993,23 +98,30 @@
                 </div>
                 <div class="size-btn-list">
                     @foreach($product['sizes'] as $size)
+                        @php
+                            $sizeStock = collect($product['variants'])
+                                ->filter(fn ($variant) => strcasecmp($variant['color'], $product['colors'][0]['name'] ?? '') === 0 && strcasecmp($variant['size'], $size) === 0)
+                                ->sum('stock');
+                        @endphp
                         <button 
-                            class="size-pill-btn {{ $size === $product['default_size'] ? 'active' : '' }}" 
-                            data-size="{{ $size }}">
+                            class="size-pill-btn {{ $size === $product['default_size'] && $sizeStock > 0 ? 'active' : '' }}"
+                            data-size="{{ $size }}"
+                            @disabled($sizeStock === 0)>
                             {{ $size }}
                         </button>
                     @endforeach
                 </div>
+                <p class="variant-stock-message" id="variant-stock-message" role="status"></p>
             </div>
 
             {{-- Quantity and Add to Cart --}}
             <div class="product-action-row">
                 <div class="quantity-counter">
-                    <button class="qty-btn" id="qty-minus" aria-label="Kurangi jumlah">&minus;</button>
+                    <button class="qty-btn" id="qty-minus" aria-label="Kurangi jumlah" @disabled($product['stock'] <= 0)>&minus;</button>
                     <span class="qty-display" id="qty-val">1</span>
-                    <button class="qty-btn" id="qty-plus" aria-label="Tambah jumlah">&plus;</button>
+                    <button class="qty-btn" id="qty-plus" aria-label="Tambah jumlah" @disabled($product['stock'] <= 0)>&plus;</button>
                 </div>
-                <button class="btn-add-to-cart" id="btn-add-to-cart">
+                <button class="btn-add-to-cart" id="btn-add-to-cart" @disabled($product['stock'] <= 0)>
                     <i data-lucide="shopping-bag" style="width:20px;height:20px;"></i>
                     Tambahkan ke Keranjang
                 </button>
@@ -1087,71 +199,72 @@
             <button class="tab-nav-btn" data-tab="ulasan" id="tab-btn-ulasan">Ulasan ({{ $product['review_count'] }})</button>
         </div>
 
-        {{-- Tab Panel: Deskripsi --}}
+        {{-- Tab Panel: Deskripsi (tanpa judul, langsung isi) --}}
         <div class="tab-panel active" id="tab-panel-deskripsi">
-            <h3 class="tab-content-title">{{ $product['long_desc_title'] }}</h3>
             <p class="tab-content-text">{{ $product['long_desc'] }}</p>
-
-            <h4 class="tab-features-title">Fitur Produk:</h4>
-            <ul class="tab-features-list">
-                @foreach($product['features'] as $feature)
-                    <li>{{ $feature }}</li>
-                @endforeach
-            </ul>
         </div>
 
         {{-- Tab Panel: Ulasan --}}
         <div class="tab-panel" id="tab-panel-ulasan">
             <div class="reviews-summary-card">
                 <div>
-                    <div class="reviews-score">4.9</div>
+                    <div class="reviews-score">{{ $product['review_count'] > 0 ? $product['rating'] : '—' }}</div>
                     <div class="rating-stars" style="margin-top: 4px;">
-                        <i data-lucide="star" style="width:18px;height:18px;fill:#eab308;"></i>
-                        <i data-lucide="star" style="width:18px;height:18px;fill:#eab308;"></i>
-                        <i data-lucide="star" style="width:18px;height:18px;fill:#eab308;"></i>
-                        <i data-lucide="star" style="width:18px;height:18px;fill:#eab308;"></i>
-                        <i data-lucide="star" style="width:18px;height:18px;fill:#eab308;"></i>
+                        @for($star = 1; $star <= 5; $star++)
+                            <i data-lucide="star" style="width:18px;height:18px;fill:{{ $product['review_count'] > 0 && $star <= round((float) $product['rating']) ? '#eab308' : 'none' }};"></i>
+                        @endfor
                     </div>
                 </div>
                 <div style="font-size: 0.88rem; color: var(--ink-muted); line-height: 1.5;">
-                    <strong>98% Pembeli Puas</strong><br>
-                    Berdasarkan {{ $product['review_count'] }} ulasan dari pelanggan yang telah berbelanja produk ini.
+                    <strong>{{ $product['review_count'] > 0 ? $product['rating'] . ' / 5 dari ' . $product['review_count'] . ' ulasan' : 'Belum ada ulasan' }}</strong><br>
+                    {{ $product['review_count'] > 0 ? $product['rating_distribution'] . '% memberi nilai 4 atau 5. Semua ukuran dan warna pada produk ini dihitung bersama.' : 'Jadilah pembeli pertama yang memberikan ulasan untuk produk ini.' }}
                 </div>
             </div>
 
-            <div class="review-item-card">
-                <div class="review-header">
-                    <span class="reviewer-name">Citra Kirana &bull; <small style="color:#10b981;font-weight:normal;">Verified Buyer</small></span>
-                    <span class="review-date">2 hari yang lalu</span>
-                </div>
-                <div class="rating-stars" style="margin-bottom: 0.45rem;">
-                    <i data-lucide="star" style="width:14px;height:14px;fill:#eab308;"></i>
-                    <i data-lucide="star" style="width:14px;height:14px;fill:#eab308;"></i>
-                    <i data-lucide="star" style="width:14px;height:14px;fill:#eab308;"></i>
-                    <i data-lucide="star" style="width:14px;height:14px;fill:#eab308;"></i>
-                    <i data-lucide="star" style="width:14px;height:14px;fill:#eab308;"></i>
-                </div>
-                <p style="font-size: 0.88rem; color: var(--ink-muted); margin: 0; line-height: 1.5;">
-                    Bagus banget! Bahannya jatuh dan adem parah. Warnanya mewah seperti di foto, ukurannya pas banget sesuai tabel panduan ukuran.
-                </p>
-            </div>
+            @if($flashSuccess)
+                <div class="review-form-notice success" role="status">{{ $flashSuccess }}</div>
+            @endif
+            @if($flashError)
+                <div class="review-form-notice error" role="alert">{{ $flashError }}</div>
+            @endif
 
-            <div class="review-item-card">
-                <div class="review-header">
-                    <span class="reviewer-name">Nadia Safitri &bull; <small style="color:#10b981;font-weight:normal;">Verified Buyer</small></span>
-                    <span class="review-date">1 minggu yang lalu</span>
-                </div>
-                <div class="rating-stars" style="margin-bottom: 0.45rem;">
-                    <i data-lucide="star" style="width:14px;height:14px;fill:#eab308;"></i>
-                    <i data-lucide="star" style="width:14px;height:14px;fill:#eab308;"></i>
-                    <i data-lucide="star" style="width:14px;height:14px;fill:#eab308;"></i>
-                    <i data-lucide="star" style="width:14px;height:14px;fill:#eab308;"></i>
-                    <i data-lucide="star" style="width:14px;height:14px;fill:#eab308;"></i>
-                </div>
-                <p style="font-size: 0.88rem; color: var(--ink-muted); margin: 0; line-height: 1.5;">
-                    Packaging-nya niat dan wangi sekali saat dibuka. Bordir kelincinya manis dan rapi. Bakalan langganan di Sweet Dreams!
-                </p>
-            </div>
+            @if($product['can_review'])
+                <form class="product-review-form" method="POST" action="{{ route('produk.reviews.store', $product['slug']) }}">
+                    @csrf
+                    <h3>{{ $product['user_review'] ? 'Perbarui ulasanmu' : 'Bagikan pengalamanmu' }}</h3>
+                    <p>Satu ulasan berlaku untuk produk ini secara keseluruhan, termasuk semua pilihan warna dan ukuran.</p>
+                    <label for="review-rating">Rating</label>
+                    <select id="review-rating" name="rating" required>
+                        @for($rating = 5; $rating >= 1; $rating--)
+                            <option value="{{ $rating }}" @selected((int) old('rating', $product['user_review']?->rating ?? 5) === $rating)>{{ $rating }} bintang</option>
+                        @endfor
+                    </select>
+                    @error('rating') <p class="review-field-error">{{ $message }}</p> @enderror
+                    <label for="review-body">Ulasan</label>
+                    <textarea id="review-body" name="body" rows="4" minlength="5" maxlength="1500" required placeholder="Ceritakan pengalamanmu menggunakan produk ini...">{{ old('body', $product['user_review']?->body) }}</textarea>
+                    @error('body') <p class="review-field-error">{{ $message }}</p> @enderror
+                    <button type="submit" class="btn-submit-review">{{ $product['user_review'] ? 'Simpan Perubahan' : 'Kirim Ulasan' }}</button>
+                </form>
+            @elseif(!$product['user_review'])
+                <p class="review-purchase-note">Ulasan tersedia setelah kamu membeli produk ini dan pesanan berstatus selesai.</p>
+            @endif
+
+            @forelse($product['reviews'] as $review)
+                <article class="review-item-card">
+                    <div class="review-header">
+                        <span class="reviewer-name">{{ $review->user->name }} &bull; <small style="color:#10b981;font-weight:normal;">Pembeli Terverifikasi</small></span>
+                        <time class="review-date" datetime="{{ $review->created_at->toDateString() }}">{{ $review->created_at->translatedFormat('d M Y') }}</time>
+                    </div>
+                    <div class="rating-stars" style="margin-bottom: 0.45rem;" aria-label="{{ $review->rating }} dari 5 bintang">
+                        @for($star = 1; $star <= 5; $star++)
+                            <i data-lucide="star" style="width:14px;height:14px;fill:{{ $star <= $review->rating ? '#eab308' : 'none' }};"></i>
+                        @endfor
+                    </div>
+                    <p style="font-size: 0.88rem; color: var(--ink-muted); margin: 0; line-height: 1.5;">{{ $review->body }}</p>
+                </article>
+            @empty
+                <p class="review-purchase-note">Belum ada ulasan untuk produk ini.</p>
+            @endforelse
         </div>
     </div>
 
@@ -1192,7 +305,9 @@
         @foreach($relatedProducts as $idx => $rel)
             <a href="/produk/{{ $rel['slug'] }}" class="related-card" id="related-prod-{{ $idx + 1 }}">
                 <div class="related-card-img-box">
+                    @if(!empty(trim($rel['discount'] ?? '')))
                     <span class="related-badge-discount">{{ $rel['discount'] }}</span>
+                    @endif
                     <button class="related-btn-wishlist {{ ($rel['is_wishlisted'] ?? false) ? 'active' : '' }}" 
                             aria-label="Wishlist" 
                             data-product-id="{{ $rel['id'] }}" 
@@ -1228,21 +343,52 @@ document.addEventListener('DOMContentLoaded', function() {
     lucide.createIcons();
 
     // 1. Gallery Thumbnail Switcher
-    const thumbBtns = document.querySelectorAll('.gallery-thumb-btn');
+    const thumbnails = document.getElementById('product-thumbnails');
     const mainImg = document.getElementById('main-product-img');
+    const galleryByColor = @json($product['gallery_by_color']);
+    const defaultGallery = @json($product['gallery']);
+    const productAssetBase = @json(asset(''));
 
-    thumbBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            thumbBtns.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
+    function galleryImageUrl(path) {
+        return new URL(path.replace(/^\/+/, ''), productAssetBase).href;
+    }
 
-            const newSrc = this.getAttribute('data-img-src') || this.querySelector('img').src;
-            mainImg.style.opacity = '0.3';
-            setTimeout(() => {
-                mainImg.src = newSrc;
-                mainImg.style.opacity = '1';
-            }, 150);
+    function renderProductGallery(paths) {
+        const images = [...new Set((Array.isArray(paths) ? paths : defaultGallery).filter(Boolean))];
+        thumbnails.replaceChildren();
+
+        images.forEach((path, index) => {
+            const imageUrl = galleryImageUrl(path);
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = `gallery-thumb-btn${index === 0 ? ' active' : ''}`;
+            button.dataset.imgSrc = imageUrl;
+            button.setAttribute('aria-label', `Thumbnail ${index + 1}`);
+
+            const image = document.createElement('img');
+            image.src = imageUrl;
+            image.alt = `Foto produk ${index + 1}`;
+
+            button.appendChild(image);
+            thumbnails.appendChild(button);
         });
+
+        if (images.length > 0) {
+            mainImg.src = galleryImageUrl(images[0]);
+        }
+    }
+
+    thumbnails.addEventListener('click', event => {
+        const button = event.target.closest('.gallery-thumb-btn');
+        if (!button) return;
+
+        thumbnails.querySelectorAll('.gallery-thumb-btn').forEach(item => item.classList.remove('active'));
+        button.classList.add('active');
+        mainImg.style.opacity = '0.3';
+        setTimeout(() => {
+            mainImg.src = button.dataset.imgSrc;
+            mainImg.style.opacity = '1';
+        }, 150);
     });
 
     // 2. Color Selection
@@ -1257,6 +403,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (colorLabel && colorName) {
                 colorLabel.textContent = colorName;
             }
+            renderProductGallery(galleryByColor[this.dataset.colorSlug] || defaultGallery);
+            updateVariantAvailability();
         });
     });
 
@@ -1264,8 +412,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const sizeBtns = document.querySelectorAll('.size-pill-btn');
     sizeBtns.forEach(btn => {
         btn.addEventListener('click', function() {
+            if (this.disabled) return;
             sizeBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
+            updateVariantAvailability();
         });
     });
 
@@ -1276,14 +426,16 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentQty = 1;
 
     qtyPlus.addEventListener('click', function() {
-        currentQty++;
+        if (currentQty < selectedVariantStock) currentQty++;
         qtyVal.textContent = currentQty;
+        updateQuantityControls();
     });
 
     qtyMinus.addEventListener('click', function() {
         if (currentQty > 1) {
             currentQty--;
             qtyVal.textContent = currentQty;
+            updateQuantityControls();
         }
     });
 
@@ -1401,10 +553,65 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    if (@json($errors->has('rating') || $errors->has('body')) || window.location.hash === '#tab-panel-ulasan') {
+        document.getElementById('tab-btn-ulasan')?.click();
+    }
+
     // 8. Add to Cart Toast & Dynamic Cart Insertion
     const addToCartBtn = document.getElementById('btn-add-to-cart');
     const toast = document.getElementById('toast-notif');
     const toastMsg = document.getElementById('toast-msg');
+    const productVariants = @json($product['variants']);
+    const stockMessage = document.getElementById('variant-stock-message');
+    let selectedVariantStock = 0;
+
+    function updateQuantityControls() {
+        qtyVal.textContent = currentQty;
+        qtyMinus.disabled = selectedVariantStock <= 0 || currentQty <= 1;
+        qtyPlus.disabled = selectedVariantStock <= 0 || currentQty >= selectedVariantStock;
+    }
+
+    function updateVariantAvailability() {
+        const selectedColor = colorLabel?.textContent.trim() || '';
+
+        sizeBtns.forEach(btn => {
+            const size = btn.dataset.size;
+            const matchingVariant = productVariants.find(variant =>
+                variant.color.toLowerCase() === selectedColor.toLowerCase() &&
+                variant.size.toLowerCase() === size.toLowerCase()
+            );
+            btn.disabled = !matchingVariant || Number(matchingVariant.stock) <= 0;
+            if (btn.disabled) btn.classList.remove('active');
+        });
+
+        let activeSize = document.querySelector('.size-pill-btn.active:not(:disabled)');
+        if (!activeSize) {
+            activeSize = Array.from(sizeBtns).find(btn => !btn.disabled) || null;
+            sizeBtns.forEach(btn => btn.classList.remove('active'));
+            activeSize?.classList.add('active');
+        }
+
+        const selectedVariant = activeSize
+            ? productVariants.find(variant =>
+                variant.color.toLowerCase() === selectedColor.toLowerCase() &&
+                variant.size.toLowerCase() === activeSize.dataset.size.toLowerCase()
+            )
+            : null;
+        selectedVariantStock = Number(selectedVariant?.stock || 0);
+        currentQty = selectedVariantStock > 0 ? Math.min(currentQty, selectedVariantStock) : 1;
+        addToCartBtn.disabled = selectedVariantStock <= 0;
+
+        if (stockMessage) {
+            stockMessage.textContent = selectedVariantStock > 0
+                ? `Stok tersedia: ${selectedVariantStock} unit`
+                : 'Kombinasi warna dan ukuran ini sedang habis.';
+            stockMessage.classList.toggle('is-unavailable', selectedVariantStock <= 0);
+        }
+
+        updateQuantityControls();
+    }
+
+    updateVariantAvailability();
 
     if (addToCartBtn && toast) {
         const isLoggedIn = @json(auth()->check());
