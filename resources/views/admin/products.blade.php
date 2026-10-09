@@ -197,10 +197,17 @@
                         <small style="color:#a8939a;">Harga sebelum diskon (yang dicoret).</small>
                     </div>
                     <div class="form-group">
+                        <label>Diskon (%)</label>
+                        <input type="number" name="discount_pct" id="input-discount-pct" placeholder="Contoh: 15" min="0" max="100" value="{{ old('discount_pct') }}">
+                        <small style="color:#a8939a;">Isi salah satu: % atau Rp.</small>
+                    </div>
+                    <div class="form-group">
                         <label>Diskon (Rp)</label>
                         <input type="number" name="discount_rp" id="input-discount-rp" placeholder="Contoh: 30000" min="0" value="{{ old('discount_rp') }}">
-                        <small style="color:#a8939a;">Potongan rupiah. % dihitung otomatis.</small>
+                        <small style="color:#a8939a;">Isi salah satu: % atau Rp.</small>
                     </div>
+                </div>
+                <div class="form-row">
                     <div class="form-group">
                         <label>Label Diskon <small style="font-weight:normal;color:#a8939a;">(Otomatis)</small></label>
                         <input type="text" name="discount" id="input-discount" placeholder="Contoh: -16%" maxlength="20" value="{{ old('discount') }}" readonly>
@@ -588,32 +595,68 @@
 
     categoryInput.addEventListener('change', updateSkuPlaceholder);
 
-    // Harga Jual & % otomatis dari Harga Asli - Diskon Rp (ala Shopee)
+    // Harga ala Shopee: jangkar = Harga Asli. Isi % ATAU Rp ATAU Jual, sisanya ngikut.
+    // (Set .value via JS tidak memicu event input, jadi tidak ada loop.)
     const inputOriginalPrice = document.getElementById('input-original-price');
     const inputDiscountRp = document.getElementById('input-discount-rp');
+    const inputDiscountPct = document.getElementById('input-discount-pct');
     const inputPrice = document.getElementById('input-price');
     const inputDiscount = document.getElementById('input-discount');
     const discountPreview = document.getElementById('discount-preview');
 
-    function recalcDiscount() {
-        const asli = parseInt(inputOriginalPrice.value) || 0;
-        const potongan = parseInt(inputDiscountRp.value) || 0;
-        if (asli > 0 && potongan >= 0) {
-            const jual = Math.max(0, asli - potongan);
-            inputPrice.value = jual;
-            if (potongan > 0 && asli > 0) {
-                const pct = Math.round(potongan / asli * 100);
-                inputDiscount.value = `-${pct}%`;
-                if (discountPreview) discountPreview.textContent = `Rp${jual.toLocaleString('id-ID')} setelah diskon ${pct}%`;
-            } else {
-                inputDiscount.value = '';
-                if (discountPreview) discountPreview.textContent = 'Tanpa diskon.';
-            }
+    function paintDiscount(asli, potonganRp) {
+        potonganRp = Math.min(Math.max(0, potonganRp), asli);
+        const jual = asli - potonganRp;
+        const pct = asli > 0 ? Math.round(potonganRp / asli * 100) : 0;
+        inputPrice.value = asli > 0 ? jual : inputPrice.value;
+        inputDiscountRp.value = potonganRp > 0 ? potonganRp : '';
+        inputDiscountPct.value = pct > 0 ? pct : '';
+        inputDiscount.value = pct > 0 ? `-${pct}%` : '';
+        if (discountPreview) {
+            discountPreview.textContent = pct > 0
+                ? `Rp${jual.toLocaleString('id-ID')} setelah diskon ${pct}%`
+                : 'Tanpa diskon.';
         }
     }
 
-    inputOriginalPrice.addEventListener('input', recalcDiscount);
-    inputDiscountRp.addEventListener('input', recalcDiscount);
+    function clearDiscountPaint() {
+        inputDiscountRp.value = '';
+        inputDiscountPct.value = '';
+        inputDiscount.value = '';
+        if (discountPreview) discountPreview.textContent = 'Tanpa diskon.';
+    }
+
+    inputOriginalPrice.addEventListener('input', () => {
+        const asli = parseInt(inputOriginalPrice.value) || 0;
+        if (asli <= 0) { clearDiscountPaint(); return; }
+        const pct = parseFloat(inputDiscountPct.value);
+        if (!isNaN(pct) && pct > 0) {
+            paintDiscount(asli, Math.round(asli * Math.min(pct, 100) / 100));
+        } else {
+            paintDiscount(asli, parseInt(inputDiscountRp.value) || 0);
+        }
+    });
+
+    inputDiscountPct.addEventListener('input', () => {
+        const asli = parseInt(inputOriginalPrice.value) || 0;
+        if (asli <= 0) return;
+        paintDiscount(asli, Math.round(asli * Math.min(parseFloat(inputDiscountPct.value) || 0, 100) / 100));
+    });
+
+    inputDiscountRp.addEventListener('input', () => {
+        const asli = parseInt(inputOriginalPrice.value) || 0;
+        if (asli <= 0) return;
+        paintDiscount(asli, parseInt(inputDiscountRp.value) || 0);
+    });
+
+    // Ubah Jual manual = diskon dihitung mundur dari Asli
+    inputPrice.addEventListener('input', () => {
+        const asli = parseInt(inputOriginalPrice.value) || 0;
+        const jual = parseInt(inputPrice.value);
+        if (asli <= 0 || isNaN(jual)) return;
+        if (jual >= asli) { clearDiscountPaint(); return; } // bukan diskon
+        paintDiscount(asli, asli - jual);
+    });
 
     function previewImage(input) {
         if (input.files && input.files[0]) {
@@ -679,6 +722,7 @@
         const editAsli = parseInt(p.original_price_raw) || 0;
         const editJual = parseInt(p.price_raw) || 0;
         document.getElementById('input-discount-rp').value = (editAsli > editJual) ? (editAsli - editJual) : '';
+        document.getElementById('input-discount-pct').value = (editAsli > editJual) ? Math.round((editAsli - editJual) / editAsli * 100) : '';
         document.getElementById('input-discount').value = p.discount || '';
         document.getElementById('input-weight').value = p.weight ?? 250;
         document.getElementById('input-desc').value = p.short_desc || '';
