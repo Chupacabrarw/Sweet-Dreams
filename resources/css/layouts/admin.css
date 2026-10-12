@@ -119,7 +119,37 @@
             to { opacity:1; transform:translateX(0); }
         }
 
-        /* Shared card styles used across admin pages */
+        /* ===== Mobile: admin panel tetap kepakai di HP ===== */
+        @media (max-width: 768px) {
+            body .admin-card { padding: 1rem; }
+            /* Tabel geser horizontal, tidak merusak layout */
+            body table.admin-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            body table.admin-table th,
+            body table.admin-table td { white-space: nowrap; }
+            /* Form 3 kolom jadi 1 kolom */
+            body .product-form-grid { grid-template-columns: 1fr; }
+            body .product-form-grid .dropzone { height: 170px; }
+            body .form-row { grid-template-columns: 1fr; }
+            body .form-row.cols-4 { grid-template-columns: repeat(2, 1fr); }
+            /* Toolbar & filter bungkus rapi */
+            body .admin-toolbar { position: static; }
+            body .toolbar-actions { width: 100%; }
+            body .toolbar-actions .btn-pink,
+            body .toolbar-actions .btn-outline { flex: 1; justify-content: center; }
+            body .report-filter { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+            body .report-filter input[type="date"] { flex: 1; min-width: 140px; }
+            body .stock-toolbar { align-items: stretch; flex-direction: column; }
+            body .stock-search-form { width: 100%; }
+            body .stock-search-input { flex: 1; width: auto; max-width: none; }
+            /* Modal full hampir layar */
+            body .modal-card { margin: 1rem; max-width: none; width: calc(100% - 2rem); }
+            body .admin-header-right .admin-avatar-row { gap: 0; }
+        }
+        @media (max-width: 560px) {
+            body .admin-stat-grid { grid-template-columns: 1fr; }
+            body .form-row.cols-4 { grid-template-columns: 1fr; }
+            body .cms-card-body .sections-grid { grid-template-columns: 1fr; }
+        }
         .admin-card { background:#fff; border-radius:16px; padding:1.5rem; }
         .admin-stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem; margin-bottom:1.5rem; }
         .admin-stat-card { background:#fff; border-radius:16px; padding:1.3rem 1.5rem; }
