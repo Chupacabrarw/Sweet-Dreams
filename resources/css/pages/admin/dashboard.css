@@ -471,4 +471,11 @@
     }
     .metric-grid-top, .metric-grid-bot { grid-template-columns: 1fr; }
     .quick-actions-grid { grid-template-columns: 1fr; }
+    /* Cegah grid blowout: angka status & chart tidak kepotong di HP */
+    .dash-bottom-grid > * { min-width: 0; }
+    .chart-wrap, .chart-labels { overflow-x: auto; }
+    .chart-wrap .cbar, .chart-labels .clabel { flex: 0 0 24px; }
+    .order-status-row { gap: 0.5rem; }
+    .order-status-left { min-width: 0; }
+    .order-status-val { flex-shrink: 0; margin-left: auto; }
 }
