@@ -13,7 +13,7 @@
     <div class="admin-stat-card"><div class="admin-stat-label">Voucher aktif</div><div class="admin-stat-value">{{ $totalActive }}</div></div>
     <div class="admin-stat-card"><div class="admin-stat-label">Penukaran total</div><div class="admin-stat-value">{{ $totalRedeemed }}</div></div>
     <div class="admin-stat-card"><div class="admin-stat-label">Nilai diskon terealisasi</div><div class="admin-stat-value">Rp {{ number_format($totalDiscountValue, 0, ',', '.') }}</div></div>
-    <div class="admin-stat-card"><div class="admin-stat-label">Total voucher</div><div class="admin-stat-value">{{ $vouchers->count() }}</div></div>
+    <div class="admin-stat-card"><div class="admin-stat-label">Total voucher</div><div class="admin-stat-value">{{ $vouchers->total() }}</div></div>
 </div>
 
 <div class="admin-card" style="margin-bottom:1.5rem;">
@@ -46,6 +46,7 @@
                 @endforeach
             </tbody>
         </table>
+        <div class="admin-pagination">{{ $vouchers->links('vendor.pagination.admin') }}</div>
     @endif
 </div>
 

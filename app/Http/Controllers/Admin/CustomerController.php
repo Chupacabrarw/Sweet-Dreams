@@ -24,12 +24,22 @@ class CustomerController extends Controller
     {
         $search = $request->get('q');
 
-        $customers = User::where('role', 'customer')
+        $base = fn () => User::where('role', 'customer')
             ->when($search, fn ($q) => $q->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"))
             ->withCount(['orders as orders_count' => fn ($query) => $query->countedAsSale()])
-            ->get()
-            ->map(function ($u) {
-                $totalSpent = $u->orders()->countedAsSale()->sum('total');
+            ->withSum(['orders as total_spent' => fn ($query) => $query->countedAsSale()], 'total');
+
+        // Total segmen dari agregat ringan (tetap akurat walau daftar di-paginate)
+        $totals = ['Baru' => 0, 'Lama' => 0, 'VIP' => 0];
+        foreach ($base()->get(['users.id', 'users.created_at']) as $u) {
+            $totals[$this->segment($u->orders_count, (int) $u->total_spent, $u->created_at)['label']]++;
+        }
+
+        $customers = $base()->latest('id')
+            ->paginate(20)
+            ->withQueryString()
+            ->through(function ($u) {
+                $totalSpent = (int) $u->total_spent;
                 $seg = $this->segment($u->orders_count, $totalSpent, $u->created_at);
 
                 return [
@@ -47,9 +57,9 @@ class CustomerController extends Controller
         return view('admin.customers', [
             'customers' => $customers,
             'search' => $search,
-            'totalBaru' => $customers->where('segment_label', 'Baru')->count(),
-            'totalLama' => $customers->where('segment_label', 'Lama')->count(),
-            'totalVip' => $customers->where('segment_label', 'VIP')->count(),
+            'totalBaru' => $totals['Baru'],
+            'totalLama' => $totals['Lama'],
+            'totalVip' => $totals['VIP'],
         ]);
     }
 

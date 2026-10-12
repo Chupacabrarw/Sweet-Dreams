@@ -150,6 +150,20 @@
             body .form-row.cols-4 { grid-template-columns: 1fr; }
             body .cms-card-body .sections-grid { grid-template-columns: 1fr; }
         }
+
+        /* Pagination admin */
+        .admin-pagination { display: flex; justify-content: center; margin-top: 1.25rem; }
+        .admin-pagination-inner { display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap; justify-content: center; }
+        .pg-btn {
+            min-width: 36px; height: 36px; padding: 0 0.7rem;
+            display: inline-flex; align-items: center; justify-content: center;
+            border: 1px solid #e5dde0; background: #fff; border-radius: 10px;
+            font-size: 0.82rem; font-weight: 600; color: #3a2a2e; text-decoration: none;
+        }
+        a.pg-btn:hover { border-color: #d44d6e; color: #d44d6e; }
+        .pg-btn.pg-active { background: #d44d6e; border-color: #d44d6e; color: #fff; }
+        .pg-btn.pg-disabled { opacity: 0.4; }
+        .pg-btn.pg-dots { border: none; background: none; min-width: 0; }
         .admin-card { background:#fff; border-radius:16px; padding:1.5rem; }
         .admin-stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem; margin-bottom:1.5rem; }
         .admin-stat-card { background:#fff; border-radius:16px; padding:1.3rem 1.5rem; }

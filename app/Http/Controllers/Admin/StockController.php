@@ -22,7 +22,7 @@ class StockController extends Controller
     {
         $search = trim((string) $request->query('q', ''));
 
-        $variants = ProductVariant::with('product')
+        $base = ProductVariant::query()
             ->when($search !== '', function ($query) use ($search) {
                 // SKU/nama: cocok sebagian; ukuran & warna: cocok persis
                 // (LIKE 1 huruf "M" ikut kena "Merah Maroon"/"Muda")
@@ -32,31 +32,38 @@ class StockController extends Controller
                         ->orWhereRaw('LOWER(color) = ?', [mb_strtolower($search)])
                         ->orWhereHas('product', fn ($query) => $query->where('title', 'like', "%{$search}%"));
                 });
-            })
-            ->latest('updated_at')
-            ->get();
+            });
 
-        $rows = $variants->map(function ($v) {
-            $ind = $this->indicator($v->stock);
-            return [
-                'id' => $v->id,
-                'sku' => $v->sku ?: '-',
-                'product' => $v->product->title,
-                'size' => $v->size,
-                'color' => $v->color,
-                'stock' => $v->stock,
-                'indicator_label' => $ind['label'],
-                'indicator_class' => $ind['class'],
-            ];
-        });
+        // Statistik dari agregat (tetap akurat walau tabel di-paginate)
+        $totalUnit = (clone $base)->sum('stock');
+        $habis = (clone $base)->where('stock', 0)->count();
+        $menipis = (clone $base)->whereBetween('stock', [1, 15])->count();
+        $lastUpdated = ProductVariant::max('updated_at');
+
+        $rows = $base->with('product')->latest('updated_at')
+            ->paginate(30)
+            ->withQueryString()
+            ->through(function ($v) {
+                $ind = $this->indicator($v->stock);
+                return [
+                    'id' => $v->id,
+                    'sku' => $v->sku ?: '-',
+                    'product' => $v->product->title,
+                    'size' => $v->size,
+                    'color' => $v->color,
+                    'stock' => $v->stock,
+                    'indicator_label' => $ind['label'],
+                    'indicator_class' => $ind['class'],
+                ];
+            });
 
         return view('admin.stock', [
             'rows' => $rows,
             'search' => $search,
-            'totalUnit' => $variants->sum('stock'),
-            'menipis' => $variants->filter(fn ($v) => in_array($this->indicator($v->stock)['class'], ['kritis', 'menipis']))->count(),
-            'habis' => $variants->where('stock', 0)->count(),
-            'lastUpdated' => optional($variants->max('updated_at'))->diffForHumans(),
+            'totalUnit' => $totalUnit,
+            'menipis' => $menipis,
+            'habis' => $habis,
+            'lastUpdated' => $lastUpdated ? $lastUpdated->diffForHumans() : null,
         ]);
     }
 

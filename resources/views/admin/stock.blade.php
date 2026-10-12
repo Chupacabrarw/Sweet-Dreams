@@ -69,6 +69,7 @@
                 @endforeach
             </tbody>
         </table>
+        <div class="admin-pagination">{{ $rows->links('vendor.pagination.admin') }}</div>
     @endif
 </div>
 

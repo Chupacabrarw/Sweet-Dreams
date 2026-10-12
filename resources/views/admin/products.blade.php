@@ -32,7 +32,7 @@
     {{-- TABS --}}
     <div class="admin-tabs">
         <button class="admin-tab {{ !$activeCat ? 'active' : '' }}" onclick="switchTab('semua')">
-            Semua Produk ({{ $allProducts->count() }})
+            Semua Produk ({{ $allProducts->total() }})
         </button>
         @foreach($categories as $cat)
             <button class="admin-tab {{ $activeCat == $cat->id ? 'active' : '' }}" onclick="switchTab('cat-{{ $cat->id }}')">
@@ -79,6 +79,7 @@
                 </tbody>
             </table>
         </div>
+        <div class="admin-pagination">{{ $allProducts->links('vendor.pagination.admin') }}</div>
         @else
         <div class="empty-state">
             <i data-lucide="package" style="width:48px;height:48px;color:#f2dce3;margin-bottom:1rem;"></i>
