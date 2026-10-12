@@ -63,7 +63,7 @@ class StockController extends Controller
             'totalUnit' => $totalUnit,
             'menipis' => $menipis,
             'habis' => $habis,
-            'lastUpdated' => $lastUpdated ? $lastUpdated->diffForHumans() : null,
+            'lastUpdated' => $lastUpdated ? \Carbon\Carbon::parse($lastUpdated)->diffForHumans() : null,
         ]);
     }
 

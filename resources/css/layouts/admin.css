@@ -121,6 +121,7 @@
 
         /* ===== Mobile: admin panel tetap kepakai di HP ===== */
         @media (max-width: 768px) {
+            body { overflow-x: clip; }
             body .admin-card { padding: 1rem; }
             /* Tabel geser horizontal, tidak merusak layout */
             body table.admin-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
