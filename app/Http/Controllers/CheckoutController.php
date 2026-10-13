@@ -71,7 +71,6 @@ class CheckoutController extends Controller
      * Kosong/rusak = semua aktif (checkout tidak boleh kosong).
      */
     public static function enabledPaymentMethods(): array
-    public static function enabledPaymentMethods(): array
     {
         try {
             $raw = \App\Models\SiteContent::where('key', 'payment_methods')->value('body');
