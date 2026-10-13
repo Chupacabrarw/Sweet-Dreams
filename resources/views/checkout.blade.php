@@ -513,10 +513,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 : formatRupiah(currentShippingCost);
         }
 
-        // Voucher Calculation
+        // Voucher Calculation (nominal dari hasil validasi server)
         let discount = 0;
         if (appliedVoucher && window._appliedVoucherLabel) {
             if (discountLabel) discountLabel.textContent = `Promo ${window._appliedVoucherLabel}`;
+            discount = Math.min(parseInt(window._appliedVoucherDiscount) || 0, subtotal);
         } else {
             discount = 0;
             if (discountLabel) discountLabel.textContent = 'Tanpa Voucher';
@@ -970,8 +971,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.valid) {
                     appliedVoucher = code;
                     window._appliedVoucherLabel = data.label;
+                    window._appliedVoucherDiscount = data.discount || 0;
                 } else {
                     appliedVoucher = '';
+                    window._appliedVoucherLabel = '';
+                    window._appliedVoucherDiscount = 0;
                     alert(data.message);
                 }
                 renderCheckoutSummary();
