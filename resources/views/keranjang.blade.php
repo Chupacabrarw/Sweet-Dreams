@@ -60,18 +60,10 @@
 
             <div class="summary-row" id="row-discount">
                 <span>Diskon Promo</span>
-                <span class="value discount" id="summary-discount">- Rp50.000</span>
+                <span class="value discount" id="summary-discount">Rp0</span>
             </div>
 
-            {{-- Voucher Input --}}
-            <div class="voucher-section">
-                <label class="voucher-label" for="input-voucher">KODE VOUCHER</label>
-                <div class="voucher-input-group">
-                    <input type="text" id="input-voucher" value="" placeholder="MASUKKAN KODE">
-                    <button class="btn-apply-voucher" id="btn-apply-voucher">Terapkan</button>
-                </div>
-                <div class="voucher-msg" id="voucher-msg"></div>
-            </div>
+            <p style="font-size:0.78rem;color:#8a6a72;margin:0.25rem 0 0;">Kode voucher dipakai di halaman checkout.</p>
 
             <hr class="summary-total-divider">
 
@@ -151,9 +143,6 @@
  window.initialCartItems = @json($cartItems);
  window.selectedItemIds = new Set(window.initialCartItems.map(i => i.id));
 document.addEventListener('DOMContentLoaded', function() {
-    let discountAmount = 0;
-    let isVoucherApplied = false;
-
     const subtotalEl = document.getElementById('summary-subtotal');
     const shippingEl = document.getElementById('summary-shipping');
     const discountEl = document.getElementById('summary-discount');
@@ -342,71 +331,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Discount
-        let currentDiscount = isVoucherApplied ? Math.min(discountAmount, subtotal) : 0;
+        // Discount: voucher hanya dipakai di checkout, keranjang selalu Rp0
         if (discountEl) {
-            discountEl.textContent = currentDiscount > 0 ? `- ${formatRupiah(currentDiscount)}` : 'Rp0';
+            discountEl.textContent = 'Rp0';
         }
 
         // Grand Total
-        let grandTotal = Math.max(0, subtotal + shippingFee - currentDiscount);
+        let grandTotal = Math.max(0, subtotal + shippingFee);
         if (totalEl) totalEl.textContent = formatRupiah(grandTotal);
-    }
-
-    // Voucher application
-    const btnVoucher = document.getElementById('btn-apply-voucher');
-    const inputVoucher = document.getElementById('input-voucher');
-    const msgVoucher = document.getElementById('voucher-msg');
-
-    if (btnVoucher && inputVoucher) {
-        btnVoucher.addEventListener('click', function() {
-            const code = inputVoucher.value.trim().toUpperCase();
-            
-            if (code === '') {
-                isVoucherApplied = false;
-                discountAmount = 0;
-                msgVoucher.style.display = 'none';
-                renderCart();
-                return;
-            }
-
-            // Memanggil API backend untuk mengecek validitas voucher
-            fetch('/api/validate-voucher', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({ 
-                    code: code,
-                    // Karena subtotal sudah dideklarasikan di renderCart, kita perlu menghitung ulang sementara
-                    // atau ambil dari elemen teks subtotal yang ada.
-                    subtotal: window.initialCartItems ? window.initialCartItems.reduce((sum, item) => sum + (item.qty * item.price), 0) : 0
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.valid) {
-                    isVoucherApplied = true;
-                    discountAmount = data.discount;
-                    msgVoucher.textContent = `Voucher ${data.label || 'diskon'} berhasil dipasang!`;
-                    msgVoucher.style.color = '#10b981';
-                    msgVoucher.style.display = 'block';
-                } else {
-                    isVoucherApplied = false;
-                    discountAmount = 0;
-                    msgVoucher.textContent = data.message || 'Kode voucher tidak valid';
-                    msgVoucher.style.color = '#f43f5e';
-                    msgVoucher.style.display = 'block';
-                }
-                renderCart();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan saat mengecek voucher.');
-            });
-        });
     }
 
     // Select All functionality

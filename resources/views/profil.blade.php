@@ -205,21 +205,30 @@
                     </div>
                     <div id="address-list-container">
                         @foreach($addresses as $addr)
-                            <div class="address-card-item">
+                            <div class="address-card-item" data-id="{{ $addr['id'] }}">
                                 <div class="address-card-header">
                                     <div class="address-label-badge">
                                         <span>{{ $addr['label'] }}</span>
                                         @if($addr['is_primary']) <span class="address-primary-tag">Utama</span> @endif
                                     </div>
                                     <div class="address-actions">
-                                        <button type="button" class="address-action-btn btn-edit-address" data-id="addr-default-{{ $loop->index + 1 }}">
+                                        @if(!$addr['is_primary'])
+                                        <button type="button" class="address-action-btn btn-set-primary" data-id="{{ $addr['id'] }}">Jadikan Utama</button>
+                                        @endif
+                                        <button type="button" class="address-action-btn btn-edit-addr-item" data-id="{{ $addr['id'] }}">
                                             <i data-lucide="edit-3" style="width:14px;height:14px;"></i>
                                             <span>Ubah</span>
                                         </button>
+                                        @if(count($addresses) > 1)
+                                        <button type="button" class="address-action-btn delete btn-delete-addr-item" data-id="{{ $addr['id'] }}" title="Hapus Alamat">
+                                            <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                                            <span>Hapus</span>
+                                        </button>
+                                        @endif
                                     </div>
                                 </div>
                                 <p class="address-recipient">{{ $addr['name'] }} <span style="font-weight:400;color:#8a6a72;">({{ $addr['phone'] }})</span></p>
-                                <p class="address-detail-text">{{ $addr['address'] }}</p>
+                                <p class="address-detail-text">{{ $addr['address'] }}<br><small style="color:#8a6a72;">{{ collect([!empty($addr['subdistrict']) ? 'Kec. '.$addr['subdistrict'] : '', $addr['city'], $addr['province'], $addr['postal_code']])->filter()->implode(', ') }}</small></p>
                             </div>
                         @endforeach
                     </div>
@@ -1131,18 +1140,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
         container.innerHTML = html;
         lucide.createIcons();
+    }
 
-        // Bind address buttons
-        container.querySelectorAll('.btn-edit-addr-item').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
-                openEditAddressModal(id);
-            });
-        });
+    // Delegasi klik tombol alamat (berlaku untuk HTML server & hasil render JS)
+    (function bindAddressActions() {
+        const container = document.getElementById('address-list-container');
+        if (!container || container.dataset.bound === '1') return;
+        container.dataset.bound = '1';
 
-             container.querySelectorAll('.btn-set-primary').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
+        container.addEventListener('click', function(e) {
+            const editBtn = e.target.closest('.btn-edit-addr-item');
+            if (editBtn) {
+                openEditAddressModal(editBtn.getAttribute('data-id'));
+                return;
+            }
+            const primaryBtn = e.target.closest('.btn-set-primary');
+            if (primaryBtn) {
+                const id = primaryBtn.getAttribute('data-id');
                 fetch(`/api/addresses/${id}/primary`, {
                     method: 'PATCH',
                     headers: {
@@ -1160,12 +1174,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 })
                 .catch(() => alert('Tidak bisa menghubungi server, coba lagi.'));
-            });
-        });
-
-                container.querySelectorAll('.btn-delete-addr-item').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
+                return;
+            }
+            const delBtn = e.target.closest('.btn-delete-addr-item');
+            if (delBtn) {
+                const id = delBtn.getAttribute('data-id');
                 if (!confirm('Apakah Anda yakin ingin menghapus alamat pengiriman ini?')) return;
 
                 fetch(`/api/addresses/${id}`, {
@@ -1185,9 +1198,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 })
                 .catch(() => alert('Tidak bisa menghubungi server, coba lagi.'));
-            });
+            }
         });
-    }
+    })();
 
     // 5. Sync Active User from SweetDreamsAuth
     function syncActiveUserData() {

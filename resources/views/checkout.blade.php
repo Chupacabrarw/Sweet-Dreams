@@ -103,7 +103,7 @@
                     </div>
                     <div class="form-group">
                         <label for="input-kodepos">Kode Pos <span class="required">*</span></label>
-                        <input type="text" id="input-kodepos" class="form-control" placeholder="Otomatis dari kecamatan" required readonly>
+                        <input type="text" id="input-kodepos" class="form-control" placeholder="Otomatis dari kecamatan / ketik manual" required>
                         <span class="field-error-msg" id="err-kodepos">Kode pos terisi otomatis setelah kecamatan dipilih.</span>
                     </div>
                 </div>
@@ -493,7 +493,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         <div>
                             <h4 class="summary-item-title">${item.title}</h4>
-                            <p class="summary-item-sub">${item.variant || (item.color + ' · Size ' + item.size)} · Qty: ${itemQty}</p>
+                            <p class="summary-item-sub">${item.variant ? item.variant : (item.color + ' · Size ' + item.size + ' · Qty: ' + itemQty)}</p>
                         </div>
                     </div>
                     <span class="summary-item-price">${formatRupiah(itemSubtotal)}</span>

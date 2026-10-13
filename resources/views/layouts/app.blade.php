@@ -718,15 +718,20 @@
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `chatbot-message ${sender}`;
 
-                // Convert markdown-like bold (**) and newlines to HTML for simple formatting
-                const formattedText = text
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                // Bersihkan sisa markdown AI (*, #, >, `) agar tampil polos
+                const cleanText = text
+                    .replace(/^#{1,6}\s+/gm, '')
+                    .replace(/^\s*[>\-•]\s+/gm, '')
+                    .replace(/`([^`]*)`/g, '$1')
+                    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                    .replace(/(^|\n)\*\s+/g, '$1• ')
+                    .replace(/\*/g, '')
                     .replace(/\n/g, '<br>');
 
                 const avatar = sender === 'bot'
     ? `<div class="chatbot-msg-avatar"><img src="/images/avatars/cht-bot.png" alt="Dreamy"></div>`
     : '';
-messageDiv.innerHTML = `${avatar}<div class="chatbot-bubble">${formattedText}</div>`;
+messageDiv.innerHTML = `${avatar}<div class="chatbot-bubble">${cleanText}</div>`;
                 messagesContainer.appendChild(messageDiv);
                 scrollToBottom();
             }
