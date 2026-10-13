@@ -239,8 +239,17 @@ class CheckoutController extends Controller
             return $newOrder;
         });
 
-        // Buat tagihan pembayaran via Midtrans
-        $paymentResult = app(\App\Services\MidtransPaymentService::class)->createPayment($order);
+        // Buat tagihan pembayaran via Midtrans (pilihan checkout diteruskan agar Snap langsung fokus)
+        $snapPayments = match ($payment['id'] ?? null) {
+            'qris'     => ['qris'],
+            'bca'      => ['bca_va'],
+            'bni'      => ['bni_va'],
+            'bri'      => ['bri_va'],
+            'mandiri'  => ['mandiri_va'],
+            'permata'  => ['permata_va'],
+            default    => [],
+        };
+        $paymentResult = app(\App\Services\MidtransPaymentService::class)->createPayment($order, $snapPayments);
 
         if (empty($paymentResult['success'])) {
             app(InventoryService::class)->cancelOrder($order, [

@@ -21,7 +21,7 @@ class MidtransPaymentService
             : 'https://app.sandbox.midtrans.com/snap/v1/transactions';
     }
 
-    public function createPayment(Order $order): array
+    public function createPayment(Order $order, array $snapPayments = []): array
     {
         $customerName  = $order->shipping_recipient_name ?: ($order->user->name ?? 'Pelanggan Sweet Dreams');
         $customerEmail = $order->user->email ?? 'customer@sweetdreams.test';
@@ -84,13 +84,15 @@ class MidtransPaymentService
             'customer_details'    => $customerDetails,
         ];
 
-        // Batasi metode bayar bila di-setting (berlaku sandbox maupun production).
-        // Contoh env: MIDTRANS_ENABLED_PAYMENTS=gopay,qris
+        // Pilihan eksplisit (dari checkout) menang atas filter env.
+        // Kosong = pakai env MIDTRANS_ENABLED_PAYMENTS, kosong juga = semua tampil.
         $enabledPayments = array_values(array_filter(array_map(
             'trim',
             explode(',', (string) config('services.midtrans.enabled_payments', ''))
         )));
-        if ($enabledPayments !== []) {
+        if ($snapPayments !== []) {
+            $params['enabled_payments'] = array_values($snapPayments);
+        } elseif ($enabledPayments !== []) {
             $params['enabled_payments'] = $enabledPayments;
         }
 
