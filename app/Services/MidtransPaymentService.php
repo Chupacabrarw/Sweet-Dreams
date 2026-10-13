@@ -82,6 +82,12 @@ class MidtransPaymentService
             'transaction_details' => $transactionDetails,
             'item_details'        => $itemDetails,
             'customer_details'    => $customerDetails,
+            // Kembalikan pembeli ke halaman tracking pesanan kita (default Midtrans = example.com)
+            'callbacks' => [
+                'finish' => rtrim((string) config('app.url'), '/') . '/pesanan/' . $order->order_number,
+                'error'  => rtrim((string) config('app.url'), '/') . '/pesanan/' . $order->order_number,
+                'pending' => rtrim((string) config('app.url'), '/') . '/pesanan/' . $order->order_number,
+            ],
         ];
 
         // Pilihan eksplisit (dari checkout) menang atas filter env.
