@@ -208,14 +208,6 @@
         background: var(--blush-dark);
         transform: translateY(-2px);
     }
-    .btn-empty-shop svg {
-        width: 18px;
-        height: 18px;
-        flex-shrink: 0;
-        display: block;
-        margin: 0;
-        align-self: center;
-    }
 
     /* ===== ORDER SUMMARY CARD (RIGHT) ===== */
     .order-summary-card {

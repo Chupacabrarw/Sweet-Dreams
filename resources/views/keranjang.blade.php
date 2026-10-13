@@ -37,7 +37,6 @@
             <p>Jelajahi koleksi busana tidur premium kami dan temukan kenyamanan impian Anda.</p>
             <a href="/katalog" class="btn-empty-shop">
                 Mulai Belanja
-                <i data-lucide="arrow-right" style="width:18px;height:18px;"></i>
             </a>
         </div>
 

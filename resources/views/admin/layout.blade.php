@@ -30,9 +30,17 @@
             </a>
             <a href="{{ route('admin.stock') }}" class="admin-nav-item {{ request()->routeIs('admin.stock*') ? 'active' : '' }}" title="Stok">
                 <i data-lucide="boxes" style="width:18px;height:18px;"></i><span>Stok</span>
+                @php($emptyStockCount = \App\Models\ProductVariant::where('stock', 0)->count())
+                @if($emptyStockCount > 0)
+                    <span class="admin-nav-badge" aria-label="{{ $emptyStockCount }} varian stok habis">{{ $emptyStockCount > 99 ? '99+' : $emptyStockCount }}</span>
+                @endif
             </a>
             <a href="{{ route('admin.orders') }}" class="admin-nav-item {{ request()->routeIs('admin.orders*') ? 'active' : '' }}" title="Pesanan">
                 <i data-lucide="file-text" style="width:18px;height:18px;"></i><span>Pesanan</span>
+                @php($newOrderCount = \App\Models\Order::where('status', 'pending')->count())
+                @if($newOrderCount > 0)
+                    <span class="admin-nav-badge" aria-label="{{ $newOrderCount }} pesanan baru">{{ $newOrderCount > 99 ? '99+' : $newOrderCount }}</span>
+                @endif
             </a>
             <a href="{{ route('admin.customers') }}" class="admin-nav-item {{ request()->routeIs('admin.customers*') ? 'active' : '' }}" title="Pelanggan">
                 <i data-lucide="users" style="width:18px;height:18px;"></i><span>Pelanggan</span>
@@ -49,6 +57,10 @@
             </a>
                         <a href="{{ route('admin.vouchers') }}" class="admin-nav-item {{ request()->routeIs('admin.vouchers*') ? 'active' : '' }}" title="Promo & Voucher">
                 <i data-lucide="ticket" style="width:18px;height:18px;"></i><span>Promo & Voucher</span>
+                @php($expiringVoucherCount = \App\Models\Voucher::where('is_active', true)->whereDate('ends_at', '>=', now()->toDateString())->whereDate('ends_at', '<=', now()->addDays(7)->toDateString())->count())
+                @if($expiringVoucherCount > 0)
+                    <span class="admin-nav-badge" aria-label="{{ $expiringVoucherCount }} voucher segera berakhir">{{ $expiringVoucherCount > 99 ? '99+' : $expiringVoucherCount }}</span>
+                @endif
             </a>
             <a href="{{ route('admin.reports') }}" class="admin-nav-item {{ request()->routeIs('admin.reports*') ? 'active' : '' }}" title="Laporan">
                 <i data-lucide="bar-chart-2" style="width:18px;height:18px;"></i><span>Laporan</span>
