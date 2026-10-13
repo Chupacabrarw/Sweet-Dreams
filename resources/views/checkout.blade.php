@@ -258,7 +258,7 @@
         <div class="payment-actions-group">
             <a href="#" target="_blank" id="btn-open-payment-url" class="btn-home-return btn-pay-gateway" style="display:none;">
                 <i data-lucide="external-link" style="width:18px;height:18px;"></i>
-                Buka Halaman Pembayaran (Komerce Pay)
+                Buka Halaman Pembayaran
             </a>
 
             <button type="button" id="btn-check-payment-status" class="btn-home-return" style="background:#fce7ee;color:var(--blush);border:1px solid #fbd5df;cursor:pointer;">
