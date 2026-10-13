@@ -15,7 +15,7 @@ class MidtransPaymentService
     /** Kode channel Snap yang dikenal Midtrans. Di luar ini = Snap balas "No payment channels". */
     public const SNAP_CHANNELS = [
         'credit_card', 'bca_va', 'bni_va', 'bri_va', 'echannel', 'permata_va',
-        'other_va', 'gopay', 'qris', 'shopeepay', 'indomaret', 'alfamart',
+        'other_va', 'gopay', 'qris', 'other_qris', 'shopeepay', 'indomaret', 'alfamart',
         'akulaku', 'kredivo', 'danamon_online', 'bca_klikpay', 'bca_klikbca',
         'bri_epay', 'cimb_clicks',
     ];
