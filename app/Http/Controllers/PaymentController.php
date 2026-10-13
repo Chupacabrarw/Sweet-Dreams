@@ -118,8 +118,12 @@ class PaymentController extends Controller
             return response()->json(['success' => false, 'message' => 'Pesanan ini sudah tidak bisa dibayar ulang.'], 409);
         }
 
-        // Tanpa filter metode: pembeli bebas pilih ulang metode apa pun
-        $res = $this->paymentService->createPayment($order);
+        // Regenerasi mengikuti daftar admin (konsisten dengan checkout:
+        // tidak ada Kredivo/Alfa dkk kecuali admin mengaktifkannya)
+        $res = $this->paymentService->createPayment(
+            $order,
+            \App\Http\Controllers\CheckoutController::snapCodesForEnabled()
+        );
 
         if (empty($res['success'])) {
             return response()->json(['success' => false, 'message' => 'Gagal membuat tagihan baru. Coba lagi.'], 502);

@@ -37,9 +37,40 @@ class CheckoutController extends Controller
     ];
 
     /**
+     * Peta id metode checkout -> kode channel Snap.
+     * Satu sumber kebenaran agar checkout & bayar-ulang selalu sama.
+     */
+    public static function snapCodesForPayment(string $paymentId): array
+    {
+        return match ($paymentId) {
+            'qris'     => ['other_qris', 'gopay'],
+            'kartu'    => ['credit_card'],
+            'bca'      => ['bca_va'],
+            'bni'      => ['bni_va'],
+            'bri'      => ['bri_va'],
+            'mandiri'  => ['echannel'],
+            'permata'  => ['permata_va'],
+            default    => [],
+        };
+    }
+
+    /** Gabungan kode Snap dari semua metode yang diaktifkan admin. */
+    public static function snapCodesForEnabled(): array
+    {
+        $codes = [];
+        foreach (self::enabledPaymentMethods() as $id) {
+            foreach (self::snapCodesForPayment($id) as $code) {
+                $codes[$code] = true;
+            }
+        }
+        return array_keys($codes);
+    }
+
+    /**
      * Metode yang diaktifkan admin via CMS (SiteContent key payment_methods).
      * Kosong/rusak = semua aktif (checkout tidak boleh kosong).
      */
+    public static function enabledPaymentMethods(): array
     public static function enabledPaymentMethods(): array
     {
         try {
@@ -270,19 +301,7 @@ class CheckoutController extends Controller
         });
 
         // Buat tagihan pembayaran via Midtrans (pilihan checkout diteruskan agar Snap langsung fokus)
-        // Kode channel resmi Midtrans Snap (salah nama = "No payment channels available").
-        // Mandiri = echannel (BUKAN mandiri_va). QRIS generik = other_qris
-        // (BUKAN qris — buktinya VA jalan tapi QRIS kosong).
-        $snapPayments = match ($payment['id'] ?? null) {
-            'qris'     => ['other_qris', 'gopay'],
-            'kartu'    => ['credit_card'],
-            'bca'      => ['bca_va'],
-            'bni'      => ['bni_va'],
-            'bri'      => ['bri_va'],
-            'mandiri'  => ['echannel'],
-            'permata'  => ['permata_va'],
-            default    => [],
-        };
+        $snapPayments = \App\Http\Controllers\CheckoutController::snapCodesForPayment($payment['id'] ?? '');
         $paymentResult = app(\App\Services\MidtransPaymentService::class)->createPayment($order, $snapPayments);
 
         if (empty($paymentResult['success'])) {
