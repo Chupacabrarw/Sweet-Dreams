@@ -39,9 +39,11 @@ class ChatbotController extends Controller
         }
         $contents[] = ['role' => 'user', 'parts' => [['text' => $data['message']]]];
 
-        $systemPrompt = $this->buildSystemPrompt($data['message']);
-
         try {
+            // Di dalam try agar DB hiccup (mis. MySQL Railway restart) jadi bubble ramah,
+            // bukan JSON "Server Error" mentah (HTTP 500 tanpa kode).
+            $systemPrompt = $this->buildSystemPrompt($data['message']);
+
             $response = Http::timeout(30)
                 ->retry(3, 1500, throw: false)   // coba 3x, jeda 1,5 detik, tetap kembalikan response terakhir
                 ->post(

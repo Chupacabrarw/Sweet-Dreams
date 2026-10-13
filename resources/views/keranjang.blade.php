@@ -7,10 +7,7 @@
     @vite('resources/css/pages/keranjang.css')
 @endpush
 
-{{-- TOP ANNOUNCEMENT BAR --}}
-<div class="cart-announcement-bar" id="cart-announcement">
-    FREE SHIPPING ON ORDERS OVER RP500.000 ✨
-</div>
+{{-- TOP ANNOUNCEMENT BAR (dihapus atas permintaan owner) --}}
 
 <div class="cart-page-wrapper">
     {{-- Header --}}
@@ -153,7 +150,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectAllCheckbox = document.getElementById('cart-select-all');
     const emptyState = document.getElementById('cart-empty-state');
     const summaryCard = document.getElementById('order-summary-card');
-    const announcementBar = document.getElementById('cart-announcement');
     const btnCheckout = document.getElementById('btn-checkout');
 
     function formatRupiah(num) {
@@ -173,7 +169,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (summaryCard) summaryCard.style.display = 'none';
             if (emptyState) emptyState.style.display = 'block';
             if (subtitleEl) subtitleEl.textContent = '0 items in your cart';
-            if (announcementBar) announcementBar.textContent = 'FREE SHIPPING ON ORDERS OVER RP500.000 ✨';
             lucide.createIcons();
             return;
         }
@@ -316,18 +311,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 shippingEl.textContent = 'FREE';
                 shippingEl.className = 'value free';
             }
-            if (announcementBar) {
-                announcementBar.innerHTML = 'SELAMAT! ANDA MENDAPATKAN GRATIS ONGKIR (BELANJA > RP500.000) ✨';
-            }
         } else {
             shippingFee = 25000;
-            const diff = 500000 - subtotal;
             if (shippingEl) {
                 shippingEl.textContent = formatRupiah(shippingFee);
                 shippingEl.className = 'value';
-            }
-            if (announcementBar) {
-                announcementBar.innerHTML = `TAMBAHKAN ${formatRupiah(diff)} LAGI UNTUK MENDAPATKAN GRATIS ONGKIR! ✨`;
             }
         }
 
