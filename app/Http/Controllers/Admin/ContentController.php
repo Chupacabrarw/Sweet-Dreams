@@ -74,6 +74,8 @@ class ContentController extends Controller
             'featuredProducts'   => $featuredProducts,
             'couriers'           => \App\Http\Controllers\ShippingController::COURIERS,
             'enabledCouriers'    => \App\Http\Controllers\ShippingController::enabledCouriers(),
+            'payMethods'         => \App\Http\Controllers\CheckoutController::PAYMENT_METHODS,
+            'enabledPayMethods'  => \App\Http\Controllers\CheckoutController::enabledPaymentMethods(),
             'tentang'            => self::pageData('tentang_'),
             'kontak'             => self::pageData('kontak_'),
             'faqs'               => self::faqs(),
@@ -154,6 +156,24 @@ class ContentController extends Controller
         $content->update(['body' => $request->body]);
 
         return redirect()->route('admin.content')->with('success', 'Konten berhasil diperbarui.');
+    }
+
+    public function updatePayMethods(Request $request)
+    {
+        $data = $request->validate([
+            'pay_methods'   => 'required|array|min:1',
+            'pay_methods.*' => 'in:' . implode(',', array_keys(\App\Http\Controllers\CheckoutController::PAYMENT_METHODS)),
+        ], [
+            'pay_methods.min' => 'Pilih minimal 1 metode bayar agar checkout tidak kosong.',
+        ]);
+
+        SiteContent::updateOrCreate(
+            ['key' => 'payment_methods'],
+            ['body' => json_encode(array_values($data['pay_methods']))]
+        );
+
+        return redirect()->route('admin.content')
+            ->with('success', 'Metode pembayaran di checkout berhasil disimpan.');
     }
 
     /* ===== Halaman Tentang & Kontak (CMS per halaman) ===== */

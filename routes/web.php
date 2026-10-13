@@ -93,6 +93,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::put('/konten/tentang', [App\Http\Controllers\Admin\ContentController::class, 'updateAbout'])->name('content.tentang');
         Route::put('/konten/kontak', [App\Http\Controllers\Admin\ContentController::class, 'updateContact'])->name('content.kontak');
         Route::put('/konten/ekspedisi', [App\Http\Controllers\Admin\ContentController::class, 'updateCouriers'])->name('content.couriers');
+        Route::put('/konten/pembayaran', [App\Http\Controllers\Admin\ContentController::class, 'updatePayMethods'])->name('content.paymethods');
     Route::put('/konten/banner', [App\Http\Controllers\Admin\ContentController::class, 'updateBanner'])->name('content.banner');
     Route::put('/konten/featured', [App\Http\Controllers\Admin\ContentController::class, 'updateFeatured'])->name('content.featured');
     Route::put('/konten/text/{key}', [App\Http\Controllers\Admin\ContentController::class, 'updateText'])->name('content.text');

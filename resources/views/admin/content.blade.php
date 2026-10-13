@@ -215,6 +215,54 @@
         </div>
     </div>
 
+    {{-- ===== METODE PEMBAYARAN CHECKOUT ===== --}}
+    <div class="cms-card">
+        <div class="cms-card-header">
+            <div class="cms-card-header-left">
+                <div class="cms-card-icon"><i data-lucide="wallet"></i></div>
+                <div>
+                    <p class="cms-card-title">Metode Pembayaran Checkout</p>
+                    <p class="cms-card-desc">Pilih yang muncul di halaman checkout (Snap ikut pilihan pembeli)</p>
+                </div>
+            </div>
+        </div>
+        <div class="cms-card-body">
+            <form method="POST" action="{{ route('admin.content.paymethods') }}">
+                @csrf @method('PUT')
+                <div class="sections-grid">
+                    <div class="section-panel">
+                        <div class="section-panel-header">
+                            <i data-lucide="credit-card"></i>
+                            <span class="section-panel-title">Metode Ditampilkan</span>
+                            <span class="section-panel-count" id="paymethod-count">{{ count($enabledPayMethods) }}</span>
+                        </div>
+                        <div class="section-panel-body" id="paymethod-list">
+                            @foreach($payMethods as $code => $pm)
+                            <label class="check-item">
+                                <input type="checkbox"
+                                       name="pay_methods[]"
+                                       value="{{ $code }}"
+                                       {{ in_array($code, $enabledPayMethods) ? 'checked' : '' }}
+                                       onchange="updateCount('paymethod-list', 'paymethod-count')">
+                                <span class="check-box"><i data-lucide="check"></i></span>
+                                <span class="check-label">{{ $pm['name'] }}</span>
+                            </label>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:1.5rem; display:flex; align-items:center; gap:1rem;">
+                    <button type="submit" class="btn-save">
+                        <i data-lucide="save"></i> Simpan Metode Bayar
+                    </button>
+                    <span style="font-size:0.78rem; color:#9a7a82;">
+                        Minimal 1. Harus sudah aktif juga di dashboard Midtrans.
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+
     {{-- ===== HALAMAN TENTANG (/tentang) ===== --}}
     <div class="cms-card">
         <div class="cms-card-header">
