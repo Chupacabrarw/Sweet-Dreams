@@ -240,12 +240,14 @@ class CheckoutController extends Controller
         });
 
         // Buat tagihan pembayaran via Midtrans (pilihan checkout diteruskan agar Snap langsung fokus)
+        // Kode channel resmi Midtrans Snap (salah nama = "No payment channels available").
+        // Mandiri = echannel (BUKAN mandiri_va).
         $snapPayments = match ($payment['id'] ?? null) {
             'qris'     => ['qris'],
             'bca'      => ['bca_va'],
             'bni'      => ['bni_va'],
             'bri'      => ['bri_va'],
-            'mandiri'  => ['mandiri_va'],
+            'mandiri'  => ['echannel'],
             'permata'  => ['permata_va'],
             default    => [],
         };
