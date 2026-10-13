@@ -168,6 +168,7 @@
         </div>
     </div>
 
+    <div class="cms-grid-2col">
     <div class="cms-card">
         <div class="cms-card-header">
             <div class="cms-card-header-left">
@@ -261,6 +262,7 @@
                 </div>
             </form>
         </div>
+    </div>
     </div>
 
     {{-- ===== HALAMAN TENTANG (/tentang) ===== --}}
