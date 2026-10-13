@@ -28,6 +28,7 @@ class CheckoutController extends Controller
     /** Semua metode bayar yang bisa tampil di checkout (id = kode internal). */
     public const PAYMENT_METHODS = [
         'qris'    => ['name' => 'QRIS (Scan & Bayar Instan)', 'desc' => 'Mendukung GoPay, OVO, DANA, ShopeePay, BCA Mobile, dll.', 'badges' => 'QRIS GOPAY OVO DANA'],
+        'kartu'   => ['name' => 'Kartu Kredit / Debit', 'desc' => 'Visa, Mastercard, JCB via Midtrans (3DS aman).', 'badges' => 'VISA MASTERCARD JCB'],
         'bca'     => ['name' => 'BCA Virtual Account', 'desc' => 'Transfer instan via BCA Mobile / KlikBCA / myBCA / ATM', 'badges' => 'BCA VA'],
         'bni'     => ['name' => 'BNI Virtual Account', 'desc' => 'Transfer instan via BNI Mobile Banking / ATM', 'badges' => 'BNI VA'],
         'bri'     => ['name' => 'BRI Virtual Account (BRIVA)', 'desc' => 'Transfer instan via BRImo / ATM BRI', 'badges' => 'BRIVA'],
@@ -274,6 +275,7 @@ class CheckoutController extends Controller
         // (BUKAN qris — buktinya VA jalan tapi QRIS kosong).
         $snapPayments = match ($payment['id'] ?? null) {
             'qris'     => ['other_qris', 'gopay'],
+            'kartu'    => ['credit_card'],
             'bca'      => ['bca_va'],
             'bni'      => ['bni_va'],
             'bri'      => ['bri_va'],
