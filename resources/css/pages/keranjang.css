@@ -213,6 +213,8 @@
         height: 18px;
         flex-shrink: 0;
         display: block;
+        margin: 0;
+        align-self: center;
     }
 
     /* ===== ORDER SUMMARY CARD (RIGHT) ===== */
