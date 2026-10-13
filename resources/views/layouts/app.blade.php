@@ -700,7 +700,16 @@
                         chatHistory.push({ role: 'user', text: message });
                         chatHistory.push({ role: 'model', text: data.reply });
                     } else {
-                        appendErrorMessage(data.reply || 'Maaf, terjadi kesalahan.', data);
+                        // Selalu tampilkan status HTTP agar penyebabnya kebaca
+                        // (mis. HTTP 422 = validasi, HTTP 500 = server, HTTP 419 = sesi habis)
+                        const meta = {
+                            code: (data && data.code) ? data.code : ('HTTP ' + response.status),
+                            debug: data && data.debug ? data.debug : null,
+                        };
+                        appendErrorMessage(
+                            (data && (data.reply || data.message)) || 'Maaf, terjadi kesalahan.',
+                            meta
+                        );
                     }
 
                 } catch (error) {
