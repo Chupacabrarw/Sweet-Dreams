@@ -173,9 +173,9 @@
                 <h4>Layanan Pelanggan</h4>
                 <ul>
                     <li><a href="{{ route('kontak') }}">Hubungi Kami</a></li>
-                    <li><a href="{{ route('kontak') }}#faq-pengiriman">FAQ &amp; Pengiriman</a></li>
-                    <li><a href="{{ route('kontak') }}#faq-panduan-ukuran">Panduan Ukuran</a></li>
-                    <li><a href="{{ route('kontak') }}#faq-penukaran">Kebijakan Penukaran</a></li>
+                    <li><a href="{{ route('kontak') }}#faq-list">FAQ &amp; Pengiriman</a></li>
+                    <li><a href="{{ route('kontak') }}#faq-list">Panduan Ukuran</a></li>
+                    <li><a href="{{ route('kontak') }}#faq-list">Kebijakan Penukaran</a></li>
                 </ul>
             </div>
             <div class="footer-col">
