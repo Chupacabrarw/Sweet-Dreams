@@ -176,7 +176,7 @@
         text-align: right;
     }
 
-    /* Empty Cart State */
+    /* Empty Cart State: bentang penuh & tengah saat keranjang kosong */
     .cart-empty-state {
         display: none;
         text-align: center;
@@ -184,6 +184,10 @@
         background: #fff;
         border: 1px solid var(--border);
         border-radius: var(--radius-lg);
+        grid-column: 1 / -1;
+        width: 100%;
+        max-width: 640px;
+        margin: 0 auto;
     }
     .cart-empty-state svg {
         color: rgba(180,140,150,0.35);

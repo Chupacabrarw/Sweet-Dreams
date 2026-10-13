@@ -619,25 +619,25 @@
         box-shadow: 0 2px 8px rgba(201,122,140, 0.3);
     }
 
-    /* Best seller: pita miring di pojok kanan atas foto */
+    /* Best seller: pil kiri atas, love selalu kanan atas (konsisten) */
     .ribbon-best-seller {
         position: absolute;
-        top: 16px;
-        right: -34px;
-        transform: rotate(45deg);
+        top: 12px;
+        left: 12px;
         background: #d44d6e;
         color: #fff;
         font-size: 0.62rem;
         font-weight: 800;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        padding: 4px 38px;
+        padding: 4px 10px;
+        border-radius: 6px;
         box-shadow: 0 2px 8px rgba(212,77,110,0.4);
         z-index: 2;
         white-space: nowrap;
     }
-    /* Tombol love turun sedikit biar tidak tertutup pita */
-    .katalog-product-card-img.has-ribbon .card-wishlist-btn { top: 58px; }
+    /* Kalau ada badge diskon, pita turun di bawahnya */
+    .katalog-product-card-img.has-discount .ribbon-best-seller { top: 52px; }
 
     /* Tags row */
     .product-tags {

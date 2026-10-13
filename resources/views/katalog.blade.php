@@ -151,7 +151,7 @@
             @endphp
             @foreach($initialList as $prod)
                 <div class="katalog-product-card" data-slug="{{ $prod['slug'] }}" onclick="window.location.href='/produk/{{ $prod['slug'] }}'">
-                    <div class="katalog-product-card-img {{ !empty($prod['is_best_seller']) ? 'has-ribbon' : '' }}">
+                    <div class="katalog-product-card-img {{ !empty($prod['discount']) && trim($prod['discount']) !== '' ? 'has-discount' : '' }}">
                         <img src="{{ asset($prod['image']) }}" alt="{{ $prod['title'] }}" loading="lazy">
                         @if(!empty(trim($prod['discount'] ?? '')))
                             <span class="card-discount-badge">{{ $prod['discount'] }}</span>
@@ -768,11 +768,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 ? prod.sizes.join(', ')
                 : 'Belum diatur';
             const badgeLabel = prod.badge || prod.category_name;
+            const hasDiscount = (prod.discount || '').trim() !== '';
             const bestSellerRibbon = prod.is_best_seller ? `<span class="ribbon-best-seller">Best Seller</span>` : '';
 
             return `
                 <div class="katalog-product-card" data-slug="${prod.slug}" onclick="window.location.href='/produk/${prod.slug}'">
-                    <div class="katalog-product-card-img${prod.is_best_seller ? ' has-ribbon' : ''}">
+                    <div class="katalog-product-card-img${hasDiscount ? ' has-discount' : ''}">
                         <img src="/${prod.image}" alt="${prod.title}" loading="lazy">
                         ${discountBadge}
                         ${bestSellerRibbon}

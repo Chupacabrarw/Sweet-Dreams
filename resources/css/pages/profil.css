@@ -1056,10 +1056,12 @@
         border-radius: 50%;
     }
     @media (max-width: 900px) {
+        .profile-page-wrapper { overflow-x: clip; }
         .profile-layout-grid {
             grid-template-columns: 1fr;
             gap: 2rem;
         }
+        .profile-layout-grid > *, .profile-content-area { min-width: 0; }
         .profile-sidebar-toggle {
             display: flex;
             grid-column: 1 / -1;

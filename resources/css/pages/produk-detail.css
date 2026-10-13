@@ -111,12 +111,11 @@
         transform: scale(1.02);
     }
 
-    /* Badges on main image: pita miring best seller di pojok kanan atas */
+    /* Badges on main image: pil best seller kiri atas, love tetap kanan atas */
     .ribbon-best-seller {
         position: absolute;
-        top: 18px;
-        right: -38px;
-        transform: rotate(45deg);
+        top: 1.25rem;
+        left: 1.25rem;
         background: #d44d6e;
         color: #fff;
         font-family: var(--font-body);
@@ -124,12 +123,12 @@
         font-weight: 800;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        padding: 5px 42px;
+        padding: 5px 14px;
+        border-radius: 8px;
         box-shadow: 0 4px 14px rgba(212,77,110,0.4);
         z-index: 2;
         white-space: nowrap;
     }
-    .product-main-img-box.has-ribbon .btn-wishlist-float { top: 4rem; }
     .btn-wishlist-float {
         position: absolute;
         top: 1.25rem;
