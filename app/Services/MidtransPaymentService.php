@@ -12,6 +12,14 @@ class MidtransPaymentService
     protected $isProduction;
     protected $baseUrl;
 
+    /** Kode channel Snap yang dikenal Midtrans. Di luar ini = Snap balas "No payment channels". */
+    public const SNAP_CHANNELS = [
+        'credit_card', 'bca_va', 'bni_va', 'bri_va', 'echannel', 'permata_va',
+        'other_va', 'gopay', 'qris', 'shopeepay', 'indomaret', 'alfamart',
+        'akulaku', 'kredivo', 'danamon_online', 'bca_klikpay', 'bca_klikbca',
+        'bri_epay', 'cimb_clicks',
+    ];
+
     public function __construct()
     {
         $this->serverKey = config('services.midtrans.server_key');
@@ -92,15 +100,19 @@ class MidtransPaymentService
 
         // Pilihan eksplisit (dari checkout) menang atas filter env.
         // Kosong = pakai env MIDTRANS_ENABLED_PAYMENTS, kosong juga = semua tampil.
+        // Kode asing dibuang agar 1 typo tidak mematikan semua channel.
+        $snapPayments = array_values(array_intersect($snapPayments, self::SNAP_CHANNELS));
         $enabledPayments = array_values(array_filter(array_map(
             'trim',
             explode(',', (string) config('services.midtrans.enabled_payments', ''))
         )));
+        $enabledPayments = array_values(array_intersect($enabledPayments, self::SNAP_CHANNELS));
         if ($snapPayments !== []) {
-            $params['enabled_payments'] = array_values($snapPayments);
+            $params['enabled_payments'] = $snapPayments;
         } elseif ($enabledPayments !== []) {
             $params['enabled_payments'] = $enabledPayments;
         }
+        \Illuminate\Support\Facades\Log::info('Midtrans Snap channels: ' . json_encode($params['enabled_payments'] ?? 'ALL'));
 
         try {
             $response = Http::withBasicAuth($this->serverKey, '')
