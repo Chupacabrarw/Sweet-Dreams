@@ -159,6 +159,7 @@ Route::post('/api/shipping/cost', [App\Http\Controllers\ShippingController::clas
 
 // ===== PAYMENT GATEWAY (MIDTRANS) =====
 Route::get('/api/payment/status/{orderNumber}', [App\Http\Controllers\PaymentController::class, 'checkStatus']);
+Route::post('/api/payment/refresh/{orderNumber}', [App\Http\Controllers\PaymentController::class, 'refresh'])->middleware('auth');
 Route::post('/api/payment/webhook', [App\Http\Controllers\PaymentController::class, 'handleWebhook']);
 
 // ===== ORDER TRACKING DETAIL =====//

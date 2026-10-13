@@ -100,6 +100,40 @@ class PaymentController extends Controller
     }
 
     /**
+     * Buat ulang tagihan Snap (ala Shopee: "bayar lagi" selalu dapat QR/VA baru
+     * dengan metode terkini, transaksi lama yang unpaid dibiarkan expired).
+     * POST /api/payment/refresh/{orderNumber}
+     */
+    public function refresh(Request $request, $orderNumber)
+    {
+        $order = Order::where('order_number', $orderNumber)
+            ->where('user_id', $request->user()->id)
+            ->first();
+
+        if (!$order) {
+            return response()->json(['success' => false, 'message' => 'Pesanan tidak ditemukan.'], 404);
+        }
+
+        if ($order->payment_status === 'paid' || in_array($order->status, ['cancelled', 'completed'], true)) {
+            return response()->json(['success' => false, 'message' => 'Pesanan ini sudah tidak bisa dibayar ulang.'], 409);
+        }
+
+        // Tanpa filter metode: pembeli bebas pilih ulang metode apa pun
+        $res = $this->paymentService->createPayment($order);
+
+        if (empty($res['success'])) {
+            return response()->json(['success' => false, 'message' => 'Gagal membuat tagihan baru. Coba lagi.'], 502);
+        }
+
+        $order->update([
+            'payment_reference' => $res['payment_reference'] ?? null,
+            'payment_url'       => $res['payment_url'] ?? null,
+        ]);
+
+        return response()->json(['success' => true, 'payment_url' => $order->payment_url]);
+    }
+
+    /**
      * Webhook notifikasi pembayaran dari Midtrans
      * POST /api/payment/webhook
      */
