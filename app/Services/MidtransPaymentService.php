@@ -84,6 +84,16 @@ class MidtransPaymentService
             'customer_details'    => $customerDetails,
         ];
 
+        // Batasi metode bayar bila di-setting (berlaku sandbox maupun production).
+        // Contoh env: MIDTRANS_ENABLED_PAYMENTS=gopay,qris
+        $enabledPayments = array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) config('services.midtrans.enabled_payments', ''))
+        )));
+        if ($enabledPayments !== []) {
+            $params['enabled_payments'] = $enabledPayments;
+        }
+
         try {
             $response = Http::withBasicAuth($this->serverKey, '')
                 ->withHeaders([
