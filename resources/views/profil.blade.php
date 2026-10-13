@@ -219,8 +219,13 @@
                                             <i data-lucide="edit-3" style="width:14px;height:14px;"></i>
                                             <span>Ubah</span>
                                         </button>
-                                        @if(count($addresses) >= 1)
+                                        @if(count($addresses) > 1)
                                         <button type="button" class="address-action-btn delete btn-delete-addr-item" data-id="{{ $addr['id'] }}" title="Hapus Alamat">
+                                            <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                                            <span>Hapus</span>
+                                        </button>
+                                        @else
+                                        <button type="button" class="address-action-btn delete" disabled title="Minimal 1 alamat tersimpan" style="opacity:.45;cursor:not-allowed;">
                                             <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
                                             <span>Hapus</span>
                                         </button>
@@ -1123,10 +1128,15 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <i data-lucide="edit-3" style="width:14px;height:14px;"></i>
                                 <span>Ubah</span>
                             </button>
+                            ${addresses.length > 1 ? `
                             <button type="button" class="address-action-btn delete btn-delete-addr-item" data-id="${addr.id}" title="Hapus Alamat">
                                 <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
                                 <span>Hapus</span>
-                            </button>
+                            </button>` : `
+                            <button type="button" class="address-action-btn delete" disabled title="Minimal 1 alamat tersimpan" style="opacity:.45;cursor:not-allowed;">
+                                <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                                <span>Hapus</span>
+                            </button>`}
                         </div>
                     </div>
                     <p class="address-recipient">${escapeHtml(addr.name)} <span style="font-weight:400;color:#8a6a72;">(${escapeHtml(addr.phone || '-')})</span></p>
