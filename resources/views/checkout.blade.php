@@ -103,7 +103,7 @@
                     </div>
                     <div class="form-group">
                         <label for="input-kodepos">Kode Pos <span class="required">*</span></label>
-                        <input type="text" id="input-kodepos" class="form-control" placeholder="Otomatis dari kecamatan" required readonly>
+                        <input type="text" id="input-kodepos" class="form-control" placeholder="Otomatis dari kecamatan / ketik manual" required>
                         <span class="field-error-msg" id="err-kodepos">Kode pos terisi otomatis setelah kecamatan dipilih.</span>
                     </div>
                 </div>
@@ -258,7 +258,7 @@
         <div class="payment-actions-group">
             <a href="#" target="_blank" id="btn-open-payment-url" class="btn-home-return btn-pay-gateway" style="display:none;">
                 <i data-lucide="external-link" style="width:18px;height:18px;"></i>
-                Buka Halaman Pembayaran (Komerce Pay)
+                Buka Halaman Pembayaran
             </a>
 
             <button type="button" id="btn-check-payment-status" class="btn-home-return" style="background:#fce7ee;color:var(--blush);border:1px solid #fbd5df;cursor:pointer;">
@@ -493,7 +493,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         <div>
                             <h4 class="summary-item-title">${item.title}</h4>
-                            <p class="summary-item-sub">${item.variant || (item.color + ' · Size ' + item.size)} · Qty: ${itemQty}</p>
+                            <p class="summary-item-sub">${item.variant ? item.variant : (item.color + ' · Size ' + item.size + ' · Qty: ' + itemQty)}</p>
                         </div>
                     </div>
                     <span class="summary-item-price">${formatRupiah(itemSubtotal)}</span>
@@ -513,10 +513,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 : formatRupiah(currentShippingCost);
         }
 
-        // Voucher Calculation
+        // Voucher Calculation (nominal dari hasil validasi server)
         let discount = 0;
         if (appliedVoucher && window._appliedVoucherLabel) {
             if (discountLabel) discountLabel.textContent = `Promo ${window._appliedVoucherLabel}`;
+            discount = Math.min(parseInt(window._appliedVoucherDiscount) || 0, subtotal);
         } else {
             discount = 0;
             if (discountLabel) discountLabel.textContent = 'Tanpa Voucher';
@@ -970,8 +971,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.valid) {
                     appliedVoucher = code;
                     window._appliedVoucherLabel = data.label;
+                    window._appliedVoucherDiscount = data.discount || 0;
                 } else {
                     appliedVoucher = '';
+                    window._appliedVoucherLabel = '';
+                    window._appliedVoucherDiscount = 0;
                     alert(data.message);
                 }
                 renderCheckoutSummary();

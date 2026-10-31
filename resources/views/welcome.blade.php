@@ -24,10 +24,18 @@
                 <p class="section-eyebrow">Koleksi Kami</p>
                 <h2>Kategori</h2>
             </div>
-            <a href="/katalog" class="view-all">Lihat Semua</a>
+            <div class="section-header-right">
+                <button type="button" class="slider-arrow" data-slider-target="kategoriTrack" data-slider-dir="-1" aria-label="Geser kategori ke kiri">
+                    <i data-lucide="chevron-left" style="width:18px;height:18px;"></i>
+                </button>
+                <button type="button" class="slider-arrow" data-slider-target="kategoriTrack" data-slider-dir="1" aria-label="Geser kategori ke kanan">
+                    <i data-lucide="chevron-right" style="width:18px;height:18px;"></i>
+                </button>
+                <a href="/katalog" class="view-all">Lihat Semua</a>
+            </div>
         </div>
 
-        <div class="categories-grid">
+        <div class="categories-grid" id="kategoriTrack">
             @forelse($homeCategories as $i => $category)
             <a href="/katalog/{{ $category->slug }}"
                class="category-card reveal reveal-delay-{{ ($i % 4) + 1 }}"
@@ -55,10 +63,18 @@
                 <p class="section-eyebrow">Pilihan Editor</p>
                 <h2>Produk Unggulan</h2>
             </div>
-            <a href="/katalog" class="view-all">Lihat Semua</a>
+            <div class="section-header-right">
+                <button type="button" class="slider-arrow" data-slider-target="unggulanTrack" data-slider-dir="-1" aria-label="Geser produk ke kiri">
+                    <i data-lucide="chevron-left" style="width:18px;height:18px;"></i>
+                </button>
+                <button type="button" class="slider-arrow" data-slider-target="unggulanTrack" data-slider-dir="1" aria-label="Geser produk ke kanan">
+                    <i data-lucide="chevron-right" style="width:18px;height:18px;"></i>
+                </button>
+                <a href="/katalog" class="view-all">Lihat Semua</a>
+            </div>
         </div>
 
-        <div class="products-grid">
+        <div class="products-grid" id="unggulanTrack">
             @forelse($homeProducts as $i => $product)
             <a href="/produk/{{ $product->slug }}"
                class="product-card reveal reveal-delay-{{ ($i % 3) + 1 }}"
@@ -125,6 +141,18 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Slider kanan-kiri home (kategori + produk unggulan)
+    document.querySelectorAll('.slider-arrow').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const track = document.getElementById(btn.dataset.sliderTarget);
+            if (!track) return;
+            const dir = parseInt(btn.dataset.sliderDir, 10) || 1;
+            const card = track.querySelector('.category-card, .product-card');
+            const step = card ? card.getBoundingClientRect().width + 20 : 270;
+            track.scrollBy({ left: dir * step, behavior: 'smooth' });
+        });
+    });
+
     const isLoggedIn = @json(auth()->check());
     window.toggleHomeWishlist = function(e, productId, btn) {
         if (e) {

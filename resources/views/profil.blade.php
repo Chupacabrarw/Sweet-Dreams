@@ -17,9 +17,18 @@
 
     {{-- Layout Grid --}}
     <div class="profile-layout-grid">
-        
+
+        {{-- Toggle menu akun (khusus HP) --}}
+        <button type="button" class="profile-sidebar-toggle" id="profile-sidebar-toggle" aria-expanded="false" aria-controls="profile-sidebar">
+            <i data-lucide="menu" style="width:18px;height:18px;"></i>
+            <span>Menu Akun</span>
+        </button>
+
         {{-- Left: Sidebar --}}
-        <aside class="profile-sidebar-card">
+        <aside class="profile-sidebar-card" id="profile-sidebar">
+            <button type="button" class="profile-sidebar-close" id="profile-sidebar-close" aria-label="Tutup Menu Akun">
+                <i data-lucide="x" style="width:20px;height:20px;"></i>
+            </button>
             <div class="sidebar-avatar-container">
                 <div class="sidebar-avatar-box" id="btn-sidebar-avatar-click" title="Klik untuk ganti avatar">
                     <img id="sidebar-avatar-img" src="{{ $user['avatar_url'] ?? asset($user['avatar']) }}" alt="{{ $user['name'] }}">
@@ -196,21 +205,35 @@
                     </div>
                     <div id="address-list-container">
                         @foreach($addresses as $addr)
-                            <div class="address-card-item">
+                            <div class="address-card-item" data-id="{{ $addr['id'] }}">
                                 <div class="address-card-header">
                                     <div class="address-label-badge">
                                         <span>{{ $addr['label'] }}</span>
                                         @if($addr['is_primary']) <span class="address-primary-tag">Utama</span> @endif
                                     </div>
                                     <div class="address-actions">
-                                        <button type="button" class="address-action-btn btn-edit-address" data-id="addr-default-{{ $loop->index + 1 }}">
+                                        @if(!$addr['is_primary'])
+                                        <button type="button" class="address-action-btn btn-set-primary" data-id="{{ $addr['id'] }}">Jadikan Utama</button>
+                                        @endif
+                                        <button type="button" class="address-action-btn btn-edit-addr-item" data-id="{{ $addr['id'] }}">
                                             <i data-lucide="edit-3" style="width:14px;height:14px;"></i>
                                             <span>Ubah</span>
                                         </button>
+                                        @if(count($addresses) > 1)
+                                        <button type="button" class="address-action-btn delete btn-delete-addr-item" data-id="{{ $addr['id'] }}" title="Hapus Alamat">
+                                            <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                                            <span>Hapus</span>
+                                        </button>
+                                        @else
+                                        <button type="button" class="address-action-btn delete" disabled title="Minimal 1 alamat tersimpan" style="opacity:.45;cursor:not-allowed;">
+                                            <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                                            <span>Hapus</span>
+                                        </button>
+                                        @endif
                                     </div>
                                 </div>
                                 <p class="address-recipient">{{ $addr['name'] }} <span style="font-weight:400;color:#8a6a72;">({{ $addr['phone'] }})</span></p>
-                                <p class="address-detail-text">{{ $addr['address'] }}</p>
+                                <p class="address-detail-text">{{ $addr['address'] }}<br><small style="color:#8a6a72;">{{ collect([!empty($addr['subdistrict']) ? 'Kec. '.$addr['subdistrict'] : '', $addr['city'], $addr['province'], $addr['postal_code']])->filter()->implode(', ') }}</small></p>
                             </div>
                         @endforeach
                     </div>
@@ -611,8 +634,28 @@ document.addEventListener('DOMContentLoaded', function() {
         item.addEventListener('click', function() {
             const target = this.getAttribute('data-tab');
             if (target) switchTab(target);
+            // Tutup drawer di HP setelah pilih menu
+            document.getElementById('profile-sidebar')?.classList.remove('open');
+            document.getElementById('profile-sidebar-toggle')?.setAttribute('aria-expanded', 'false');
         });
     });
+
+    // Drawer menu akun (HP)
+    const profileSidebar = document.getElementById('profile-sidebar');
+    const profileSidebarToggle = document.getElementById('profile-sidebar-toggle');
+    const profileSidebarClose = document.getElementById('profile-sidebar-close');
+    if (profileSidebarToggle && profileSidebar) {
+        profileSidebarToggle.addEventListener('click', () => {
+            const open = profileSidebar.classList.toggle('open');
+            profileSidebarToggle.setAttribute('aria-expanded', String(open));
+        });
+    }
+    if (profileSidebarClose && profileSidebar) {
+        profileSidebarClose.addEventListener('click', () => {
+            profileSidebar.classList.remove('open');
+            profileSidebarToggle?.setAttribute('aria-expanded', 'false');
+        });
+    }
 
     // Link 'Lihat semua' in recent orders -> switches to 'pesanan'
     const linkGotoOrders = document.getElementById('link-goto-myorders');
@@ -1089,7 +1132,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             <button type="button" class="address-action-btn delete btn-delete-addr-item" data-id="${addr.id}" title="Hapus Alamat">
                                 <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
                                 <span>Hapus</span>
-                            </button>` : ''}
+                            </button>` : `
+                            <button type="button" class="address-action-btn delete" disabled title="Minimal 1 alamat tersimpan" style="opacity:.45;cursor:not-allowed;">
+                                <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                                <span>Hapus</span>
+                            </button>`}
                         </div>
                     </div>
                     <p class="address-recipient">${escapeHtml(addr.name)} <span style="font-weight:400;color:#8a6a72;">(${escapeHtml(addr.phone || '-')})</span></p>
@@ -1102,18 +1149,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
         container.innerHTML = html;
         lucide.createIcons();
+    }
 
-        // Bind address buttons
-        container.querySelectorAll('.btn-edit-addr-item').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
-                openEditAddressModal(id);
-            });
-        });
+    // Delegasi klik tombol alamat (berlaku untuk HTML server & hasil render JS)
+    (function bindAddressActions() {
+        const container = document.getElementById('address-list-container');
+        if (!container || container.dataset.bound === '1') return;
+        container.dataset.bound = '1';
 
-             container.querySelectorAll('.btn-set-primary').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
+        container.addEventListener('click', function(e) {
+            const editBtn = e.target.closest('.btn-edit-addr-item');
+            if (editBtn) {
+                openEditAddressModal(editBtn.getAttribute('data-id'));
+                return;
+            }
+            const primaryBtn = e.target.closest('.btn-set-primary');
+            if (primaryBtn) {
+                const id = primaryBtn.getAttribute('data-id');
                 fetch(`/api/addresses/${id}/primary`, {
                     method: 'PATCH',
                     headers: {
@@ -1131,12 +1183,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 })
                 .catch(() => alert('Tidak bisa menghubungi server, coba lagi.'));
-            });
-        });
-
-                container.querySelectorAll('.btn-delete-addr-item').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
+                return;
+            }
+            const delBtn = e.target.closest('.btn-delete-addr-item');
+            if (delBtn) {
+                const id = delBtn.getAttribute('data-id');
                 if (!confirm('Apakah Anda yakin ingin menghapus alamat pengiriman ini?')) return;
 
                 fetch(`/api/addresses/${id}`, {
@@ -1156,9 +1207,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 })
                 .catch(() => alert('Tidak bisa menghubungi server, coba lagi.'));
-            });
+            }
         });
-    }
+    })();
 
     // 5. Sync Active User from SweetDreamsAuth
     function syncActiveUserData() {

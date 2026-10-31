@@ -25,16 +25,76 @@ class CheckoutController extends Controller
         ];
     }
 
+    /** Semua metode bayar yang bisa tampil di checkout (id = kode internal). */
+    public const PAYMENT_METHODS = [
+        'qris'    => ['name' => 'QRIS (Scan & Bayar Instan)', 'desc' => 'Mendukung GoPay, OVO, DANA, ShopeePay, BCA Mobile, dll.', 'badges' => 'QRIS GOPAY OVO DANA'],
+        'kartu'   => ['name' => 'Kartu Kredit / Debit', 'desc' => 'Visa, Mastercard, JCB via Midtrans (3DS aman).', 'badges' => 'VISA MASTERCARD JCB'],
+        'bca'     => ['name' => 'BCA Virtual Account', 'desc' => 'Transfer instan via BCA Mobile / KlikBCA / myBCA / ATM', 'badges' => 'BCA VA'],
+        'bni'     => ['name' => 'BNI Virtual Account', 'desc' => 'Transfer instan via BNI Mobile Banking / ATM', 'badges' => 'BNI VA'],
+        'bri'     => ['name' => 'BRI Virtual Account (BRIVA)', 'desc' => 'Transfer instan via BRImo / ATM BRI', 'badges' => 'BRIVA'],
+        'mandiri' => ['name' => 'Mandiri Virtual Account', 'desc' => 'Transfer instan via Livin by Mandiri / ATM Mandiri', 'badges' => 'MANDIRI'],
+        'permata' => ['name' => 'Permata Virtual Account', 'desc' => 'Transfer instan via PermataMobile X / ATM', 'badges' => 'PERMATA'],
+    ];
+
+    /**
+     * Peta id metode checkout -> kode channel Snap.
+     * Satu sumber kebenaran agar checkout & bayar-ulang selalu sama.
+     */
+    public static function snapCodesForPayment(string $paymentId): array
+    {
+        return match ($paymentId) {
+            'qris'     => ['other_qris', 'gopay'],
+            'kartu'    => ['credit_card'],
+            'bca'      => ['bca_va'],
+            'bni'      => ['bni_va'],
+            'bri'      => ['bri_va'],
+            'mandiri'  => ['echannel'],
+            'permata'  => ['permata_va'],
+            default    => [],
+        };
+    }
+
+    /** Gabungan kode Snap dari semua metode yang diaktifkan admin. */
+    public static function snapCodesForEnabled(): array
+    {
+        $codes = [];
+        foreach (self::enabledPaymentMethods() as $id) {
+            foreach (self::snapCodesForPayment($id) as $code) {
+                $codes[$code] = true;
+            }
+        }
+        return array_keys($codes);
+    }
+
+    /**
+     * Metode yang diaktifkan admin via CMS (SiteContent key payment_methods).
+     * Kosong/rusak = semua aktif (checkout tidak boleh kosong).
+     */
+    public static function enabledPaymentMethods(): array
+    {
+        try {
+            $raw = \App\Models\SiteContent::where('key', 'payment_methods')->value('body');
+            $list = $raw ? json_decode($raw, true) : null;
+            if (is_array($list) && $list !== []) {
+                $valid = array_values(array_intersect($list, array_keys(self::PAYMENT_METHODS)));
+                if ($valid !== []) {
+                    return $valid;
+                }
+            }
+        } catch (\Throwable $e) {
+            // abaikan, pakai semua
+        }
+        return array_keys(self::PAYMENT_METHODS);
+    }
+
     protected function paymentMethods(): array
     {
-        return [
-            ['id' => 'qris', 'name' => 'QRIS (Scan & Bayar Instan)', 'desc' => 'Mendukung GoPay, OVO, DANA, ShopeePay, BCA Mobile, dll.', 'badges' => 'QRIS GOPAY OVO DANA', 'active' => true],
-            ['id' => 'bca', 'name' => 'BCA Virtual Account', 'desc' => 'Transfer instan via BCA Mobile / KlikBCA / myBCA / ATM', 'badges' => 'BCA VA', 'active' => false],
-            ['id' => 'bni', 'name' => 'BNI Virtual Account', 'desc' => 'Transfer instan via BNI Mobile Banking / ATM', 'badges' => 'BNI VA', 'active' => false],
-            ['id' => 'bri', 'name' => 'BRI Virtual Account (BRIVA)', 'desc' => 'Transfer instan via BRImo / ATM BRI', 'badges' => 'BRIVA', 'active' => false],
-            ['id' => 'mandiri', 'name' => 'Mandiri Virtual Account', 'desc' => 'Transfer instan via Livin by Mandiri / ATM Mandiri', 'badges' => 'MANDIRI', 'active' => false],
-            ['id' => 'permata', 'name' => 'Permata Virtual Account', 'desc' => 'Transfer instan via PermataMobile X / ATM', 'badges' => 'PERMATA', 'active' => false],
-        ];
+        $enabled = self::enabledPaymentMethods();
+        $out = [];
+        foreach ($enabled as $i => $id) {
+            $out[] = ['id' => $id] + self::PAYMENT_METHODS[$id] + ['active' => $i === 0];
+        }
+        return $out;
     }
 
     protected function voucherDiscount(?string $code, int $subtotal): int
@@ -239,8 +299,9 @@ class CheckoutController extends Controller
             return $newOrder;
         });
 
-        // Buat tagihan pembayaran via Midtrans
-        $paymentResult = app(\App\Services\MidtransPaymentService::class)->createPayment($order);
+        // Buat tagihan pembayaran via Midtrans (pilihan checkout diteruskan agar Snap langsung fokus)
+        $snapPayments = \App\Http\Controllers\CheckoutController::snapCodesForPayment($payment['id'] ?? '');
+        $paymentResult = app(\App\Services\MidtransPaymentService::class)->createPayment($order, $snapPayments);
 
         if (empty($paymentResult['success'])) {
             app(InventoryService::class)->cancelOrder($order, [

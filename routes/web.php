@@ -35,11 +35,14 @@ Route::get('/', function () {
 });
 
 Route::get('/tentang', function () {
-    return view('tentang');
+    $t = \App\Http\Controllers\Admin\ContentController::pageData('tentang_');
+    return view('tentang', ['t' => $t]);
 })->name('tentang');
 
 Route::get('/kontak', function () {
-    return view('kontak');
+    $k = \App\Http\Controllers\Admin\ContentController::pageData('kontak_');
+    $faqs = \App\Http\Controllers\Admin\ContentController::faqs();
+    return view('kontak', ['k' => $k, 'faqs' => $faqs]);
 })->name('kontak');
 
 use App\Http\Controllers\AuthController;
@@ -87,7 +90,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/pelanggan/{customer}', [App\Http\Controllers\Admin\CustomerController::class, 'show'])->name('customers.show');
 
         Route::get('/konten', [App\Http\Controllers\Admin\ContentController::class, 'index'])->name('content');
+        Route::put('/konten/tentang', [App\Http\Controllers\Admin\ContentController::class, 'updateAbout'])->name('content.tentang');
+        Route::put('/konten/kontak', [App\Http\Controllers\Admin\ContentController::class, 'updateContact'])->name('content.kontak');
         Route::put('/konten/ekspedisi', [App\Http\Controllers\Admin\ContentController::class, 'updateCouriers'])->name('content.couriers');
+        Route::put('/konten/pembayaran', [App\Http\Controllers\Admin\ContentController::class, 'updatePayMethods'])->name('content.paymethods');
     Route::put('/konten/banner', [App\Http\Controllers\Admin\ContentController::class, 'updateBanner'])->name('content.banner');
     Route::put('/konten/featured', [App\Http\Controllers\Admin\ContentController::class, 'updateFeatured'])->name('content.featured');
     Route::put('/konten/text/{key}', [App\Http\Controllers\Admin\ContentController::class, 'updateText'])->name('content.text');
@@ -153,6 +159,7 @@ Route::post('/api/shipping/cost', [App\Http\Controllers\ShippingController::clas
 
 // ===== PAYMENT GATEWAY (MIDTRANS) =====
 Route::get('/api/payment/status/{orderNumber}', [App\Http\Controllers\PaymentController::class, 'checkStatus']);
+Route::post('/api/payment/refresh/{orderNumber}', [App\Http\Controllers\PaymentController::class, 'refresh'])->middleware('auth');
 Route::post('/api/payment/webhook', [App\Http\Controllers\PaymentController::class, 'handleWebhook']);
 
 // ===== ORDER TRACKING DETAIL =====//

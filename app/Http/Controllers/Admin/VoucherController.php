@@ -10,12 +10,15 @@ class VoucherController extends Controller
 {
     public function index()
     {
-        $vouchers = Voucher::latest()->get();
+        // Total dari agregat ringan (tetap akurat walau daftar di-paginate)
+        $all = Voucher::get(['id', 'is_active', 'starts_at', 'ends_at', 'usage_limit', 'used_count', 'discount_type', 'discount_value', 'min_purchase']);
+
+        $vouchers = Voucher::latest()->paginate(15);
 
         return view('admin.vouchers', [
             'vouchers' => $vouchers,
-            'totalActive' => $vouchers->filter(fn (Voucher $v) => $v->statusLabel() === 'Aktif')->count(),
-            'totalRedeemed' => $vouchers->sum('used_count'),
+            'totalActive' => $all->filter(fn (Voucher $v) => $v->statusLabel() === 'Aktif')->count(),
+            'totalRedeemed' => $all->sum('used_count'),
             'totalDiscountValue' => \App\Models\Order::whereNotNull('voucher_code')->sum('discount'),
         ]);
     }

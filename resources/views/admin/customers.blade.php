@@ -26,7 +26,7 @@
 
 <div class="admin-card" style="margin-bottom:1.5rem;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-        <h3 style="font-size:1rem;">Pelanggan terdaftar · {{ $customers->count() }}</h3>
+        <h3 style="font-size:1rem;">Pelanggan terdaftar · {{ $customers->total() }}</h3>
         <form method="GET" action="{{ route('admin.customers') }}">
             <input type="text" name="q" value="{{ $search }}" placeholder="Cari pelanggan..." style="padding:0.5rem 0.9rem;border:1px solid #e5dde0;border-radius:10px;font-size:0.85rem;">
         </form>
@@ -54,6 +54,7 @@
             @endforeach
         </tbody>
     </table>
+    <div class="admin-pagination">{{ $customers->links('vendor.pagination.admin') }}</div>
 </div>
 
 <div class="admin-card" id="history-box" style="display:none;">

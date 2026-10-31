@@ -109,6 +109,11 @@
             <i data-lucide="sliders-horizontal" style="width:18px;height:18px;"></i>
             Filter & Urutkan
         </button>
+        {{-- Mobile Search (HP saja, sinkron ke filter katalog) --}}
+        <div class="mobile-catalog-search" id="mobile-catalog-search">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" id="katalog-search-mobile" placeholder="Cari produk..." autocomplete="off">
+        </div>
 
         <div class="products-content-header">
             <div class="category-title">
@@ -146,7 +151,7 @@
             @endphp
             @foreach($initialList as $prod)
                 <div class="katalog-product-card" data-slug="{{ $prod['slug'] }}" onclick="window.location.href='/produk/{{ $prod['slug'] }}'">
-                    <div class="katalog-product-card-img {{ !empty($prod['is_best_seller']) ? 'has-ribbon' : '' }}">
+                    <div class="katalog-product-card-img {{ !empty($prod['discount']) && trim($prod['discount']) !== '' ? 'has-discount' : '' }}">
                         <img src="{{ asset($prod['image']) }}" alt="{{ $prod['title'] }}" loading="lazy">
                         @if(!empty(trim($prod['discount'] ?? '')))
                             <span class="card-discount-badge">{{ $prod['discount'] }}</span>
@@ -620,6 +625,16 @@ document.addEventListener('DOMContentLoaded', function() {
     if (navSearchInput) navSearchInput.addEventListener('input', handleSearchInput);
     if (mobileNavSearchInput) mobileNavSearchInput.addEventListener('input', handleSearchInput);
 
+    // Search bar khusus HP di halaman katalog (teruskan ke filter yang sama)
+    const katalogMobileSearch = document.getElementById('katalog-search-mobile');
+    if (katalogMobileSearch) {
+        if (state.search) katalogMobileSearch.value = state.search;
+        katalogMobileSearch.addEventListener('input', (e) => {
+            if (navSearchInput) navSearchInput.value = e.target.value;
+            handleSearchInput({ target: navSearchInput || e.target });
+        });
+    }
+
     // 7. FILTER & SORT LOGIC
     function filterProducts() {
         return rawProducts.filter(item => {
@@ -753,11 +768,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 ? prod.sizes.join(', ')
                 : 'Belum diatur';
             const badgeLabel = prod.badge || prod.category_name;
+            const hasDiscount = (prod.discount || '').trim() !== '';
             const bestSellerRibbon = prod.is_best_seller ? `<span class="ribbon-best-seller">Best Seller</span>` : '';
 
             return `
                 <div class="katalog-product-card" data-slug="${prod.slug}" onclick="window.location.href='/produk/${prod.slug}'">
-                    <div class="katalog-product-card-img${prod.is_best_seller ? ' has-ribbon' : ''}">
+                    <div class="katalog-product-card-img${hasDiscount ? ' has-discount' : ''}">
                         <img src="/${prod.image}" alt="${prod.title}" loading="lazy">
                         ${discountBadge}
                         ${bestSellerRibbon}

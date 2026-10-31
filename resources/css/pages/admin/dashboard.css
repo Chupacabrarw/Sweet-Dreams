@@ -451,3 +451,31 @@
     border-radius: 50px;
     margin-top: 0.5rem;
 }
+
+/* ===== RESPONSIVE (HP) ===== */
+@media (max-width: 1024px) {
+    .metric-grid-top, .metric-grid-bot { grid-template-columns: repeat(2, 1fr); }
+    .quick-actions-grid { grid-template-columns: repeat(2, 1fr); }
+    .dash-bottom-grid { grid-template-columns: 1fr; }
+    .ai-cards-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+    .dash-hero { padding: 1.5rem 1.25rem; }
+    .dash-hero-greeting { font-size: 1.45rem; }
+    /* Badge bulan jadi statis di bawah, tidak nabrak teks */
+    .dash-hero-month {
+        position: static;
+        transform: none;
+        display: inline-flex;
+        margin-top: 1rem;
+    }
+    .metric-grid-top, .metric-grid-bot { grid-template-columns: 1fr; }
+    .quick-actions-grid { grid-template-columns: 1fr; }
+    /* Cegah grid blowout: angka status & chart tidak kepotong di HP */
+    .dash-bottom-grid > * { min-width: 0; }
+    .chart-wrap, .chart-labels { overflow-x: auto; }
+    .chart-wrap .cbar, .chart-labels .clabel { flex: 0 0 24px; }
+    .order-status-row { gap: 0.5rem; }
+    .order-status-left { min-width: 0; }
+    .order-status-val { flex-shrink: 0; margin-left: auto; }
+}

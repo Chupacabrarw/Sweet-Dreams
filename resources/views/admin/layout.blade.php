@@ -30,9 +30,17 @@
             </a>
             <a href="{{ route('admin.stock') }}" class="admin-nav-item {{ request()->routeIs('admin.stock*') ? 'active' : '' }}" title="Stok">
                 <i data-lucide="boxes" style="width:18px;height:18px;"></i><span>Stok</span>
+                @php($emptyStockCount = \App\Models\ProductVariant::where('stock', 0)->count())
+                @if($emptyStockCount > 0)
+                    <span class="admin-nav-badge" aria-label="{{ $emptyStockCount }} varian stok habis">{{ $emptyStockCount > 99 ? '99+' : $emptyStockCount }}</span>
+                @endif
             </a>
             <a href="{{ route('admin.orders') }}" class="admin-nav-item {{ request()->routeIs('admin.orders*') ? 'active' : '' }}" title="Pesanan">
                 <i data-lucide="file-text" style="width:18px;height:18px;"></i><span>Pesanan</span>
+                @php($newOrderCount = \App\Models\Order::where('status', 'pending')->count())
+                @if($newOrderCount > 0)
+                    <span class="admin-nav-badge" aria-label="{{ $newOrderCount }} pesanan baru">{{ $newOrderCount > 99 ? '99+' : $newOrderCount }}</span>
+                @endif
             </a>
             <a href="{{ route('admin.customers') }}" class="admin-nav-item {{ request()->routeIs('admin.customers*') ? 'active' : '' }}" title="Pelanggan">
                 <i data-lucide="users" style="width:18px;height:18px;"></i><span>Pelanggan</span>
@@ -49,6 +57,10 @@
             </a>
                         <a href="{{ route('admin.vouchers') }}" class="admin-nav-item {{ request()->routeIs('admin.vouchers*') ? 'active' : '' }}" title="Promo & Voucher">
                 <i data-lucide="ticket" style="width:18px;height:18px;"></i><span>Promo & Voucher</span>
+                @php($expiringVoucherCount = \App\Models\Voucher::where('is_active', true)->whereDate('ends_at', '>=', now()->toDateString())->whereDate('ends_at', '<=', now()->addDays(7)->toDateString())->count())
+                @if($expiringVoucherCount > 0)
+                    <span class="admin-nav-badge" aria-label="{{ $expiringVoucherCount }} voucher segera berakhir">{{ $expiringVoucherCount > 99 ? '99+' : $expiringVoucherCount }}</span>
+                @endif
             </a>
             <a href="{{ route('admin.reports') }}" class="admin-nav-item {{ request()->routeIs('admin.reports*') ? 'active' : '' }}" title="Laporan">
                 <i data-lucide="bar-chart-2" style="width:18px;height:18px;"></i><span>Laporan</span>
@@ -157,8 +169,13 @@
     });
 
     document.querySelectorAll('.admin-toast').forEach((toast) => {
+        let gone = false;
         const dismiss = () => {
+            if (gone) return;
+            gone = true;
             toast.classList.add('admin-toast-leaving');
+            // Fallback: hapus paksa bila transisi CSS tidak jalan
+            window.setTimeout(() => toast.remove(), 600);
             toast.addEventListener('transitionend', () => toast.remove(), { once: true });
         };
 
@@ -178,8 +195,12 @@
         toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
         toast.innerHTML = `<i data-lucide="${type === 'error' ? 'circle-alert' : 'circle-check'}" aria-hidden="true"></i><span></span><button type="button" class="admin-toast-close" aria-label="Tutup notifikasi">&times;</button>`;
         toast.querySelector('span').textContent = message;
+        let gone = false;
         const dismiss = () => {
+            if (gone) return;
+            gone = true;
             toast.classList.add('admin-toast-leaving');
+            window.setTimeout(() => toast.remove(), 600);
             toast.addEventListener('transitionend', () => toast.remove(), { once: true });
         };
         toast.querySelector('.admin-toast-close').addEventListener('click', dismiss);

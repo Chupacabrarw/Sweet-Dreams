@@ -13,7 +13,7 @@
     <div class="admin-stat-card"><div class="admin-stat-label">Voucher aktif</div><div class="admin-stat-value">{{ $totalActive }}</div></div>
     <div class="admin-stat-card"><div class="admin-stat-label">Penukaran total</div><div class="admin-stat-value">{{ $totalRedeemed }}</div></div>
     <div class="admin-stat-card"><div class="admin-stat-label">Nilai diskon terealisasi</div><div class="admin-stat-value">Rp {{ number_format($totalDiscountValue, 0, ',', '.') }}</div></div>
-    <div class="admin-stat-card"><div class="admin-stat-label">Total voucher</div><div class="admin-stat-value">{{ $vouchers->count() }}</div></div>
+    <div class="admin-stat-card"><div class="admin-stat-label">Total voucher</div><div class="admin-stat-value">{{ $vouchers->total() }}</div></div>
 </div>
 
 <div class="admin-card" style="margin-bottom:1.5rem;">
@@ -46,6 +46,7 @@
                 @endforeach
             </tbody>
         </table>
+        <div class="admin-pagination">{{ $vouchers->links('vendor.pagination.admin') }}</div>
     @endif
 </div>
 
@@ -71,9 +72,10 @@
             <div class="form-group">
                 <label>Nilai diskon</label>
                 <input type="number" name="discount_value" id="v-value" required>
+                <small style="color:#a8939a;">% bila Persentase, Rp bila Nominal.</small>
             </div>
             <div class="form-group">
-                <label>Minimum belanja</label>
+                <label>Minimum belanja (Rp)</label>
                 <!-- Tambahkan required di sini -->
                 <input type="number" name="min_purchase" id="v-min" required>
             </div>
@@ -91,11 +93,13 @@
                 <label>Batas penggunaan</label>
                 <!-- Ini dibiarkan kosong tanpa required karena kamu bilang kecuali batas penggunaan -->
                 <input type="number" name="usage_limit" id="v-limit" placeholder="Kosongkan = tanpa batas">
+                <small style="color:#a8939a;">Opsional: total kupon yg bisa dipakai.</small>
             </div>
             <div class="form-group">
-                <label>Maks. diskon</label>
+                <label>Maks. diskon (Rp)</label>
                 <!-- Tambahkan required di sini -->
                 <input type="number" name="max_discount" id="v-max" placeholder="Khusus persentase">
+                <small style="color:#a8939a;">Opsional, khusus Persentase. Batas rupiah, mis. 50000. Kosong = tanpa batas.</small>
             </div>
         <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem;">
                 <input type="checkbox" name="is_active" id="v-active" value="1" checked style="width: auto;">

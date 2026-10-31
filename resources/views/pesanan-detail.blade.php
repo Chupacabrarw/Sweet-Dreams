@@ -45,10 +45,10 @@
 
                 <div style="display:flex;flex-direction:column;gap:0.5rem;align-self:center;">
                     @if(!empty($order['payment_url']))
-                        <a href="{{ $order['payment_url'] }}" target="_blank" style="display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;background:#e06b88;color:#ffffff;font-weight:700;font-size:0.88rem;padding:10px 24px;border-radius:8px;text-decoration:none;box-shadow:0 3px 10px rgba(224,107,136,0.3);">
-                            Bayar Sekarang (Komerce)
+                        <button type="button" id="btn-pay-refresh" style="display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;background:#e06b88;color:#ffffff;font-weight:700;font-size:0.88rem;padding:10px 24px;border:none;border-radius:8px;cursor:pointer;box-shadow:0 3px 10px rgba(224,107,136,0.3);">
+                            Bayar Sekarang
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                        </a>
+                        </button>
                     @endif
 
                     <button type="button" id="btn-sync-payment" onclick="checkLivePayment('{{ $order['raw_order_number'] ?? '' }}')" style="display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;background:#ffffff;border:1px solid #e06b88;color:#e06b88;font-weight:700;font-size:0.84rem;padding:9px 20px;border-radius:8px;cursor:pointer;">
@@ -60,6 +60,34 @@
         </div>
 
         <script>
+            // Bayar ulang: bikin tagihan Snap baru (metode bebas pilih ulang),
+            // transaksi lama yang unpaid dibiarkan expired oleh Midtrans.
+            document.getElementById('btn-pay-refresh')?.addEventListener('click', async function() {
+                const btn = this;
+                btn.disabled = true;
+                btn.textContent = 'Menyiapkan pembayaran...';
+                try {
+                    const res = await fetch('/api/payment/refresh/{{ $order['raw_order_number'] ?? '' }}', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    });
+                    const data = await res.json();
+                    if (data.success && data.payment_url) {
+                        window.open(data.payment_url, '_blank');
+                    } else {
+                        alert(data.message || 'Gagal membuat tagihan baru.');
+                    }
+                } catch (e) {
+                    alert('Tidak bisa menghubungi server, coba lagi.');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Bayar Sekarang';
+                }
+            });
+
             function checkLivePayment(orderNum) {
                 if (!orderNum) return;
                 const btn = document.getElementById('btn-sync-payment');

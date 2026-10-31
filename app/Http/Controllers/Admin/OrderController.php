@@ -29,7 +29,8 @@ class OrderController extends Controller
         $orders = Order::with(['items', 'user'])
             ->when($filter, fn ($q) => $q->where('status', $filter))
             ->latest()
-            ->get();
+            ->paginate(15)
+            ->withQueryString();
 
         $counts = [
             'all' => Order::count(),
@@ -39,7 +40,7 @@ class OrderController extends Controller
             'completed' => Order::where('status', 'completed')->count(),
         ];
 
-        $rows = $orders->map(function ($o) {
+        $rows = $orders->through(function ($o) {
             return [
                 'id' => $o->id,
                 'order_number' => $o->order_number,

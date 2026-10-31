@@ -110,15 +110,16 @@ class ProductController extends Controller
             return [$cat->id => $products];
         });
 
-        // All products (for the "Semua" tab)
+        // All products (for the "Semua" tab) — paginated agar tidak lag
         $allProducts = Product::with(['category', 'variants'])
             ->when($search, fn($q) => $q->where(function ($q2) use ($search) {
                 $q2->where('title', 'like', "%{$search}%")
                    ->orWhere('sku', 'like', "%{$search}%");
             }))
             ->latest()
-            ->get()
-            ->map(fn($p) => $this->formatProduct($p, $colorIdsBySlug));
+            ->paginate(20)
+            ->withQueryString()
+            ->through(fn($p) => $this->formatProduct($p, $colorIdsBySlug));
 
         return view('admin.products', [
             'allProducts'          => $allProducts,

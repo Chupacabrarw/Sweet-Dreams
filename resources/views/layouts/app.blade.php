@@ -130,16 +130,18 @@
                 <li><a href="/keranjang" class="{{ request()->is('keranjang*') ? 'active' : '' }}">Keranjang</a></li>
                 <li><a href="/wishlist" class="{{ request()->is('wishlist*') ? 'active' : '' }}">Wishlist</a></li>
                 @auth
-                    <li><a href="/profil" class="{{ request()->is('profil*') ? 'active' : '' }}">Akun Saya ({{ auth()->user()->name }})</a></li>
+                    <li><a href="/profil" class="{{ request()->is('profil*') ? 'active' : '' }}">Akun Saya</a></li>
                     @if(auth()->user()->is_admin || auth()->user()->role === 'admin')
                         <li><a href="/admin/dashboard" style="color: #6366f1;">Admin Panel</a></li>
                     @endif
-                    <li><a href="/logout" onclick="try{localStorage.removeItem('sweetdreams_auth_user');}catch(e){}" style="color: #f43f5e; font-weight: 600;">Keluar (Logout)</a></li>
                 @else
                     <li><a href="/login" class="{{ request()->is('login*') ? 'active' : '' }}">Masuk / Daftar Akun</a></li>
                 @endauth
                 <li><a href="/tentang" class="{{ request()->is('tentang') ? 'active' : '' }}">Tentang</a></li>
                 <li><a href="/kontak" class="{{ request()->is('kontak') ? 'active' : '' }}">Kontak</a></li>
+                @auth
+                    <li><a href="/logout" onclick="try{localStorage.removeItem('sweetdreams_auth_user');}catch(e){}" style="color: #f43f5e; font-weight: 600;">Keluar (Logout)</a></li>
+                @endauth
             </ul>
             <div class="mobile-nav-search">
                 <i data-lucide="search" class="search-icon"></i>
@@ -171,9 +173,9 @@
                 <h4>Layanan Pelanggan</h4>
                 <ul>
                     <li><a href="{{ route('kontak') }}">Hubungi Kami</a></li>
-                    <li><a href="{{ route('kontak') }}#faq-pengiriman">FAQ &amp; Pengiriman</a></li>
-                    <li><a href="{{ route('kontak') }}#faq-panduan-ukuran">Panduan Ukuran</a></li>
-                    <li><a href="{{ route('kontak') }}#faq-penukaran">Kebijakan Penukaran</a></li>
+                    <li><a href="{{ route('kontak') }}#faq-list">FAQ &amp; Pengiriman</a></li>
+                    <li><a href="{{ route('kontak') }}#faq-list">Panduan Ukuran</a></li>
+                    <li><a href="{{ route('kontak') }}#faq-list">Kebijakan Penukaran</a></li>
                 </ul>
             </div>
             <div class="footer-col">
@@ -698,7 +700,16 @@
                         chatHistory.push({ role: 'user', text: message });
                         chatHistory.push({ role: 'model', text: data.reply });
                     } else {
-                        appendErrorMessage(data.reply || 'Maaf, terjadi kesalahan.', data);
+                        // Selalu tampilkan status HTTP agar penyebabnya kebaca
+                        // (mis. HTTP 422 = validasi, HTTP 500 = server, HTTP 419 = sesi habis)
+                        const meta = {
+                            code: (data && data.code) ? data.code : ('HTTP ' + response.status),
+                            debug: data && data.debug ? data.debug : null,
+                        };
+                        appendErrorMessage(
+                            (data && (data.reply || data.message)) || 'Maaf, terjadi kesalahan.',
+                            meta
+                        );
                     }
 
                 } catch (error) {
@@ -716,15 +727,20 @@
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `chatbot-message ${sender}`;
 
-                // Convert markdown-like bold (**) and newlines to HTML for simple formatting
-                const formattedText = text
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                // Bersihkan sisa markdown AI (*, #, >, `) agar tampil polos
+                const cleanText = text
+                    .replace(/^#{1,6}\s+/gm, '')
+                    .replace(/^\s*[>\-•]\s+/gm, '')
+                    .replace(/`([^`]*)`/g, '$1')
+                    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                    .replace(/(^|\n)\*\s+/g, '$1• ')
+                    .replace(/\*/g, '')
                     .replace(/\n/g, '<br>');
 
                 const avatar = sender === 'bot'
     ? `<div class="chatbot-msg-avatar"><img src="/images/avatars/cht-bot.png" alt="Dreamy"></div>`
     : '';
-messageDiv.innerHTML = `${avatar}<div class="chatbot-bubble">${formattedText}</div>`;
+messageDiv.innerHTML = `${avatar}<div class="chatbot-bubble">${cleanText}</div>`;
                 messagesContainer.appendChild(messageDiv);
                 scrollToBottom();
             }

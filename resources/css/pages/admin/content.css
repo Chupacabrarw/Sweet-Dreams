@@ -4,6 +4,16 @@
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
+    /* Dua kartu sebelahan (ekspedisi + pembayaran) */
+    .cms-grid-2col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+    @media (max-width: 1100px) {
+        .cms-grid-2col { grid-template-columns: 1fr; }
+    }
 
     /* ===== SECTION CARD ===== */
     .cms-card {

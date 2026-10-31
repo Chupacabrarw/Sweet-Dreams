@@ -58,6 +58,9 @@ return [
         'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
         'is_sanitized' => env('MIDTRANS_IS_SANITIZED', true),
         'is_3ds' => env('MIDTRANS_IS_3DS', true),
+        // Opsional: batasi metode bayar Snap, pisah koma. Kosong = semua aktif.
+        // Contoh: MIDTRANS_ENABLED_PAYMENTS=gopay,qris
+        'enabled_payments' => env('MIDTRANS_ENABLED_PAYMENTS', ''),
     ],
 
 ];

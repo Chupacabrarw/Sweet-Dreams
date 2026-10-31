@@ -36,7 +36,7 @@
             </div>
 
             {{-- Main Image Box --}}
-            <div class="product-main-img-box{{ !empty($product['is_best_seller']) ? ' has-ribbon' : '' }}" id="product-main-img-box">
+            <div class="product-main-img-box" id="product-main-img-box">
                 @if(!empty($product['is_best_seller']))
                 <span class="ribbon-best-seller">Best Seller</span>
                 @endif

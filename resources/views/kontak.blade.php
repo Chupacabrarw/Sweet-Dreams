@@ -11,8 +11,8 @@
 {{-- HERO --}}
 <section class="kontak-hero">
     <p class="section-eyebrow" style="margin-bottom:0.6rem;">Sweet Dreams</p>
-    <h1>Hubungi Kami</h1>
-    <p>Kami selalu senang mendengar dari Anda. Ada kendala pesanan, ingin tanya ketersediaan stok produk, atau sekedar ingin menyapa? Sampaikan kepada kami di bawah ini.</p>
+    <h1>{{ $k['kontak_hero_title'] }}</h1>
+    <p>{{ $k['kontak_hero_body'] }}</p>
 </section>
 
 {{-- MAIN CONTENT --}}
@@ -94,8 +94,8 @@
                     </div>
                     <div class="kontak-info-text">
                         <p class="info-label">Nomor WhatsApp</p>
-                        <a href="https://wa.me/6281234567890" target="_blank" class="info-value">+62 812 ****</a>
-                        <p class="info-sub">Chat langsung, respons cepat</p>
+                        <a href="https://wa.me/{{ preg_replace('/\D+/', '', $k['kontak_wa_number']) }}" target="_blank" class="info-value">{{ $k['kontak_wa_display'] }}</a>
+                        <p class="info-sub">{{ $k['kontak_wa_sub'] }}</p>
                     </div>
                 </div>
 
@@ -105,8 +105,8 @@
                     </div>
                     <div class="kontak-info-text">
                         <p class="info-label">Email Resmi</p>
-                        <a href="mailto:halo@sweetdream.id" class="info-value">halo@sweetdream.id</a>
-                        <p class="info-sub">Untuk urusan resmi & kerjasama</p>
+                        <a href="mailto:{{ $k['kontak_email'] }}" class="info-value">{{ $k['kontak_email'] }}</a>
+                        <p class="info-sub">{{ $k['kontak_email_sub'] }}</p>
                     </div>
                 </div>
 
@@ -116,8 +116,8 @@
                     </div>
                     <div class="kontak-info-text">
                         <p class="info-label">Jam Operasional</p>
-                        <p class="info-value" style="text-decoration:none; cursor:default;">Senin–Sabtu</p>
-                        <p class="info-sub">10.00–19.00 WIB &nbsp;|&nbsp; Minggu 10.00–16.00</p>
+                        <p class="info-value" style="text-decoration:none; cursor:default;">{{ $k['kontak_hours_title'] }}</p>
+                        <p class="info-sub">{{ $k['kontak_hours_sub'] }}</p>
                     </div>
                 </div>
             </div>
@@ -126,19 +126,18 @@
             <div class="lokasi-workshop-card">
                 <h3 class="sidebar-card-title">Lokasi Workshop</h3>
                 <p class="lokasi-address">
-                    H6FR+H7, Purwokerto Lor,<br>
-                    Kabupaten Banyumas, Jawa Tengah
+                    {!! nl2br(e($k['kontak_address'])) !!}
                 </p>
                 <div class="map-iframe-wrapper">
                     <iframe
-                        src="https://maps.google.com/maps?q=H6FR%2BH7+Purwokerto+Lor,+Kabupaten+Banyumas,+Jawa+Tengah&t=&z=17&ie=UTF8&iwloc=&output=embed"
+                        src="https://maps.google.com/maps?q={{ urlencode($k['kontak_maps_query']) }}&t=&z=17&ie=UTF8&iwloc=&output=embed"
                         allowfullscreen=""
                         loading="lazy"
                         referrerpolicy="no-referrer-when-downgrade"
                         title="Peta Lokasi Workshop Sweet Dreams">
                     </iframe>
                 </div>
-                <a href="https://maps.google.com/?q=H6FR%2BH7+Purwokerto+Lor,+Kabupaten+Banyumas,+Jawa+Tengah" target="_blank" rel="noopener" class="btn-buka-maps">
+                <a href="https://maps.google.com/?q={{ urlencode($k['kontak_maps_query']) }}" target="_blank" rel="noopener" class="btn-buka-maps">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                     Buka di Google Maps
                 </a>
@@ -158,77 +157,19 @@
 
         <div class="faq-list" id="faq-list">
 
-            <div class="faq-item" id="faq-pengiriman">
+            @foreach($faqs as $faq)
+            <div class="faq-item" id="faq-item-{{ $loop->index }}">
                 <button class="faq-question" aria-expanded="false">
-                    <span class="faq-question-text">Berapa lama estimasi pengiriman ke rumah saya?</span>
+                    <span class="faq-question-text">{{ $faq['q'] }}</span>
                     <span class="faq-icon">+</span>
                 </button>
                 <div class="faq-answer">
                     <div class="faq-answer-inner">
-                        Untuk area Jawa Tengah, estimasi pengiriman 2–4 hari kerja tergantung kurir yang Anda pilih. Setiap order senilai Rp500.000 atau lebih akan dikirim gratis tanpa biaya tambahan. Untuk area di luar Pulau Jawa, estimasi pengiriman bisa mencapai 5–10 hari kerja.
+                        {{ $faq['a'] }}
                     </div>
                 </div>
             </div>
-
-            <div class="faq-item" id="faq-penukaran">
-                <button class="faq-question" aria-expanded="false">
-                    <span class="faq-question-text">Apakah piyama atau pakaian dalam bisa ditukar ukuran?</span>
-                    <span class="faq-icon">+</span>
-                </button>
-                <div class="faq-answer">
-                    <div class="faq-answer-inner">
-                        Bisa! Kami memberikan kebijakan Tukar Ukuran Gratis dalam waktu 7 hari setelah barang diterima untuk kategori piyama, kimono, dan daster. Untuk lingerie, penukaran tidak berlaku karena alasan dasar & higienitas kami.
-                    </div>
-                </div>
-            </div>
-
-            <div class="faq-item" id="faq-panduan-ukuran">
-                <button class="faq-question" aria-expanded="false">
-                    <span class="faq-question-text">Bagaimana cara memilih ukuran yang tepat?</span>
-                    <span class="faq-icon">+</span>
-                </button>
-                <div class="faq-answer">
-                    <div class="faq-answer-inner">
-                        Buka halaman detail produk dan pilih “Lihat tabel ukuran” untuk melihat panduan ukuran produk tersebut. Jika masih ragu, hubungi tim kami melalui halaman kontak.
-                    </div>
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <button class="faq-question" aria-expanded="false">
-                    <span class="faq-question-text">Apakah kemasan pengiriman benar-benar polos?</span>
-                    <span class="faq-icon">+</span>
-                </button>
-                <div class="faq-answer">
-                    <div class="faq-answer-inner">
-                        Betul sekali. Pesanan dikemas ke dalam kotak polos atau mailer doff tanpa embel-embel tulisan "lingerie" atau indikasi konten, untuk menjaga privasi dan kenyamanan Anda dan keluarga Anda.
-                    </div>
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <button class="faq-question" aria-expanded="false">
-                    <span class="faq-question-text">Metode pembayaran apa saja yang didukung?</span>
-                    <span class="faq-icon">+</span>
-                </button>
-                <div class="faq-answer">
-                    <div class="faq-answer-inner">
-                        Kami menerima berbagai metode pembayaran: transfer dan QRIS seluruh bank & e-wallet (GoPay, OVO, ShopeePay), Transfer Virtual Account (BCA, BNI, Mandiri, BRI), hingga kartu kredit. Semua transaksi terenkripsi dan aman.
-                    </div>
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <button class="faq-question" aria-expanded="false">
-                    <span class="faq-question-text">Bagaimana cara &amp; syarat mendaftar jadi reseller resmi?</span>
-                    <span class="faq-icon">+</span>
-                </button>
-                <div class="faq-answer">
-                    <div class="faq-answer-inner">
-                        Sangat mudah! Anda hanya perlu melakukan pembelian awal minimal 10 pcs (bebas campur model &amp; ukuran) untuk mendapatkan paket harga reseller khusus hingga 25% diskon, serta materi promosi foto berkualitas tinggi. Hubungi kami via WhatsApp untuk memulai!
-                    </div>
-                </div>
-            </div>
+            @endforeach
 
         </div>
     </div>
