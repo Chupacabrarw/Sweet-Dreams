@@ -71,3 +71,19 @@
     .btn-update-status:hover { transform:translateY(-1px); box-shadow:0 6px 18px rgba(212,77,110,0.4); }
 
     @media (max-width:640px) { .modal-body { grid-template-columns:1fr; } .modal-form-section { grid-template-columns:1fr; } .modal-header,.modal-body,.modal-items-section,.modal-form-section { padding-left:1.25rem; padding-right:1.25rem; } }
+
+    /* ── Verifikasi pembayaran QRIS ── */
+    .pay-flag { display:inline-block; margin-left:0.35rem; padding:0.2rem 0.6rem; border-radius:20px; font-size:0.7rem; font-weight:700; }
+    .pay-flag.verifying { background:#fff3d9; color:#b7791f; }
+    .pay-flag.paid { background:#e3f9ee; color:#1e9e64; }
+    .proof-box { display:flex; flex-direction:column; gap:0.5rem; font-size:0.82rem; color:#8a6a72; }
+    .proof-box img { display:block; max-width:100%; max-height:220px; border-radius:10px; border:1px solid #f1e4e7; object-fit:contain; background:#fff; }
+    .proof-note { margin:0.75rem 0 0; font-size:0.8rem; color:#c53660; }
+    .verify-form { flex-direction:column; gap:0.6rem; margin-top:1rem; }
+    .verify-form input { width:100%; padding:0.6rem 0.8rem; border:1px solid #e5dde0; border-radius:10px; font-size:0.82rem; box-sizing:border-box; }
+    .verify-actions { display:flex; gap:0.5rem; flex-wrap:wrap; }
+    .btn-verify { flex:1; padding:0.65rem 1rem; border-radius:10px; font-size:0.84rem; font-weight:700; cursor:pointer; border:1px solid transparent; }
+    .btn-verify.approve { background:#1e9e64; color:#fff; }
+    .btn-verify.approve:hover { background:#17845a; }
+    .btn-verify.reject { background:#fff; color:#c53660; border-color:#f4c6d2; }
+    .btn-verify.reject:hover { background:#fdf2f5; }

@@ -11,6 +11,7 @@
 
 <div class="filter-pills">
     <a href="{{ route('admin.orders') }}" class="filter-pill {{ $activeFilter === 'all' ? 'active' : '' }}">Semua <strong>{{ $counts['all'] }}</strong></a>
+    <a href="{{ route('admin.orders', ['status' => 'verifikasi']) }}" class="filter-pill {{ $activeFilter === 'verifikasi' ? 'active' : '' }}">Perlu Verifikasi Bayar <strong>{{ $counts['verifikasi'] }}</strong></a>
     <a href="{{ route('admin.orders', ['status' => 'pending']) }}" class="filter-pill {{ $activeFilter === 'pending' ? 'active' : '' }}">Baru <strong>{{ $counts['pending'] }}</strong></a>
     <a href="{{ route('admin.orders', ['status' => 'processing']) }}" class="filter-pill {{ $activeFilter === 'processing' ? 'active' : '' }}">Diproses <strong>{{ $counts['processing'] }}</strong></a>
     <a href="{{ route('admin.orders', ['status' => 'shipped']) }}" class="filter-pill {{ $activeFilter === 'shipped' ? 'active' : '' }}">Dikirim <strong>{{ $counts['shipped'] }}</strong></a>
@@ -38,8 +39,20 @@
                         <td><strong style="color:#d44d6e;">#{{ $row['order_number'] }}</strong></td>
                         <td>{{ $row['customer'] }}</td>
                         <td style="color:#8a6a72;">{{ $row['date'] }}</td>
-                        <td><span class="status-pill {{ $row['status'] }}">{{ $row['status_label'] }}</span></td>
-                        <td><strong>{{ $row['total'] }}</strong></td>
+                        <td>
+                            <span class="status-pill {{ $row['status'] }}">{{ $row['status_label'] }}</span>
+                            @if($row['payment_status'] === 'verifying')
+                                <span class="pay-flag verifying">Cek bukti bayar</span>
+                            @elseif($row['payment_status'] === 'paid')
+                                <span class="pay-flag paid">Lunas</span>
+                            @endif
+                        </td>
+                        <td>
+                            <strong>{{ $row['total'] }}</strong>
+                            @if($row['payment_amount'] && $row['payment_status'] !== 'paid')
+                                <div style="font-size:0.74rem; color:#8a6a72;">Bayar QRIS: {{ $row['payment_amount'] }}</div>
+                            @endif
+                        </td>
                         <td>
                             <span class="action-link" onclick="loadOrderDetail('{{ $row['order_number'] }}', {{ $row['id'] }})">
                                 Lihat Detail
@@ -90,11 +103,27 @@
                 <p class="info-section-title">Informasi Pembayaran</p>
                 <div class="info-row"><span class="ilabel">Metode</span><span class="ivalue" id="modal-payment-method">-</span></div>
                 <div class="info-row"><span class="ilabel">Status Bayar</span><span class="ivalue" id="modal-payment-status">-</span></div>
-                <div class="info-row"><span class="ilabel">Referensi</span><span class="ivalue" id="modal-payment-ref">-</span></div>
+                <div class="info-row"><span class="ilabel">Nominal QRIS</span><span class="ivalue" id="modal-payment-amount">-</span></div>
+                <div class="info-row"><span class="ilabel">Batas Bayar</span><span class="ivalue" id="modal-payment-expiry">-</span></div>
                 <div class="info-row"><span class="ilabel">Voucher</span><span class="ivalue" id="modal-voucher">-</span></div>
             </div>
 
-            <div></div>
+            <div class="info-section">
+                <p class="info-section-title">Verifikasi Pembayaran QRIS</p>
+                <div id="modal-proof-box" class="proof-box"></div>
+                <p id="modal-payment-note" class="proof-note" style="display:none;"></p>
+                <form method="POST" id="payment-verify-form" class="verify-form" style="display:none;">
+                    @csrf @method('PUT')
+                    <input type="text" name="note" maxlength="255" placeholder="Catatan (opsional, tampil ke pembeli jika ditolak)">
+                    <div class="verify-actions">
+                        <button type="submit" name="action" value="approve" class="btn-verify approve"
+                                onclick="return confirm('Pastikan dana dengan nominal ini sudah masuk di aplikasi merchant QRIS. Konfirmasi lunas?')">Konfirmasi Lunas</button>
+                        <button type="submit" name="action" value="reject" class="btn-verify reject" id="btn-verify-reject"
+                                onclick="return confirm('Tolak bukti bayar ini? Pembeli akan diminta mengunggah ulang.')">Tolak Bukti</button>
+                    </div>
+                    <small style="color:#8a6a72; font-size:0.74rem;">Cocokkan <strong>nominal persis</strong> (termasuk kode unik) dengan mutasi QRIS di aplikasi merchant sebelum konfirmasi.</small>
+                </form>
+            </div>
         </div>
 
         <div class="modal-items-section">
@@ -173,9 +202,41 @@ function loadOrderDetail(orderNumber, orderId) {
             var pmLabels = { qris: 'QRIS', ewallet: 'E-Wallet', transfer: 'Transfer Bank' };
             document.getElementById('modal-payment-method').textContent = pmLabels[data.payment_method] || data.payment_method || '-';
             var psEl = document.getElementById('modal-payment-status');
-            psEl.textContent = data.payment_status === 'paid' ? 'Lunas' : 'Belum Dibayar';
+            var psLabels = { paid: 'Lunas', verifying: 'Menunggu Verifikasi', unpaid: 'Belum Dibayar', expired: 'Kedaluwarsa', failed: 'Gagal' };
+            psEl.textContent = psLabels[data.payment_status] || data.payment_status || '-';
             psEl.className = 'ivalue ' + (data.payment_status === 'paid' ? 'paid' : 'unpaid');
-            document.getElementById('modal-payment-ref').textContent = data.payment_reference || '(Tidak ada)';
+            document.getElementById('modal-payment-amount').textContent = data.payment_amount
+                ? data.payment_amount + (data.payment_unique_code ? ' (kode unik ' + data.payment_unique_code + ')' : '')
+                : '-';
+            document.getElementById('modal-payment-expiry').textContent = data.payment_expired_at || '-';
+
+            var proofBox = document.getElementById('modal-proof-box');
+            proofBox.textContent = '';
+            if (data.payment_proof_url) {
+                var a = document.createElement('a');
+                a.href = data.payment_proof_url; a.target = '_blank'; a.rel = 'noopener';
+                var img = document.createElement('img');
+                img.src = data.payment_proof_url; img.alt = 'Bukti bayar';
+                a.appendChild(img);
+                var cap = document.createElement('span');
+                cap.textContent = 'Diunggah ' + (data.payment_proof_uploaded_at || '') + ' · klik untuk perbesar';
+                proofBox.appendChild(a); proofBox.appendChild(cap);
+            } else {
+                var empty = document.createElement('span');
+                empty.textContent = data.payment_status === 'paid'
+                    ? 'Dikonfirmasi lunas' + (data.payment_verified_at ? ' pada ' + data.payment_verified_at : '') + '.'
+                    : 'Pembeli belum mengunggah bukti bayar.';
+                proofBox.appendChild(empty);
+            }
+            var noteEl = document.getElementById('modal-payment-note');
+            noteEl.textContent = data.payment_note ? 'Catatan: ' + data.payment_note : '';
+            noteEl.style.display = data.payment_note ? 'block' : 'none';
+
+            var verifyForm = document.getElementById('payment-verify-form');
+            var canVerify = data.status !== 'cancelled' && data.payment_status !== 'paid';
+            verifyForm.style.display = canVerify ? 'flex' : 'none';
+            verifyForm.action = '/admin/pesanan/' + orderId + '/pembayaran' + window.location.search;
+            document.getElementById('btn-verify-reject').style.display = data.payment_status === 'verifying' ? '' : 'none';
             document.getElementById('modal-voucher').textContent = data.voucher_code || '(Tidak ada)';
 
             var itemsHtml = (data.items || []).map(function(i) {

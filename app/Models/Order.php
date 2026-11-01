@@ -17,12 +17,26 @@ class Order extends Model
         'subtotal', 'discount', 'voucher_code', 'total', 'status',
         'payment_method', 'payment_status', 'payment_reference',
         'payment_url', 'va_number', 'qr_string', 'payment_expired_at',
+        'payment_unique_code', 'payment_amount', 'payment_proof',
+        'payment_proof_uploaded_at', 'payment_verified_at', 'payment_note',
         'inventory_deducted',
     ];
 
     protected $casts = [
         'inventory_deducted' => 'boolean',
+        'payment_expired_at' => 'datetime',
+        'payment_proof_uploaded_at' => 'datetime',
+        'payment_verified_at' => 'datetime',
     ];
+
+    /** Tagihan QRIS belum dibayar & bukti belum diunggah, sudah lewat batas waktu. */
+    public function isPaymentExpired(): bool
+    {
+        return $this->payment_status === 'unpaid'
+            && $this->status === 'pending'
+            && $this->payment_expired_at !== null
+            && $this->payment_expired_at->isPast();
+    }
 
     public function user(): BelongsTo
     {

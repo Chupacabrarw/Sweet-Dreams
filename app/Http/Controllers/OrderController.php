@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Services\InventoryService;
+use App\Services\QrisService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\RedirectResponse;
@@ -72,40 +73,21 @@ class OrderController extends Controller
             ->with('success', 'Terima kasih! Pesanan ditandai selesai dan kamu sudah bisa memberi ulasan.');
     }
 
-    public function show(Request $request, $orderNumber, InventoryService $inventoryService)
+    public function show(Request $request, $orderNumber, QrisService $qris)
     {
         $order = Order::with('items')
             ->where('order_number', $orderNumber)
             ->where('user_id', $request->user()->id)
             ->firstOrFail();
 
-        // Jika pesanan masih unpaid tapi ada payment_reference, auto-sync dengan Midtrans
-        if ($order->payment_status !== 'paid' && !empty($order->payment_reference)) {
-            try {
-                $statusCheck = app(\App\Services\MidtransPaymentService::class)->getPaymentStatus($order->payment_reference);
-                if (!empty($statusCheck['success'])) {
-                    $remoteStatus = strtolower($statusCheck['status'] ?? '');
-                    if (in_array($remoteStatus, ['capture', 'settlement'])) {
-                        if ($order->status === 'cancelled') {
-                            Log::warning("Payment confirmed after order {$order->order_number} was cancelled.");
-                        } else {
-                            $order->update(['payment_status' => 'paid', 'status' => 'processing']);
-                            $order->refresh();
-                        }
-                    } elseif (in_array($remoteStatus, ['expire', 'cancel', 'deny'])) {
-                        $inventoryService->cancelOrder($order, [
-                            'payment_status' => 'expired',
-                            'status' => 'cancelled',
-                        ], true);
-                        $order->refresh();
-                    }
-                }
-            } catch (\Throwable $e) {
-                Log::warning('Order payment status synchronization failed.', [
-                    'order_number' => $order->order_number,
-                    'message' => $e->getMessage(),
-                ]);
-            }
+        // Tagihan QRIS: siapkan QR kalau belum ada, batalkan kalau lewat batas bayar
+        try {
+            $order = $qris->syncOrder($order)->load('items');
+        } catch (\Throwable $e) {
+            Log::warning('QRIS order sync failed.', [
+                'order_number' => $order->order_number,
+                'message' => $e->getMessage(),
+            ]);
         }
 
         $localCreatedAt = $order->created_at->copy()->setTimezone('Asia/Jakarta');
@@ -129,9 +111,11 @@ class OrderController extends Controller
             'completed' => ['text' => 'Paket telah diterima', 'time' => $localUpdatedAt->translatedFormat('d M Y, H:i') . ' WIB'],
             'cancelled' => ['text' => 'Pesanan dibatalkan', 'time' => $localUpdatedAt->translatedFormat('d M Y, H:i') . ' WIB'],
             default => [
-                'text' => $order->payment_status === 'paid'
-                    ? 'Pesanan dikonfirmasi dan sedang diproses'
-                    : 'Pesanan dibuat dan menunggu pembayaran',
+                'text' => match ($order->payment_status) {
+                    'paid'      => 'Pesanan dikonfirmasi dan sedang diproses',
+                    'verifying' => 'Bukti bayar diterima, menunggu konfirmasi admin',
+                    default     => 'Pesanan dibuat dan menunggu pembayaran',
+                },
                 'time' => $localCreatedAt->translatedFormat('d M Y, H:i') . ' WIB',
             ],
         };
@@ -148,9 +132,7 @@ class OrderController extends Controller
                 'date' => $localCreatedAt->translatedFormat('d M Y'),
                 'events' => [[
                     'time' => $localCreatedAt->format('H:i'),
-                    'text' => $order->payment_status === 'paid'
-                        ? 'Pesanan dikonfirmasi dan sedang diproses'
-                        : 'Pesanan dibuat dan menunggu pembayaran',
+                    'text' => 'Pesanan dibuat',
                 ]],
             ]];
 
@@ -174,7 +156,9 @@ class OrderController extends Controller
 
         $subtitle = match ($order->status) {
             'completed' => 'Terima kasih sudah berbelanja di Sweet Dreams. Semoga kamu menyukainya!',
-            'cancelled' => 'Kalau ini bukan kamu yang batalkan, hubungi tim kami ya.',
+            'cancelled' => $order->payment_status === 'expired'
+                ? 'Batas waktu pembayaran QRIS sudah lewat, jadi pesanan otomatis dibatalkan. Silakan checkout ulang ya.'
+                : 'Kalau ini bukan kamu yang batalkan, hubungi tim kami ya.',
             default => 'Kami akan menjaga setiap langkah perjalanan pesananmu tetap jelas dan tenang.',
         };
 
@@ -183,7 +167,7 @@ class OrderController extends Controller
             'status_raw' => $order->status,
             'headline' => $headline,
             'subtitle' => $subtitle,
-            'status' => $this->statusLabel($order->status),
+            'status' => ($order->payment_status === 'verifying' ? 'Menunggu Verifikasi' : $this->statusLabel($order->status)),
             'status_type' => $this->statusType($order->status),
             'courier' => [
                 'name' => $order->shipping_courier ?? '-',
@@ -210,8 +194,23 @@ class OrderController extends Controller
             'raw_order_number' => $order->order_number,
             'payment_status'   => $order->payment_status,
             'payment_method'   => $order->payment_method,
-            'payment_url'      => $order->payment_url,
-            'va_number'        => $order->va_number,
+            'qris' => [
+                'payload'      => $order->qr_string,
+                'amount'       => (int) ($order->payment_amount ?: $order->total),
+                'amount_label' => 'Rp ' . number_format((int) ($order->payment_amount ?: $order->total), 0, ',', '.'),
+                'unique_code'  => (int) $order->payment_unique_code,
+                'expires_at'   => $order->payment_expired_at?->toIso8601String(),
+                'expires_label' => $order->payment_expired_at
+                    ? $order->payment_expired_at->copy()->setTimezone('Asia/Jakarta')->translatedFormat('d M Y, H:i') . ' WIB'
+                    : null,
+                'merchant'     => $qris->merchantInfo(),
+                'has_proof'    => !empty($order->payment_proof),
+                'proof_url'    => $order->payment_proof ? route('pesanan.proof.show', $order->order_number) : null,
+                'proof_uploaded_at' => $order->payment_proof_uploaded_at
+                    ? $order->payment_proof_uploaded_at->copy()->setTimezone('Asia/Jakarta')->translatedFormat('d M Y, H:i') . ' WIB'
+                    : null,
+                'note'         => $order->payment_note,
+            ],
         ];
 
         return view('pesanan-detail', ['order' => $data]);

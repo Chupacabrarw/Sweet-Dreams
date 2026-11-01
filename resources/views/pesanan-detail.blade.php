@@ -21,102 +21,168 @@
         <p>{{ $order['subtitle'] }}</p>
     </div>
 
-    {{-- Payment Reminder Banner if Unpaid --}}
-    @if(($order['payment_status'] ?? '') === 'unpaid')
-        <div class="unpaid-payment-alert" style="background:#fff7f8;border:1.5px solid #f8c9d6;border-radius:18px;padding:1.5rem 1.75rem;margin-bottom:1.75rem;box-shadow:0 4px 20px rgba(224,107,136,0.08);">
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1.25rem;flex-wrap:wrap;">
-                <div style="flex:1;min-width:280px;">
-                    <span style="font-size:0.75rem;font-weight:700;letter-spacing:0.08em;color:#e06b88;text-transform:uppercase;">Menunggu Pembayaran</span>
-                    <h3 style="font-family:var(--font-body);font-size:1.15rem;font-weight:700;color:#2a1f22;margin:0.25rem 0 0.5rem;">Selesaikan Pembayaran Pesananmu</h3>
-                    <p style="font-size:0.88rem;color:#7a5961;margin:0;line-height:1.5;">Total tagihan: <strong style="color:#2a1f22;font-size:1rem;">{{ $order['summary']['total'] }}</strong></p>
-                    
-                    @if(!empty($order['va_number']))
-                        <div style="margin-top:0.85rem;background:#ffffff;border:1px solid #ebd3da;border-radius:10px;padding:0.6rem 1rem;display:inline-flex;align-items:center;gap:1rem;">
-                            <div>
-                                <span style="font-size:0.72rem;color:#8c7379;display:block;">Nomor Virtual Account ({{ strtoupper($order['payment_method'] ?? 'VA') }}):</span>
-                                <strong style="font-family:'DM Mono',monospace;font-size:1.15rem;color:#2a1f22;letter-spacing:0.05em;" id="detail-va-num">{{ $order['va_number'] }}</strong>
-                            </div>
-                            <button type="button" onclick="navigator.clipboard.writeText('{{ $order['va_number'] }}'); this.textContent = 'Tersalin!'; setTimeout(() => this.textContent = 'Salin', 2000);" style="background:#fce7ee;border:none;color:#e06b88;font-weight:700;font-size:0.78rem;padding:6px 14px;border-radius:6px;cursor:pointer;">
-                                Salin
-                            </button>
-                        </div>
-                    @endif
-                </div>
+    @if(session('success'))
+        <div class="order-flash success" role="status">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="order-flash error" role="alert">{{ session('error') }}</div>
+    @endif
+    @if($errors->any())
+        <div class="order-flash error" role="alert">{{ $errors->first() }}</div>
+    @endif
 
-                <div style="display:flex;flex-direction:column;gap:0.5rem;align-self:center;">
-                    @if(!empty($order['payment_url']))
-                        <button type="button" id="btn-pay-refresh" style="display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;background:#e06b88;color:#ffffff;font-weight:700;font-size:0.88rem;padding:10px 24px;border:none;border-radius:8px;cursor:pointer;box-shadow:0 3px 10px rgba(224,107,136,0.3);">
-                            Bayar Sekarang
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                        </button>
-                    @endif
-
-                    <button type="button" id="btn-sync-payment" onclick="checkLivePayment('{{ $order['raw_order_number'] ?? '' }}')" style="display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;background:#ffffff;border:1px solid #e06b88;color:#e06b88;font-weight:700;font-size:0.84rem;padding:9px 20px;border-radius:8px;cursor:pointer;">
-                        <svg xmlns="http://www.w3.org/2000/svg" id="sync-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                        <span id="sync-text">Cek Status Pembayaran</span>
-                    </button>
-                </div>
+    {{-- Pembayaran QRIS: scan QR bernominal, lalu unggah bukti bayar --}}
+    @php $qris = $order['qris'] ?? []; @endphp
+    @if(($order['payment_status'] ?? '') === 'unpaid' && ($order['status_raw'] ?? '') === 'pending')
+        <div class="qris-pay-card" id="qris-pay-card">
+            <div class="qris-pay-head">
+                <span class="qris-eyebrow">Menunggu Pembayaran</span>
+                <h3>Scan QRIS untuk membayar</h3>
+                @if(!empty($qris['expires_at']))
+                    <p class="qris-deadline">Bayar sebelum <strong>{{ $qris['expires_label'] }}</strong>
+                        &middot; sisa <strong id="qris-countdown" data-expires="{{ $qris['expires_at'] }}">--:--:--</strong></p>
+                @endif
             </div>
-        </div>
 
+            @if(!empty($qris['note']))
+                <div class="qris-rejected" role="alert">
+                    <strong>Bukti bayar sebelumnya ditolak.</strong> {{ $qris['note'] }}
+                </div>
+            @endif
+
+            @if(empty($qris['payload']))
+                <p class="qris-unavailable">QRIS toko sedang tidak tersedia. Silakan hubungi admin lewat halaman <a href="{{ route('kontak') }}">Kontak</a>.</p>
+            @else
+                <div class="qris-pay-body">
+                    <div class="qris-code-col">
+                        <div class="qris-code-frame">
+                            <div class="qris-code-brand">QRIS</div>
+                            <div id="qris-code" class="qris-code" data-payload="{{ $qris['payload'] }}" role="img" aria-label="Kode QR pembayaran {{ $qris['amount_label'] }}"></div>
+                            <div class="qris-merchant">
+                                {{ strtoupper($qris['merchant']['name'] ?? 'Sweet Dreams') }}
+                                @if(!empty($qris['merchant']['nmid']))<span>NMID {{ $qris['merchant']['nmid'] }}</span>@endif
+                            </div>
+                        </div>
+                        <button type="button" class="qris-btn ghost" id="qris-download">Simpan Gambar QR</button>
+                    </div>
+
+                    <div class="qris-info-col">
+                        <span class="qris-label">Total yang harus dibayar</span>
+                        <div class="qris-amount-row">
+                            <strong class="qris-amount">{{ $qris['amount_label'] }}</strong>
+                            <button type="button" class="qris-copy" data-copy="{{ $qris['amount'] }}">Salin</button>
+                        </div>
+                        @if(!empty($qris['unique_code']))
+                            <p class="qris-hint">Sudah termasuk <strong>kode unik Rp {{ $qris['unique_code'] }}</strong> untuk mencocokkan pembayaranmu. Nominal otomatis terisi saat QR di-scan, <strong>jangan diubah</strong>.</p>
+                        @endif
+
+                        <ol class="qris-steps">
+                            <li>Buka aplikasi e-wallet / m-banking berlogo QRIS (GoPay, OVO, DANA, ShopeePay, BCA, dll).</li>
+                            <li>Scan QR di samping. Kalau belanja dari HP, simpan gambar QR lalu pilih "upload dari galeri" di aplikasimu.</li>
+                            <li>Pastikan nama merchant <strong>{{ $qris['merchant']['name'] ?? 'Sweet Dreams' }}</strong> dan nominal sesuai, lalu bayar.</li>
+                            <li>Unggah screenshot bukti bayar di bawah ini.</li>
+                        </ol>
+
+                        <form method="POST" action="{{ route('pesanan.proof.upload', $order['raw_order_number']) }}" enctype="multipart/form-data" class="qris-proof-form" id="qris-proof-form">
+                            @csrf
+                            <label class="qris-file">
+                                <input type="file" name="proof" accept="image/png,image/jpeg,image/webp" required id="qris-proof-input">
+                                <span id="qris-file-name">Pilih screenshot bukti bayar (maks. 4 MB)</span>
+                            </label>
+                            <button type="submit" class="qris-btn primary" id="qris-proof-submit">Kirim Bukti Bayar</button>
+                        </form>
+                    </div>
+                </div>
+            @endif
+        </div>
+    @elseif(($order['payment_status'] ?? '') === 'verifying')
+        <div class="qris-pay-card verifying">
+            <span class="qris-eyebrow">Menunggu Verifikasi</span>
+            <h3>Bukti bayar sudah kami terima</h3>
+            <p class="qris-hint">Admin sedang mencocokkan pembayaran <strong>{{ $qris['amount_label'] ?? $order['summary']['total'] }}</strong>
+                (diunggah {{ $qris['proof_uploaded_at'] ?? '-' }}). Pesanan otomatis lanjut diproses setelah dikonfirmasi; halaman ini akan memperbarui sendiri.</p>
+            @if(!empty($qris['proof_url']))
+                <a href="{{ $qris['proof_url'] }}" target="_blank" rel="noopener" class="qris-btn ghost">Lihat bukti yang dikirim</a>
+            @endif
+        </div>
+    @endif
+
+    @if(in_array($order['payment_status'] ?? '', ['unpaid', 'verifying'], true) && ($order['status_raw'] ?? '') === 'pending')
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
         <script>
-            // Bayar ulang: bikin tagihan Snap baru (metode bebas pilih ulang),
-            // transaksi lama yang unpaid dibiarkan expired oleh Midtrans.
-            document.getElementById('btn-pay-refresh')?.addEventListener('click', async function() {
-                const btn = this;
-                btn.disabled = true;
-                btn.textContent = 'Menyiapkan pembayaran...';
-                try {
-                    const res = await fetch('/api/payment/refresh/{{ $order['raw_order_number'] ?? '' }}', {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        }
-                    });
-                    const data = await res.json();
-                    if (data.success && data.payment_url) {
-                        window.open(data.payment_url, '_blank');
-                    } else {
-                        alert(data.message || 'Gagal membuat tagihan baru.');
-                    }
-                } catch (e) {
-                    alert('Tidak bisa menghubungi server, coba lagi.');
-                } finally {
-                    btn.disabled = false;
-                    btn.innerHTML = 'Bayar Sekarang';
-                }
+        (function () {
+            const orderNumber = @json($order['raw_order_number'] ?? '');
+            const box = document.getElementById('qris-code');
+            let qrDataUrl = null;
+
+            if (box && window.qrcode) {
+                const qr = qrcode(0, 'M');
+                qr.addData(box.dataset.payload);
+                qr.make();
+                box.innerHTML = qr.createSvgTag({ cellSize: 6, margin: 2, scalable: true });
+                qrDataUrl = qr.createDataURL(10, 4);
+            } else if (box) {
+                box.textContent = 'Gagal memuat QR. Muat ulang halaman.';
+            }
+
+            document.getElementById('qris-download')?.addEventListener('click', function () {
+                if (!qrDataUrl) return;
+                const a = document.createElement('a');
+                a.href = qrDataUrl;
+                a.download = 'QRIS-' + orderNumber + '.gif';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
             });
 
-            function checkLivePayment(orderNum) {
-                if (!orderNum) return;
-                const btn = document.getElementById('btn-sync-payment');
-                const txt = document.getElementById('sync-text');
-                const ico = document.getElementById('sync-icon');
-                if (btn) btn.disabled = true;
-                if (txt) txt.textContent = 'Mengecek...';
-                if (ico) ico.style.animation = 'spin 0.8s linear infinite';
+            document.querySelectorAll('.qris-copy').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    navigator.clipboard?.writeText(btn.dataset.copy).then(function () {
+                        btn.textContent = 'Tersalin!';
+                        setTimeout(function () { btn.textContent = 'Salin'; }, 1800);
+                    });
+                });
+            });
 
-                fetch('/api/payment/status/' + orderNum)
-                    .then(r => r.json())
-                    .then(res => {
-                        if (res.payment_status === 'paid') {
-                            if (txt) txt.textContent = 'Pembayaran Lunas!';
-                            setTimeout(() => window.location.reload(), 800);
-                        } else {
-                            if (btn) btn.disabled = false;
-                            if (txt) txt.textContent = 'Cek Status Pembayaran';
-                            if (ico) ico.style.animation = 'none';
-                            alert('Pembayaran belum terdeteksi. Silakan selesaikan pembayaran terlebih dahulu.');
+            const input = document.getElementById('qris-proof-input');
+            input?.addEventListener('change', function () {
+                const label = document.getElementById('qris-file-name');
+                if (label) label.textContent = input.files[0] ? input.files[0].name : 'Pilih screenshot bukti bayar (maks. 4 MB)';
+            });
+            document.getElementById('qris-proof-form')?.addEventListener('submit', function () {
+                const btn = document.getElementById('qris-proof-submit');
+                if (btn) { btn.disabled = true; btn.textContent = 'Mengirim...'; }
+            });
+
+            const cd = document.getElementById('qris-countdown');
+            if (cd) {
+                const deadline = new Date(cd.dataset.expires).getTime();
+                const tick = function () {
+                    const left = Math.max(0, Math.floor((deadline - Date.now()) / 1000));
+                    const h = String(Math.floor(left / 3600)).padStart(2, '0');
+                    const m = String(Math.floor(left % 3600 / 60)).padStart(2, '0');
+                    const s = String(left % 60).padStart(2, '0');
+                    cd.textContent = h + ':' + m + ':' + s;
+                    if (left === 0) { clearInterval(timer); setTimeout(function () { location.reload(); }, 1500); }
+                };
+                const timer = setInterval(tick, 1000);
+                tick();
+            }
+
+            // Polling ringan: begitu admin konfirmasi, halaman ikut berubah
+            const startStatus = @json($order['payment_status'] ?? '');
+            setInterval(function () {
+                if (document.hidden) return;
+                fetch('/api/payment/status/' + encodeURIComponent(orderNumber), { headers: { 'Accept': 'application/json' } })
+                    .then(function (r) { return r.ok ? r.json() : null; })
+                    .then(function (res) {
+                        if (res && (res.payment_status !== startStatus || res.order_status !== 'pending')) {
+                            location.reload();
                         }
                     })
-                    .catch(() => {
-                        if (btn) btn.disabled = false;
-                        if (txt) txt.textContent = 'Cek Status Pembayaran';
-                        if (ico) ico.style.animation = 'none';
-                        alert('Gagal memeriksa status pembayaran.');
-                    });
-            }
+                    .catch(function () {});
+            }, 20000);
+        })();
         </script>
     @endif
 

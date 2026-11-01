@@ -74,8 +74,9 @@ class ContentController extends Controller
             'featuredProducts'   => $featuredProducts,
             'couriers'           => \App\Http\Controllers\ShippingController::COURIERS,
             'enabledCouriers'    => \App\Http\Controllers\ShippingController::enabledCouriers(),
-            'payMethods'         => \App\Http\Controllers\CheckoutController::PAYMENT_METHODS,
-            'enabledPayMethods'  => \App\Http\Controllers\CheckoutController::enabledPaymentMethods(),
+            'qrisPayload'        => app(\App\Services\QrisService::class)->staticPayload(),
+            'qrisMerchant'       => app(\App\Services\QrisService::class)->merchantInfo(),
+            'qrisValid'          => app(\App\Services\QrisService::class)->isConfigured(),
             'tentang'            => self::pageData('tentang_'),
             'kontak'             => self::pageData('kontak_'),
             'faqs'               => self::faqs(),
@@ -158,22 +159,26 @@ class ContentController extends Controller
         return redirect()->route('admin.content')->with('success', 'Konten berhasil diperbarui.');
     }
 
-    public function updatePayMethods(Request $request)
+    /** Ganti QRIS toko: tempel teks hasil scan QR statis (dicek CRC-nya). */
+    public function updateQris(Request $request)
     {
         $data = $request->validate([
-            'pay_methods'   => 'required|array|min:1',
-            'pay_methods.*' => 'in:' . implode(',', array_keys(\App\Http\Controllers\CheckoutController::PAYMENT_METHODS)),
-        ], [
-            'pay_methods.min' => 'Pilih minimal 1 metode bayar agar checkout tidak kosong.',
+            'qris_payload' => 'required|string|max:512',
         ]);
 
-        SiteContent::updateOrCreate(
-            ['key' => 'payment_methods'],
-            ['body' => json_encode(array_values($data['pay_methods']))]
-        );
+        $payload = preg_replace('/\s+/', '', $data['qris_payload']);
+        $qris = app(\App\Services\QrisService::class);
+
+        if (!$qris->isValid($payload)) {
+            return redirect()->route('admin.content')
+                ->withInput()
+                ->with('error', 'Teks QRIS tidak valid (CRC tidak cocok / terpotong). Salin ulang hasil scan QR toko secara utuh.');
+        }
+
+        SiteContent::updateOrCreate(['key' => 'qris_payload'], ['body' => $payload]);
 
         return redirect()->route('admin.content')
-            ->with('success', 'Metode pembayaran di checkout berhasil disimpan.');
+            ->with('success', 'QRIS toko berhasil disimpan. Pesanan baru akan memakai QR ini.');
     }
 
     /* ===== Halaman Tentang & Kontak (CMS per halaman) ===== */

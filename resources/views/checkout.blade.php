@@ -219,65 +219,6 @@
     <button class="checkout-alert-close" id="checkout-alert-close" aria-label="Tutup Notifikasi">&times;</button>
 </div>
 
-{{-- ORDER CONFIRMATION & PAYMENT MODAL --}}
-<div class="order-success-modal" id="order-modal">
-    <div class="success-modal-card">
-        <div class="success-icon-badge" id="modal-icon-badge">
-            <i data-lucide="check-circle" style="width:40px;height:40px;"></i>
-        </div>
-        <h3 class="success-title" id="modal-title">Pesanan Berhasil Dibuat!</h3>
-        <span class="success-invoice-id" id="invoice-display">INVOICE: #SD-20240908-01</span>
-        
-        <p class="success-desc" id="modal-desc-text">
-            Terima kasih, <strong id="customer-name-display">Pelanggan</strong>! Pesananmu telah tercatat dan siap diproses.
-        </p>
-
-        {{-- Total Tagihan Box --}}
-        <div class="modal-amount-display">
-            <span class="amount-label">Total Tagihan:</span>
-            <span class="amount-val" id="modal-total-amount">Rp 0</span>
-        </div>
-
-        {{-- Virtual Account Box (Aktif jika bayar via Bank Transfer / VA) --}}
-        <div class="va-payment-box" id="va-box" style="display:none;">
-            <div class="va-header">
-                <span class="va-bank-badge" id="va-bank-badge">BCA Virtual Account</span>
-                <span class="va-status-tag">Menunggu Pembayaran</span>
-            </div>
-            <div class="va-number-wrapper">
-                <span class="va-number-text" id="va-number-display">0000000000</span>
-                <button type="button" class="btn-copy-va" id="btn-copy-va" title="Salin Nomor VA">
-                    <i data-lucide="copy" style="width:16px;height:16px;"></i>
-                    <span id="copy-va-text">Salin</span>
-                </button>
-            </div>
-            <p class="va-note">Transfer tepat sejumlah total tagihan di atas agar otomatis terverifikasi sistem.</p>
-        </div>
-
-        {{-- Payment Gateway Actions --}}
-        <div class="payment-actions-group">
-            <a href="#" target="_blank" id="btn-open-payment-url" class="btn-home-return btn-pay-gateway" style="display:none;">
-                <i data-lucide="external-link" style="width:18px;height:18px;"></i>
-                Buka Halaman Pembayaran
-            </a>
-
-            <button type="button" id="btn-check-payment-status" class="btn-home-return" style="background:#fce7ee;color:var(--blush);border:1px solid #fbd5df;cursor:pointer;">
-                <i data-lucide="refresh-cw" style="width:16px;height:16px;" id="check-status-icon"></i>
-                <span id="check-status-text">Cek Status Pembayaran</span>
-            </button>
-
-            <a href="#" id="btn-view-order" class="btn-home-return" style="background:transparent;color:var(--ink);border:1px solid #e5d7dc;margin-top:0.35rem;">
-                Lihat Detail Pesanan
-                <i data-lucide="arrow-right" style="width:16px;height:16px;"></i>
-            </a>
-            
-            <a href="/" class="btn-home-return" style="background:transparent;color:var(--ink-muted);border:none;margin-top:-0.25rem;font-size:0.85rem;">
-                Kembali ke Beranda
-            </a>
-        </div>
-    </div>
-</div>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Re-init Lucide Icons
@@ -984,9 +925,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
         // Pay Now Modal & Form Validation
-    const modal = document.getElementById('order-modal');
 
-    if (btnPayNow && modal) {
+    if (btnPayNow) {
         btnPayNow.addEventListener('click', function(e) {
             e.preventDefault();
 
@@ -1039,94 +979,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 btnPayNow.textContent = 'Bayar Sekarang';
 
                 if (status === 201) {
-                    const nameDisplay = document.getElementById('customer-name-display');
-                    if (nameDisplay) nameDisplay.textContent = document.getElementById('input-nama').value.trim();
-
-                    const invoiceDisplay = document.getElementById('invoice-display');
-                    if (invoiceDisplay) invoiceDisplay.textContent = `INVOICE: #${body.order_number}`;
-
-                    const modalTotalAmount = document.getElementById('modal-total-amount');
-                    if (modalTotalAmount) modalTotalAmount.textContent = formatRupiah(body.total || 0);
-
-                    const viewOrderBtn = document.getElementById('btn-view-order');
-                    if (viewOrderBtn) viewOrderBtn.href = `/pesanan/${body.order_number}`;
-
-                    // Tampilkan Virtual Account jika ada
-                    const vaBox = document.getElementById('va-box');
-                    const vaNumberDisplay = document.getElementById('va-number-display');
-                    const vaBankBadge = document.getElementById('va-bank-badge');
-                    const btnCopyVa = document.getElementById('btn-copy-va');
-                    const copyVaText = document.getElementById('copy-va-text');
-
-                    if (body.va_number && vaBox && vaNumberDisplay) {
-                        vaBox.style.display = 'block';
-                        vaNumberDisplay.textContent = body.va_number;
-                        if (vaBankBadge) vaBankBadge.textContent = (body.bank_code || 'Bank') + ' Virtual Account';
-
-                        if (btnCopyVa) {
-                            btnCopyVa.onclick = function() {
-                                navigator.clipboard.writeText(body.va_number).then(() => {
-                                    if (copyVaText) copyVaText.textContent = 'Tersalin!';
-                                    setTimeout(() => { if (copyVaText) copyVaText.textContent = 'Salin'; }, 2000);
-                                });
-                            };
-                        }
-                    } else if (vaBox) {
-                        vaBox.style.display = 'none';
-                    }
-
-                    // Tampilkan tombol buka Payment Page jika ada payment_url
-                    const btnOpenPay = document.getElementById('btn-open-payment-url');
-                    if (btnOpenPay) {
-                        if (body.payment_url) {
-                            btnOpenPay.style.display = 'inline-flex';
-                            btnOpenPay.href = body.payment_url;
-                        } else {
-                            btnOpenPay.style.display = 'none';
-                        }
-                    }
-
-                    // Setup tombol Cek Status Pembayaran
-                    const btnCheckStatus = document.getElementById('btn-check-payment-status');
-                    const checkStatusText = document.getElementById('check-status-text');
-                    const checkStatusIcon = document.getElementById('check-status-icon');
-
-                    if (btnCheckStatus) {
-                        btnCheckStatus.onclick = function() {
-                            btnCheckStatus.disabled = true;
-                            if (checkStatusText) checkStatusText.textContent = 'Mengecek...';
-                            if (checkStatusIcon) checkStatusIcon.style.animation = 'spin 0.8s linear infinite';
-
-                            fetch(`/api/payment/status/${body.order_number}`)
-                                .then(r => r.json())
-                                .then(res => {
-                                    btnCheckStatus.disabled = false;
-                                    if (checkStatusIcon) checkStatusIcon.style.animation = 'none';
-
-                                    if (res.payment_status === 'paid') {
-                                        if (checkStatusText) checkStatusText.textContent = 'Pembayaran Lunas!';
-                                        btnCheckStatus.style.background = '#d4edda';
-                                        btnCheckStatus.style.color = '#155724';
-                                        btnCheckStatus.style.borderColor = '#c3e6cb';
-                                        setTimeout(() => {
-                                            window.location.href = `/pesanan/${body.order_number}`;
-                                        }, 1000);
-                                    } else {
-                                        if (checkStatusText) checkStatusText.textContent = 'Cek Status Pembayaran';
-                                        showCheckoutAlert('Status Pembayaran', 'Pembayaran belum terdeteksi. Silakan lakukan pembayaran terlebih dahulu.');
-                                    }
-                                })
-                                .catch(() => {
-                                    btnCheckStatus.disabled = false;
-                                    if (checkStatusText) checkStatusText.textContent = 'Cek Status Pembayaran';
-                                    if (checkStatusIcon) checkStatusIcon.style.animation = 'none';
-                                    showCheckoutAlert('Koneksi', 'Gagal memeriksa status pembayaran.');
-                                });
-                        };
-                    }
-
-                    lucide.createIcons();
-                    modal.classList.add('open');
+                    // Tagihan QRIS (QR bernominal + upload bukti) ada di halaman pesanan
+                    btnPayNow.disabled = true;
+                    btnPayNow.textContent = 'Membuka pembayaran QRIS...';
+                    window.location.assign(body.redirect_url || `/pesanan/${body.order_number}`);
                 } else {
                     if (body.redirect_url) {
                         window.location.assign(body.redirect_url);

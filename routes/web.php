@@ -85,6 +85,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/pesanan', [App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders');
     Route::get('/pesanan/{order}', [App\Http\Controllers\Admin\OrderController::class, 'show'])->name('orders.show');
     Route::put('/pesanan/{order}', [App\Http\Controllers\Admin\OrderController::class, 'update'])->name('orders.update');
+    Route::put('/pesanan/{order}/pembayaran', [App\Http\Controllers\Admin\OrderController::class, 'verifyPayment'])->name('orders.payment');
 
         Route::get('/pelanggan', [App\Http\Controllers\Admin\CustomerController::class, 'index'])->name('customers');
     Route::get('/pelanggan/{customer}', [App\Http\Controllers\Admin\CustomerController::class, 'show'])->name('customers.show');
@@ -93,7 +94,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::put('/konten/tentang', [App\Http\Controllers\Admin\ContentController::class, 'updateAbout'])->name('content.tentang');
         Route::put('/konten/kontak', [App\Http\Controllers\Admin\ContentController::class, 'updateContact'])->name('content.kontak');
         Route::put('/konten/ekspedisi', [App\Http\Controllers\Admin\ContentController::class, 'updateCouriers'])->name('content.couriers');
-        Route::put('/konten/pembayaran', [App\Http\Controllers\Admin\ContentController::class, 'updatePayMethods'])->name('content.paymethods');
+        Route::put('/konten/qris', [App\Http\Controllers\Admin\ContentController::class, 'updateQris'])->name('content.qris');
     Route::put('/konten/banner', [App\Http\Controllers\Admin\ContentController::class, 'updateBanner'])->name('content.banner');
     Route::put('/konten/featured', [App\Http\Controllers\Admin\ContentController::class, 'updateFeatured'])->name('content.featured');
     Route::put('/konten/text/{key}', [App\Http\Controllers\Admin\ContentController::class, 'updateText'])->name('content.text');
@@ -157,10 +158,15 @@ Route::get('/api/shipping/cities', [App\Http\Controllers\ShippingController::cla
 Route::get('/api/shipping/subdistricts', [App\Http\Controllers\ShippingController::class, 'subdistricts']);
 Route::post('/api/shipping/cost', [App\Http\Controllers\ShippingController::class, 'cost']);
 
-// ===== PAYMENT GATEWAY (MIDTRANS) =====
-Route::get('/api/payment/status/{orderNumber}', [App\Http\Controllers\PaymentController::class, 'checkStatus']);
-Route::post('/api/payment/refresh/{orderNumber}', [App\Http\Controllers\PaymentController::class, 'refresh'])->middleware('auth');
-Route::post('/api/payment/webhook', [App\Http\Controllers\PaymentController::class, 'handleWebhook']);
+// ===== PEMBAYARAN QRIS (statis + kode unik, verifikasi manual admin) =====
+Route::middleware('auth')->group(function () {
+    Route::get('/api/payment/status/{orderNumber}', [App\Http\Controllers\PaymentController::class, 'checkStatus']);
+    Route::post('/pesanan/{orderNumber}/bukti-bayar', [App\Http\Controllers\PaymentController::class, 'uploadProof'])
+        ->middleware('throttle:10,1')
+        ->name('pesanan.proof.upload');
+    Route::get('/pesanan/{orderNumber}/bukti-bayar', [App\Http\Controllers\PaymentController::class, 'showProof'])
+        ->name('pesanan.proof.show');
+});
 
 // ===== ORDER TRACKING DETAIL =====//
 Route::get('/pesanan/{orderNumber}', [App\Http\Controllers\OrderController::class, 'show'])

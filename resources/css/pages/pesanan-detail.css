@@ -586,3 +586,52 @@
             align-self: flex-end;
         }
     }
+
+/* ===== Flash pesan ===== */
+.order-flash { border-radius: 14px; padding: 0.85rem 1.1rem; margin-bottom: 1.25rem; font-size: 0.88rem; font-weight: 600; }
+.order-flash.success { background: #e9f8f0; color: #17744a; border: 1px solid #bfe9d3; }
+.order-flash.error { background: #fdecef; color: #b0304f; border: 1px solid #f6c3cf; }
+
+/* ===== Pembayaran QRIS ===== */
+.qris-pay-card { background: #fff7f8; border: 1.5px solid #f8c9d6; border-radius: 18px; padding: 1.5rem 1.75rem; margin-bottom: 1.75rem; box-shadow: 0 4px 20px rgba(224, 107, 136, 0.08); }
+.qris-pay-card.verifying { background: #fffbf0; border-color: #f3dfa6; }
+.qris-pay-card h3 { font-family: var(--font-body); font-size: 1.15rem; font-weight: 700; color: #2a1f22; margin: 0.25rem 0 0.4rem; }
+.qris-eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; color: #e06b88; text-transform: uppercase; }
+.qris-pay-card.verifying .qris-eyebrow { color: #b7791f; }
+.qris-deadline { font-size: 0.85rem; color: #7a5961; margin: 0; }
+.qris-deadline #qris-countdown { font-family: 'DM Mono', monospace; color: #c53660; }
+.qris-rejected { margin-top: 1rem; background: #fdecef; border: 1px solid #f6c3cf; color: #b0304f; border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.85rem; }
+.qris-unavailable { margin: 1rem 0 0; font-size: 0.88rem; color: #7a5961; }
+
+.qris-pay-body { display: grid; grid-template-columns: 260px 1fr; gap: 1.75rem; margin-top: 1.25rem; align-items: start; }
+.qris-code-col { display: flex; flex-direction: column; gap: 0.75rem; }
+.qris-code-frame { background: #fff; border: 1px solid #ebd3da; border-radius: 16px; padding: 1rem; text-align: center; }
+.qris-code-brand { font-weight: 900; letter-spacing: 0.18em; font-size: 0.95rem; color: #2a1f22; margin-bottom: 0.5rem; }
+.qris-code { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #8c7379; }
+.qris-code svg { width: 100%; height: 100%; display: block; }
+.qris-merchant { margin-top: 0.6rem; font-size: 0.78rem; font-weight: 700; color: #2a1f22; }
+.qris-merchant span { display: block; font-weight: 500; color: #8c7379; margin-top: 0.15rem; }
+
+.qris-info-col { min-width: 0; }
+.qris-label { font-size: 0.75rem; color: #8c7379; }
+.qris-amount-row { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin: 0.15rem 0 0.4rem; }
+.qris-amount { font-size: 1.7rem; color: #2a1f22; font-family: 'DM Mono', monospace; letter-spacing: 0.01em; }
+.qris-copy { background: #fce7ee; border: none; color: #e06b88; font-weight: 700; font-size: 0.78rem; padding: 6px 14px; border-radius: 6px; cursor: pointer; }
+.qris-hint { font-size: 0.84rem; color: #7a5961; line-height: 1.55; margin: 0 0 0.75rem; }
+.qris-steps { margin: 0.25rem 0 1rem; padding-left: 1.2rem; font-size: 0.84rem; color: #4a3a3e; line-height: 1.6; }
+
+.qris-proof-form { display: flex; flex-direction: column; gap: 0.6rem; }
+.qris-file { display: block; border: 1.5px dashed #e8b7c5; border-radius: 12px; padding: 0.85rem 1rem; background: #fff; cursor: pointer; font-size: 0.84rem; color: #7a5961; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qris-file:hover { border-color: #e06b88; }
+.qris-file input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.qris-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; font-weight: 700; font-size: 0.86rem; padding: 10px 20px; border-radius: 8px; cursor: pointer; text-decoration: none; }
+.qris-btn.primary { background: #e06b88; color: #fff; border: none; box-shadow: 0 3px 10px rgba(224, 107, 136, 0.3); }
+.qris-btn.primary:disabled { opacity: 0.65; cursor: wait; }
+.qris-btn.ghost { background: #fff; color: #e06b88; border: 1px solid #e06b88; }
+
+@media (max-width: 720px) {
+    .qris-pay-card { padding: 1.25rem; }
+    .qris-pay-body { grid-template-columns: 1fr; }
+    .qris-code-col { max-width: 280px; margin: 0 auto; width: 100%; }
+    .qris-amount { font-size: 1.45rem; }
+}

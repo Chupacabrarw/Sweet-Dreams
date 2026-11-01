@@ -9,10 +9,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\Voucher;
 use App\Services\InventoryService;
+use App\Services\QrisService;
 
 class CheckoutController extends Controller
 {
-    // Ongkir & metode bayar masih dummy dulu, nanti diganti RajaOngkir & Midtrans
+    // Ongkir preset (fallback kalau tarif live RajaOngkir tidak dikirim)
     protected function shippingMethods(): array
     {
         return [
@@ -25,73 +26,15 @@ class CheckoutController extends Controller
         ];
     }
 
-    /** Semua metode bayar yang bisa tampil di checkout (id = kode internal). */
+    /** Metode bayar checkout: QRIS statis toko (nominal + kode unik ditanam per pesanan). */
     public const PAYMENT_METHODS = [
-        'qris'    => ['name' => 'QRIS (Scan & Bayar Instan)', 'desc' => 'Mendukung GoPay, OVO, DANA, ShopeePay, BCA Mobile, dll.', 'badges' => 'QRIS GOPAY OVO DANA'],
-        'kartu'   => ['name' => 'Kartu Kredit / Debit', 'desc' => 'Visa, Mastercard, JCB via Midtrans (3DS aman).', 'badges' => 'VISA MASTERCARD JCB'],
-        'bca'     => ['name' => 'BCA Virtual Account', 'desc' => 'Transfer instan via BCA Mobile / KlikBCA / myBCA / ATM', 'badges' => 'BCA VA'],
-        'bni'     => ['name' => 'BNI Virtual Account', 'desc' => 'Transfer instan via BNI Mobile Banking / ATM', 'badges' => 'BNI VA'],
-        'bri'     => ['name' => 'BRI Virtual Account (BRIVA)', 'desc' => 'Transfer instan via BRImo / ATM BRI', 'badges' => 'BRIVA'],
-        'mandiri' => ['name' => 'Mandiri Virtual Account', 'desc' => 'Transfer instan via Livin by Mandiri / ATM Mandiri', 'badges' => 'MANDIRI'],
-        'permata' => ['name' => 'Permata Virtual Account', 'desc' => 'Transfer instan via PermataMobile X / ATM', 'badges' => 'PERMATA'],
+        'qris' => ['name' => 'QRIS (Scan & Bayar)', 'desc' => 'Bayar pakai GoPay, OVO, DANA, ShopeePay, LinkAja, atau m-banking apa pun.', 'badges' => 'QRIS GOPAY OVO DANA'],
     ];
-
-    /**
-     * Peta id metode checkout -> kode channel Snap.
-     * Satu sumber kebenaran agar checkout & bayar-ulang selalu sama.
-     */
-    public static function snapCodesForPayment(string $paymentId): array
-    {
-        return match ($paymentId) {
-            'qris'     => ['other_qris', 'gopay'],
-            'kartu'    => ['credit_card'],
-            'bca'      => ['bca_va'],
-            'bni'      => ['bni_va'],
-            'bri'      => ['bri_va'],
-            'mandiri'  => ['echannel'],
-            'permata'  => ['permata_va'],
-            default    => [],
-        };
-    }
-
-    /** Gabungan kode Snap dari semua metode yang diaktifkan admin. */
-    public static function snapCodesForEnabled(): array
-    {
-        $codes = [];
-        foreach (self::enabledPaymentMethods() as $id) {
-            foreach (self::snapCodesForPayment($id) as $code) {
-                $codes[$code] = true;
-            }
-        }
-        return array_keys($codes);
-    }
-
-    /**
-     * Metode yang diaktifkan admin via CMS (SiteContent key payment_methods).
-     * Kosong/rusak = semua aktif (checkout tidak boleh kosong).
-     */
-    public static function enabledPaymentMethods(): array
-    {
-        try {
-            $raw = \App\Models\SiteContent::where('key', 'payment_methods')->value('body');
-            $list = $raw ? json_decode($raw, true) : null;
-            if (is_array($list) && $list !== []) {
-                $valid = array_values(array_intersect($list, array_keys(self::PAYMENT_METHODS)));
-                if ($valid !== []) {
-                    return $valid;
-                }
-            }
-        } catch (\Throwable $e) {
-            // abaikan, pakai semua
-        }
-        return array_keys(self::PAYMENT_METHODS);
-    }
 
     protected function paymentMethods(): array
     {
-        $enabled = self::enabledPaymentMethods();
         $out = [];
-        foreach ($enabled as $i => $id) {
+        foreach (array_keys(self::PAYMENT_METHODS) as $i => $id) {
             $out[] = ['id' => $id] + self::PAYMENT_METHODS[$id] + ['active' => $i === 0];
         }
         return $out;
@@ -209,6 +152,10 @@ class CheckoutController extends Controller
             return response()->json(['message' => 'Metode pembayaran tidak valid.'], 422);
         }
 
+        if (!app(QrisService::class)->isConfigured()) {
+            return response()->json(['message' => 'Pembayaran QRIS toko sedang tidak tersedia. Silakan hubungi admin.'], 503);
+        }
+
         // Resolusi tarif ongkir dan nama kurir (bisa dari live RajaOngkir atau preset)
         $presetShipping = collect($this->shippingMethods())->firstWhere('id', $data['shipping_id']);
         $shippingCourier = !empty($data['shipping_courier']) 
@@ -299,25 +246,20 @@ class CheckoutController extends Controller
             return $newOrder;
         });
 
-        // Buat tagihan pembayaran via Midtrans (pilihan checkout diteruskan agar Snap langsung fokus)
-        $snapPayments = \App\Http\Controllers\CheckoutController::snapCodesForPayment($payment['id'] ?? '');
-        $paymentResult = app(\App\Services\MidtransPaymentService::class)->createPayment($order, $snapPayments);
-
-        if (empty($paymentResult['success'])) {
+        // Buat tagihan QRIS (nominal + kode unik tertanam di QR)
+        try {
+            $order = app(QrisService::class)->prepareOrder($order);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('QRIS prepare failed: ' . $e->getMessage(), ['order' => $order->order_number]);
             app(InventoryService::class)->cancelOrder($order, [
                 'payment_status' => 'failed',
                 'status' => 'cancelled',
             ]);
 
             return response()->json([
-                'message' => 'Tagihan pembayaran gagal dibuat. Stok sudah dikembalikan dan isi keranjang tetap tersedia; silakan coba checkout lagi.',
+                'message' => 'Tagihan QRIS gagal dibuat. Stok sudah dikembalikan dan isi keranjang tetap tersedia; silakan coba lagi atau hubungi admin.',
             ], 502);
         }
-
-        $order->update([
-            'payment_reference'  => $paymentResult['payment_reference'] ?? null,
-            'payment_url'        => $paymentResult['payment_url'] ?? null,
-        ]);
 
         DB::transaction(function () use ($user, $cartItems) {
             $currentItems = $user->cartItems()
@@ -342,10 +284,10 @@ class CheckoutController extends Controller
             'message'        => 'Pesanan berhasil dibuat.',
             'order_number'   => $order->order_number,
             'total'          => $order->total,
-            'payment_url'    => $order->payment_url,
-            'payment_id'     => $order->payment_reference,
+            'payment_amount' => $order->payment_amount,
             'payment_method' => $payment['name'],
             'payment_status' => $order->payment_status,
+            'redirect_url'   => route('pesanan.detail', $order->order_number),
         ], 201);
     }
 

@@ -41,7 +41,7 @@ class ProfileController extends Controller
                     'id' => '#' . $order->order_number,
                     'slug' => $order->order_number,
                     'title' => optional($order->items->first())->product_title ?? 'Produk',
-                    'status' => $this->statusLabel($order->status),
+                    'status' => ($order->payment_status === 'verifying' ? 'Menunggu Verifikasi' : $this->statusLabel($order->status)),
                     'status_type' => $this->statusType($order->status),
                     'price' => 'Rp ' . number_format($order->total, 0, ',', '.'),
                 ];
@@ -60,9 +60,9 @@ class ProfileController extends Controller
                     'id' => '#' . $order->order_number,
                     'slug' => $order->order_number,
                     'date' => $order->created_at->copy()->setTimezone('Asia/Jakarta')->translatedFormat('d M Y'),
-                    'status' => $this->statusLabel($order->status),
+                    'status' => ($order->payment_status === 'verifying' ? 'Menunggu Verifikasi' : $this->statusLabel($order->status)),
                     'status_type' => $this->statusType($order->status),
-                    'can_cancel' => $order->status === 'pending' && $order->payment_status !== 'paid',
+                    'can_cancel' => $order->status === 'pending' && !in_array($order->payment_status, ['paid', 'verifying'], true),
                     'title' => $firstItem?->product_title ?? 'Produk',
                     'variant' => ($firstItem ? "{$firstItem->color} · Size {$firstItem->size}" : '')
                         . ($extraCount > 0 ? " (+{$extraCount} produk lainnya)" : ''),

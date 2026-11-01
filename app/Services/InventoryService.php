@@ -72,10 +72,11 @@ class InventoryService
 
             if (
                 in_array($lockedOrder->status, ['cancelled', 'shipped', 'completed'], true)
-                || ($fromPayment && $lockedOrder->payment_status === 'paid')
+                // 'verifying' = bukti bayar QRIS sedang dicek admin, jangan dibatalkan otomatis
+                || ($fromPayment && in_array($lockedOrder->payment_status, ['paid', 'verifying'], true))
                 || ($customerInitiated && (
                     $lockedOrder->status !== 'pending'
-                    || $lockedOrder->payment_status === 'paid'
+                    || in_array($lockedOrder->payment_status, ['paid', 'verifying'], true)
                 ))
             ) {
                 return false;

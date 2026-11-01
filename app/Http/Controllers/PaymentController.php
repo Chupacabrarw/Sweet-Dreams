@@ -3,191 +3,119 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
-use App\Services\InventoryService;
-use App\Services\MidtransPaymentService;
+use App\Services\QrisService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
+/**
+ * Pembayaran QRIS statis: pembeli scan QR (nominal + kode unik tertanam),
+ * lalu unggah bukti bayar. Admin mencocokkan mutasi di aplikasi merchant
+ * dan mengonfirmasi lunas dari halaman Manajemen Pesanan.
+ */
 class PaymentController extends Controller
 {
-    protected MidtransPaymentService $paymentService;
-    protected InventoryService $inventoryService;
-
-    public function __construct(MidtransPaymentService $paymentService, InventoryService $inventoryService)
+    public function __construct(protected QrisService $qris)
     {
-        $this->paymentService = $paymentService;
-        $this->inventoryService = $inventoryService;
+    }
+
+    protected function ownedOrder(Request $request, string $orderNumber): Order
+    {
+        return Order::where('order_number', $orderNumber)
+            ->where('user_id', $request->user()->id)
+            ->firstOrFail();
     }
 
     /**
-     * Cek status pembayaran on-demand
+     * Cek status pembayaran (dipakai polling di halaman pesanan).
      * GET /api/payment/status/{orderNumber}
      */
-    public function checkStatus(Request $request, $orderNumber)
+    public function checkStatus(Request $request, string $orderNumber)
     {
-        $order = Order::where('order_number', $orderNumber)->first();
+        $order = $this->qris->syncOrder($this->ownedOrder($request, $orderNumber));
 
-        if (!$order) {
-            return response()->json(['success' => false, 'message' => 'Pesanan tidak ditemukan.'], 404);
-        }
-
-        if ($order->payment_status === 'paid') {
-            return response()->json([
-                'success'        => true,
-                'payment_status' => 'paid',
-                'order_status'   => $order->status,
-                'message'        => 'Pembayaran sudah lunas.',
-                'order_number'   => $order->order_number,
-            ]);
-        }
-
-        if (!empty($order->payment_reference)) {
-            $res = $this->paymentService->getPaymentStatus($order->payment_reference);
-
-            if ($res['success']) {
-                $remoteStatus = strtolower($res['status'] ?? '');
-
-                if (in_array($remoteStatus, ['capture', 'settlement'])) {
-                    if ($order->status === 'cancelled') {
-                        Log::warning("Payment confirmed after order {$order->order_number} was cancelled.");
-                        return response()->json([
-                            'success' => false,
-                            'payment_status' => $order->payment_status,
-                            'order_status' => $order->status,
-                            'message' => 'Pesanan sudah dibatalkan. Hubungi admin untuk bantuan pembayaran.',
-                            'order_number' => $order->order_number,
-                        ], 409);
-                    }
-
-                    $order->update([
-                        'payment_status' => 'paid',
-                        'status'         => 'processing',
-                    ]);
-
-                    return response()->json([
-                        'success'        => true,
-                        'payment_status' => 'paid',
-                        'order_status'   => 'processing',
-                        'message'        => 'Pembayaran berhasil dikonfirmasi!',
-                        'order_number'   => $order->order_number,
-                    ]);
-                } elseif (in_array($remoteStatus, ['expire', 'cancel', 'deny'])) {
-                    $cancelled = $this->inventoryService->cancelOrder($order, [
-                        'payment_status' => 'expired',
-                        'status'         => 'cancelled',
-                    ], true);
-                    $order->refresh();
-
-                    return response()->json([
-                        'success'        => $cancelled,
-                        'payment_status' => $order->payment_status,
-                        'order_status'   => $order->status,
-                        'message'        => $cancelled ? 'Tagihan pembayaran sudah kedaluwarsa.' : 'Pembayaran pesanan ini sudah tercatat.',
-                        'order_number'   => $order->order_number,
-                    ], $cancelled ? 200 : 409);
-                }
-            }
-        }
+        $message = match ($order->payment_status) {
+            'paid'      => 'Pembayaran sudah dikonfirmasi.',
+            'verifying' => 'Bukti bayar sedang dicek admin.',
+            'expired'   => 'Batas waktu pembayaran sudah lewat, pesanan dibatalkan.',
+            default     => 'Pembayaran belum dikonfirmasi.',
+        };
 
         return response()->json([
             'success'        => true,
             'payment_status' => $order->payment_status,
             'order_status'   => $order->status,
-            'payment_url'    => $order->payment_url,
+            'message'        => $message,
             'order_number'   => $order->order_number,
-            'total'          => $order->total,
+            'payment_amount' => $order->payment_amount,
         ]);
     }
 
     /**
-     * Buat ulang tagihan Snap (ala Shopee: "bayar lagi" selalu dapat QR/VA baru
-     * dengan metode terkini, transaksi lama yang unpaid dibiarkan expired).
-     * POST /api/payment/refresh/{orderNumber}
+     * Pembeli mengunggah bukti bayar QRIS -> status "verifying".
+     * POST /pesanan/{orderNumber}/bukti-bayar
      */
-    public function refresh(Request $request, $orderNumber)
+    public function uploadProof(Request $request, string $orderNumber)
     {
-        $order = Order::where('order_number', $orderNumber)
-            ->where('user_id', $request->user()->id)
-            ->first();
-
-        if (!$order) {
-            return response()->json(['success' => false, 'message' => 'Pesanan tidak ditemukan.'], 404);
-        }
-
-        if ($order->payment_status === 'paid' || in_array($order->status, ['cancelled', 'completed'], true)) {
-            return response()->json(['success' => false, 'message' => 'Pesanan ini sudah tidak bisa dibayar ulang.'], 409);
-        }
-
-        // Regenerasi mengikuti daftar admin (konsisten dengan checkout:
-        // tidak ada Kredivo/Alfa dkk kecuali admin mengaktifkannya)
-        $res = $this->paymentService->createPayment(
-            $order,
-            \App\Http\Controllers\CheckoutController::snapCodesForEnabled()
-        );
-
-        if (empty($res['success'])) {
-            return response()->json(['success' => false, 'message' => 'Gagal membuat tagihan baru. Coba lagi.'], 502);
-        }
-
-        $order->update([
-            'payment_reference' => $res['payment_reference'] ?? null,
-            'payment_url'       => $res['payment_url'] ?? null,
+        $request->validate([
+            'proof' => 'required|image|mimes:jpg,jpeg,png,webp|max:4096',
+        ], [
+            'proof.required' => 'Pilih foto/screenshot bukti pembayaran dulu.',
+            'proof.image'    => 'Bukti bayar harus berupa gambar.',
+            'proof.max'      => 'Ukuran gambar maksimal 4 MB.',
         ]);
 
-        return response()->json(['success' => true, 'payment_url' => $order->payment_url]);
-    }
+        $order = $this->qris->syncOrder($this->ownedOrder($request, $orderNumber));
 
-    /**
-     * Webhook notifikasi pembayaran dari Midtrans
-     * POST /api/payment/webhook
-     */
-    public function handleWebhook(Request $request)
-    {
-        try {
-            $notification = new \Midtrans\Notification();
-            $transaction = $notification->transaction_status;
-            $type = $notification->payment_type;
-            $orderId = $notification->order_id;
-            $fraud = $notification->fraud_status;
+        if ($order->payment_status !== 'unpaid' || $order->status !== 'pending') {
+            return back()->with('error', 'Pesanan ini sudah tidak menunggu pembayaran.');
+        }
 
-            // Extract order_number
-            $parts = explode('-', $orderId);
-            $orderNumber = $parts[0];
+        $path = $request->file('proof')->store('payment-proofs', 'local');
 
-            $order = Order::where('order_number', $orderNumber)->first();
-
-            if ($order) {
-                if (
-                    in_array($transaction, ['capture', 'settlement'], true)
-                    && $order->status === 'cancelled'
-                ) {
-                    Log::warning("Payment confirmed after order {$order->order_number} was cancelled.");
-                } elseif ($transaction == 'capture') {
-                    if ($type == 'credit_card') {
-                        if ($fraud == 'challenge') {
-                            $order->update(['payment_status' => 'pending']);
-                        } else {
-                            $order->update(['payment_status' => 'paid', 'status' => 'processing']);
-                        }
-                    }
-                } elseif ($transaction == 'settlement') {
-                    $order->update(['payment_status' => 'paid', 'status' => 'processing']);
-                } elseif ($transaction == 'pending') {
-                    $order->update(['payment_status' => 'pending']);
-                } elseif ($transaction == 'deny' || $transaction == 'expire' || $transaction == 'cancel') {
-                    $this->inventoryService->cancelOrder($order, [
-                        'payment_status' => 'expired',
-                        'status' => 'cancelled',
-                    ], true);
-                }
-                
-                Log::info("Order #{$orderNumber} payment webhook processed: status = {$transaction}");
+        $saved = DB::transaction(function () use ($order, $path) {
+            $locked = Order::query()->lockForUpdate()->find($order->id);
+            if (!$locked || $locked->payment_status !== 'unpaid' || $locked->status !== 'pending') {
+                return false;
             }
 
-            return response()->json(['status' => 'ok']);
-        } catch (\Exception $e) {
-            Log::error('Midtrans Webhook Error: ' . $e->getMessage());
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+            if ($locked->payment_proof) {
+                Storage::disk('local')->delete($locked->payment_proof);
+            }
+
+            $locked->update([
+                'payment_status'            => QrisService::STATUS_VERIFYING,
+                'payment_proof'             => $path,
+                'payment_proof_uploaded_at' => now(),
+                'payment_note'              => null,
+            ]);
+
+            return true;
+        });
+
+        if (!$saved) {
+            Storage::disk('local')->delete($path);
+            return back()->with('error', 'Pesanan ini sudah tidak menunggu pembayaran.');
         }
+
+        return redirect()->route('pesanan.detail', $order->order_number)
+            ->with('success', 'Bukti bayar terkirim! Admin akan mengecek dan mengonfirmasi pesananmu secepatnya.');
+    }
+
+    /**
+     * Tampilkan bukti bayar (hanya pemilik pesanan & admin).
+     * GET /pesanan/{orderNumber}/bukti-bayar
+     */
+    public function showProof(Request $request, string $orderNumber)
+    {
+        $order = Order::where('order_number', $orderNumber)->firstOrFail();
+
+        $user = $request->user();
+        abort_unless($user->role === 'admin' || $order->user_id === $user->id, 403);
+        abort_unless($order->payment_proof && Storage::disk('local')->exists($order->payment_proof), 404);
+
+        return Storage::disk('local')->response($order->payment_proof, null, [
+            'Cache-Control' => 'private, max-age=0, no-store',
+        ]);
     }
 }

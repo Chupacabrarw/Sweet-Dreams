@@ -216,48 +216,41 @@
         </div>
     </div>
 
-    {{-- ===== METODE PEMBAYARAN CHECKOUT ===== --}}
+    {{-- ===== QRIS TOKO (PEMBAYARAN CHECKOUT) ===== --}}
     <div class="cms-card">
         <div class="cms-card-header">
             <div class="cms-card-header-left">
-                <div class="cms-card-icon"><i data-lucide="wallet"></i></div>
+                <div class="cms-card-icon"><i data-lucide="qr-code"></i></div>
                 <div>
-                    <p class="cms-card-title">Metode Pembayaran Checkout</p>
-                    <p class="cms-card-desc">Pilih yang muncul di halaman checkout (Snap ikut pilihan pembeli)</p>
+                    <p class="cms-card-title">QRIS Toko (Pembayaran Checkout)</p>
+                    <p class="cms-card-desc">QR statis toko diubah otomatis jadi QR bernominal per pesanan (total + kode unik)</p>
                 </div>
             </div>
         </div>
         <div class="cms-card-body">
-            <form method="POST" action="{{ route('admin.content.paymethods') }}">
+            <form method="POST" action="{{ route('admin.content.qris') }}">
                 @csrf @method('PUT')
-                <div class="sections-grid">
-                    <div class="section-panel">
-                        <div class="section-panel-header">
-                            <i data-lucide="credit-card"></i>
-                            <span class="section-panel-title">Metode Ditampilkan</span>
-                            <span class="section-panel-count" id="paymethod-count">{{ count($enabledPayMethods) }}</span>
-                        </div>
-                        <div class="section-panel-body" id="paymethod-list">
-                            @foreach($payMethods as $code => $pm)
-                            <label class="check-item">
-                                <input type="checkbox"
-                                       name="pay_methods[]"
-                                       value="{{ $code }}"
-                                       {{ in_array($code, $enabledPayMethods) ? 'checked' : '' }}
-                                       onchange="updateCount('paymethod-list', 'paymethod-count')">
-                                <span class="check-box"><i data-lucide="check"></i></span>
-                                <span class="check-label">{{ $pm['name'] }}</span>
-                            </label>
-                            @endforeach
-                        </div>
-                    </div>
+                <div style="display:flex; flex-wrap:wrap; gap:0.5rem 1.5rem; margin-bottom:1rem; font-size:0.85rem; color:#3a2a2e;">
+                    <span>Status:
+                        @if($qrisValid)
+                            <strong style="color:#1e9e64;">Aktif</strong>
+                        @else
+                            <strong style="color:#c53660;">Belum diatur / tidak valid — checkout ditutup</strong>
+                        @endif
+                    </span>
+                    @if($qrisMerchant['name'])<span>Merchant: <strong>{{ $qrisMerchant['name'] }}</strong>{{ $qrisMerchant['city'] ? ', ' . $qrisMerchant['city'] : '' }}</span>@endif
+                    @if($qrisMerchant['nmid'])<span>NMID: <strong>{{ $qrisMerchant['nmid'] }}</strong></span>@endif
                 </div>
-                <div style="margin-top:1.5rem; display:flex; align-items:center; gap:1rem;">
+                <div class="field-group">
+                    <label class="field-label">Teks QRIS (hasil scan QR statis toko)</label>
+                    <textarea class="field-input" name="qris_payload" rows="3" style="font-family:monospace; font-size:0.78rem; word-break:break-all;" required>{{ old('qris_payload', $qrisPayload) }}</textarea>
+                </div>
+                <div style="margin-top:1.5rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
                     <button type="submit" class="btn-save">
-                        <i data-lucide="save"></i> Simpan Metode Bayar
+                        <i data-lucide="save"></i> Simpan QRIS
                     </button>
                     <span style="font-size:0.78rem; color:#9a7a82;">
-                        Minimal 1. Harus sudah aktif juga di dashboard Midtrans.
+                        Scan QR toko pakai aplikasi pembaca QR biasa, salin teks yang diawali 000201, lalu tempel di sini.
                     </span>
                 </div>
             </form>

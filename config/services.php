@@ -52,15 +52,11 @@ return [
         'base_url' => env('KOMERCE_PAYMENT_BASE_URL', 'https://api-sandbox.collaborator.komerce.id/user'),
     ],
 
-    'midtrans' => [
-        'server_key' => env('MIDTRANS_SERVER_KEY'),
-        'client_key' => env('MIDTRANS_CLIENT_KEY'),
-        'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
-        'is_sanitized' => env('MIDTRANS_IS_SANITIZED', true),
-        'is_3ds' => env('MIDTRANS_IS_3DS', true),
-        // Opsional: batasi metode bayar Snap, pisah koma. Kosong = semua aktif.
-        // Contoh: MIDTRANS_ENABLED_PAYMENTS=gopay,qris
-        'enabled_payments' => env('MIDTRANS_ENABLED_PAYMENTS', ''),
+    // QRIS statis toko (isi teks hasil scan QR). Bisa juga diubah dari CMS admin.
+    'qris' => [
+        'payload' => env('QRIS_PAYLOAD', ''),
+        // Batas waktu bayar sebelum pesanan otomatis dibatalkan (menit)
+        'expiry_minutes' => (int) env('QRIS_EXPIRY_MINUTES', 1440),
     ],
 
 ];

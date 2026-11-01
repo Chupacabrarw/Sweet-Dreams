@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\InventoryService;
+use App\Services\QrisService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
@@ -27,13 +29,15 @@ class OrderController extends Controller
         $filter = $request->get('status');
 
         $orders = Order::with(['items', 'user'])
-            ->when($filter, fn ($q) => $q->where('status', $filter))
+            ->when($filter === 'verifikasi', fn ($q) => $q->where('payment_status', QrisService::STATUS_VERIFYING))
+            ->when($filter && $filter !== 'verifikasi', fn ($q) => $q->where('status', $filter))
             ->latest()
             ->paginate(15)
             ->withQueryString();
 
         $counts = [
             'all' => Order::count(),
+            'verifikasi' => Order::where('payment_status', QrisService::STATUS_VERIFYING)->count(),
             'pending' => Order::where('status', 'pending')->count(),
             'processing' => Order::where('status', 'processing')->count(),
             'shipped' => Order::where('status', 'shipped')->count(),
@@ -49,6 +53,8 @@ class OrderController extends Controller
                 'status' => $o->status,
                 'status_label' => $this->statusLabel($o->status),
                 'total' => 'Rp ' . number_format($o->total, 0, ',', '.'),
+                'payment_status' => $o->payment_status,
+                'payment_amount' => $o->payment_amount ? 'Rp ' . number_format($o->payment_amount, 0, ',', '.') : null,
             ];
         });
 
@@ -85,6 +91,15 @@ class OrderController extends Controller
             'payment_method'    => $order->payment_method,
             'payment_status'    => $order->payment_status,
             'payment_reference' => $order->payment_reference,
+            'payment_amount'    => $order->payment_amount
+                ? 'Rp ' . number_format($order->payment_amount, 0, ',', '.')
+                : null,
+            'payment_unique_code' => $order->payment_unique_code,
+            'payment_expired_at'  => $order->payment_expired_at?->copy()->setTimezone('Asia/Jakarta')->translatedFormat('d M Y, H:i'),
+            'payment_proof_url'   => $order->payment_proof ? route('pesanan.proof.show', $order->order_number) : null,
+            'payment_proof_uploaded_at' => $order->payment_proof_uploaded_at?->copy()->setTimezone('Asia/Jakarta')->translatedFormat('d M Y, H:i'),
+            'payment_verified_at' => $order->payment_verified_at?->copy()->setTimezone('Asia/Jakarta')->translatedFormat('d M Y, H:i'),
+            'payment_note'        => $order->payment_note,
 
             // Status & tracking
             'status'           => $order->status,
@@ -137,5 +152,60 @@ class OrderController extends Controller
         }
 
         return redirect()->route('admin.orders')->with('success', 'Status pesanan berhasil diperbarui.');
+    }
+
+    /**
+     * Verifikasi pembayaran QRIS: cocokkan nominal (total + kode unik) dengan
+     * mutasi di aplikasi merchant, lalu konfirmasi lunas atau tolak bukti.
+     */
+    public function verifyPayment(Request $request, Order $order)
+    {
+        $data = $request->validate([
+            'action' => 'required|in:approve,reject',
+            'note'   => 'nullable|string|max:255',
+        ]);
+
+        $back = redirect()->route('admin.orders', array_filter(['status' => $request->query('status')]));
+
+        $result = DB::transaction(function () use ($order, $data) {
+            $locked = Order::query()->lockForUpdate()->findOrFail($order->id);
+
+            if ($locked->status === 'cancelled') {
+                return 'Pesanan sudah dibatalkan (stok sudah dikembalikan). Kalau pembeli ternyata sudah bayar, proses refund atau buat pesanan manual.';
+            }
+            if ($locked->payment_status === 'paid') {
+                return 'Pembayaran pesanan ini sudah dikonfirmasi sebelumnya.';
+            }
+
+            if ($data['action'] === 'approve') {
+                $locked->update([
+                    'payment_status'      => 'paid',
+                    'payment_verified_at' => now(),
+                    'payment_note'        => $data['note'] ?? null,
+                    'status'              => $locked->status === 'pending' ? 'processing' : $locked->status,
+                ]);
+                return true;
+            }
+
+            if ($locked->payment_status !== QrisService::STATUS_VERIFYING) {
+                return 'Belum ada bukti bayar yang perlu ditolak.';
+            }
+
+            // Tolak: pembeli bisa unggah ulang, batas bayar diperpanjang supaya tidak langsung hangus
+            $locked->update([
+                'payment_status'     => 'unpaid',
+                'payment_note'       => $data['note'] ?: 'Bukti bayar tidak sesuai. Pastikan nominal sama persis lalu unggah ulang.',
+                'payment_expired_at' => now()->addMinutes(app(QrisService::class)->expiryMinutes()),
+            ]);
+            return true;
+        });
+
+        if ($result !== true) {
+            return $back->with('error', $result);
+        }
+
+        return $back->with('success', $data['action'] === 'approve'
+            ? "Pembayaran #{$order->order_number} dikonfirmasi lunas, pesanan masuk Diproses."
+            : "Bukti bayar #{$order->order_number} ditolak, pembeli diminta unggah ulang.");
     }
 }
