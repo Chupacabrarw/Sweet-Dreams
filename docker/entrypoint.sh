@@ -8,8 +8,9 @@ PORT="${PORT:-10000}"
 sed -ri "s/^Listen .*/Listen ${PORT}/" /etc/apache2/ports.conf
 sed -ri "s/<VirtualHost \*:[0-9]+>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-available/000-default.conf
 
-# APP_KEY dari Render (generateValue) = base64 32 byte tanpa prefix; Laravel butuh "base64:"
-if [ -n "$APP_KEY" ] && [ "${APP_KEY#base64:}" = "$APP_KEY" ]; then
+# APP_KEY: 32 karakter mentah (tombol Generate di dashboard) dipakai apa adanya;
+# base64 32 byte tanpa prefix (generateValue Blueprint, 44 karakter) diberi "base64:"
+if [ -n "$APP_KEY" ] && [ "${APP_KEY#base64:}" = "$APP_KEY" ] && [ "${#APP_KEY}" -eq 44 ]; then
     export APP_KEY="base64:${APP_KEY}"
 fi
 
