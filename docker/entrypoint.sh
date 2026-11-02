@@ -20,6 +20,9 @@ if [ -n "$DB_SSL_CA_PEM" ]; then
     export MYSQL_ATTR_SSL_CA=/var/www/html/storage/db-ca.pem
 fi
 
+# Diagnosa koneksi DB tanpa membocorkan password (panjang + 12 karakter awal sha256)
+echo "[entrypoint] DB ${DB_USERNAME:-?}@${DB_HOST:-?}:${DB_PORT:-?}/${DB_DATABASE:-?} password_len=${#DB_PASSWORD} password_sha=$(printf '%s' "$DB_PASSWORD" | sha256sum | cut -c1-12) ssl_ca=${MYSQL_ATTR_SSL_CA:-none}"
+
 php artisan config:clear >/dev/null 2>&1 || true
 
 if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
