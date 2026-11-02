@@ -14,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\IsAdmin::class,
         ]);
+        // Render/Railway memutus HTTPS di proxy: percayai X-Forwarded-* agar URL aset & redirect tetap https
+        $middleware->trustProxies(at: '*');
         $middleware->validateCsrfTokens(except: [
             'api/shipping/*',
         ]);
