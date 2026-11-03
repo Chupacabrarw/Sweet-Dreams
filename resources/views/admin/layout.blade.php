@@ -210,6 +210,57 @@
     };
 
     lucide.createIcons();
+
+    // Vercel menolak request di atas 4,5 MB (upload tidak sampai ke server sama sekali).
+    // Sebelum form upload dikirim, foto besar dikecilkan di browser: sisi terpanjang
+    // maks. 2400 px (banner tetap >= 1920 px) lalu disimpan ulang sebagai JPEG.
+    (function () {
+        const MAX_SIDE = 2400, QUALITY = 0.85, LIMIT = 4.2 * 1024 * 1024;
+
+        async function shrink(file) {
+            if (!/^image\/(jpeg|png|webp)$/.test(file.type) || file.size < 1024 * 1024) return file;
+            const img = await createImageBitmap(file);
+            const scale = Math.min(1, MAX_SIDE / Math.max(img.width, img.height));
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', QUALITY));
+            if (!blob || blob.size >= file.size) return file;
+            return new File([blob], file.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' });
+        }
+
+        document.addEventListener('submit', async (e) => {
+            const form = e.target;
+            if (form.enctype !== 'multipart/form-data' || form.dataset.shrunk === '1') return;
+            const inputs = [...form.querySelectorAll('input[type=file]')].filter(i => i.files.length);
+            if (!inputs.length) return;
+
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            let total = 0;
+            for (const input of inputs) {
+                const dt = new DataTransfer();
+                for (const f of input.files) {
+                    const out = await shrink(f).catch(() => f);
+                    total += out.size;
+                    dt.items.add(out);
+                }
+                input.files = dt.files;
+            }
+            if (total > LIMIT) {
+                window.adminToast ? adminToast('Total foto terlalu besar (maks. ±4 MB per simpan). Kurangi jumlah foto.', 'error')
+                                  : alert('Total foto terlalu besar (maks. ±4 MB per simpan). Kurangi jumlah foto.');
+                return;
+            }
+            form.dataset.shrunk = '1';
+            form.requestSubmit(e.submitter || undefined);
+            delete form.dataset.shrunk;
+        }, true);
+    })();
 </script>
 @yield('scripts')
 </body>

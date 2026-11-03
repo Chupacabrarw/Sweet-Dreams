@@ -763,7 +763,7 @@
         document.getElementById('product-stock-summary').hidden = false;
 
         const preview = document.getElementById('dropzone-preview');
-        preview.src = '/' + p.image;
+        preview.src = galleryImageUrl(p.image);
         preview.style.display = 'block';
         document.getElementById('dropzone-text').style.display = 'none';
 
