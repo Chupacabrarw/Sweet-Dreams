@@ -1,0 +1,13 @@
+/vendor
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/app/*
+/storage/framework/*
+/storage/logs/*
+/tests
+/docker
+.env
+.env.*
+!.env.example

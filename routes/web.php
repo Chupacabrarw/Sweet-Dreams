@@ -15,11 +15,12 @@ Route::get('/', function () {
     $prodIds = json_decode(\App\Models\SiteContent::where('key', 'home_products')->value('body') ?? '[]', true) ?: [];
 
     $homeCategories = count($catIds)
-        ? \App\Models\Category::whereIn('id', $catIds)->orderByRaw('FIELD(id,' . implode(',', $catIds) . ')')->get()
+        ? \App\Models\Category::whereIn('id', $catIds)->get()->sortBy(fn ($c) => array_search($c->id, $catIds))->values()
         : collect();
 
+    // Urutan sesuai pilihan admin; diurutkan di PHP (FIELD() hanya ada di MySQL, bukan Postgres)
     $homeProducts = count($prodIds)
-        ? \App\Models\Product::whereIn('id', $prodIds)->orderByRaw('FIELD(id,' . implode(',', $prodIds) . ')')->get()
+        ? \App\Models\Product::whereIn('id', $prodIds)->get()->sortBy(fn ($p) => array_search($p->id, $prodIds))->values()
         : collect();
 
     $wishlistIds = auth()->check()

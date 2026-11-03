@@ -60,7 +60,45 @@ return [
             'report' => false,
         ],
 
+        // Gambar upload admin (produk, banner, avatar) saat lokal: langsung ke folder public/
+        'public_dir' => [
+            'driver' => 'local',
+            'root' => public_path(),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/'),
+            'visibility' => 'public',
+            'throw' => true,
+        ],
+
+        // Supabase Storage lewat protokol S3 (dipakai di Vercel, filesystem-nya read-only)
+        'supabase' => [
+            'driver' => 's3',
+            'key' => env('SUPABASE_S3_KEY'),
+            'secret' => env('SUPABASE_S3_SECRET'),
+            'region' => env('SUPABASE_S3_REGION', 'ap-southeast-1'),
+            'bucket' => env('SUPABASE_PUBLIC_BUCKET', 'images'),
+            'endpoint' => env('SUPABASE_URL').'/storage/v1/s3',
+            'url' => env('SUPABASE_URL').'/storage/v1/object/public/'.env('SUPABASE_PUBLIC_BUCKET', 'images'),
+            'use_path_style_endpoint' => true,
+            'visibility' => 'public',
+            'throw' => true,
+        ],
+
+        'supabase_private' => [
+            'driver' => 's3',
+            'key' => env('SUPABASE_S3_KEY'),
+            'secret' => env('SUPABASE_S3_SECRET'),
+            'region' => env('SUPABASE_S3_REGION', 'ap-southeast-1'),
+            'bucket' => env('SUPABASE_PRIVATE_BUCKET', 'private'),
+            'endpoint' => env('SUPABASE_URL').'/storage/v1/s3',
+            'use_path_style_endpoint' => true,
+            'throw' => false,
+        ],
+
     ],
+
+    // Disk untuk gambar upload yang tampil publik, dan untuk bukti bayar QRIS (privat)
+    'upload_disk' => env('UPLOAD_DISK', 'public_dir'),
+    'proof_disk' => env('PAYMENT_PROOF_DISK', 'local'),
 
     /*
     |--------------------------------------------------------------------------

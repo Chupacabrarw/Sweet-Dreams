@@ -201,6 +201,11 @@ class ProfileController extends Controller
         };
         $path = 'avatars/' . Str::uuid() . '.' . $extension;
 
+        // Di Vercel (filesystem read-only) avatar disimpan ke Supabase Storage, hasilnya URL penuh
+        if (config('filesystems.upload_disk') !== 'public_dir') {
+            return \App\Support\PublicUpload::put($path, $contents, $image['mime']);
+        }
+
         if (!Storage::disk('public')->put($path, $contents)) {
             throw new \RuntimeException('Foto profil gagal disimpan ke penyimpanan publik.');
         }

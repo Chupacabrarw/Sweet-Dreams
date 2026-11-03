@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Support\PublicUpload;
 use App\Http\Controllers\Controller;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -119,8 +120,7 @@ class ContentController extends Controller
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $filename = 'banner-' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('images'), $filename);
-            $data['image'] = 'images/' . $filename;
+            $data['image'] = PublicUpload::store($file, 'images', $filename);
         }
 
         $banner->update($data);
@@ -321,8 +321,7 @@ class ContentController extends Controller
             if ($request->hasFile($field)) {
                 $file = $request->file($field);
                 $filename = 'tentang-' . $prefix . '-' . time() . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('images'), $filename);
-                SiteContent::updateOrCreate(['key' => $field], ['image' => 'images/' . $filename]);
+                SiteContent::updateOrCreate(['key' => $field], ['image' => PublicUpload::store($file, 'images', $filename)]);
             }
             unset($data[$field]);
         }

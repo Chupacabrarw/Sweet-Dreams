@@ -71,7 +71,7 @@ class PaymentController extends Controller
             return back()->with('error', 'Pesanan ini sudah tidak menunggu pembayaran.');
         }
 
-        $path = $request->file('proof')->store('payment-proofs', 'local');
+        $path = $request->file('proof')->store('payment-proofs', config('filesystems.proof_disk'));
 
         $saved = DB::transaction(function () use ($order, $path) {
             $locked = Order::query()->lockForUpdate()->find($order->id);
@@ -80,7 +80,7 @@ class PaymentController extends Controller
             }
 
             if ($locked->payment_proof) {
-                Storage::disk('local')->delete($locked->payment_proof);
+                Storage::disk(config('filesystems.proof_disk'))->delete($locked->payment_proof);
             }
 
             $locked->update([
@@ -94,7 +94,7 @@ class PaymentController extends Controller
         });
 
         if (!$saved) {
-            Storage::disk('local')->delete($path);
+            Storage::disk(config('filesystems.proof_disk'))->delete($path);
             return back()->with('error', 'Pesanan ini sudah tidak menunggu pembayaran.');
         }
 
@@ -112,9 +112,9 @@ class PaymentController extends Controller
 
         $user = $request->user();
         abort_unless($user->role === 'admin' || $order->user_id === $user->id, 403);
-        abort_unless($order->payment_proof && Storage::disk('local')->exists($order->payment_proof), 404);
+        abort_unless($order->payment_proof && Storage::disk(config('filesystems.proof_disk'))->exists($order->payment_proof), 404);
 
-        return Storage::disk('local')->response($order->payment_proof, null, [
+        return Storage::disk(config('filesystems.proof_disk'))->response($order->payment_proof, null, [
             'Cache-Control' => 'private, max-age=0, no-store',
         ]);
     }

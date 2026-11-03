@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Support\PublicUpload;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\OrderItem;
@@ -9,7 +10,6 @@ use App\Models\ProductColor;
 use App\Models\ProductVariant;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -252,8 +252,7 @@ class ProductController extends Controller
         if ($request->hasFile('image')) {
             $file     = $request->file('image');
             $filename = Str::slug($data['title']) . '-' . time() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('images/products'), $filename);
-            $data['image'] = 'images/products/' . $filename;
+            $data['image'] = PublicUpload::store($file, 'images/products', $filename);
         } else {
             unset($data['image']);
         }
@@ -338,14 +337,10 @@ class ProductController extends Controller
             return [];
         }
 
-        $directory = public_path('images/products/gallery');
-        File::ensureDirectoryExists($directory);
-
         $paths = [];
         foreach ($files as $file) {
             $filename = Str::slug($title) . '-' . Str::slug($group) . '-' . Str::random(12) . '.' . $file->extension();
-            $file->move($directory, $filename);
-            $paths[] = 'images/products/gallery/' . $filename;
+            $paths[] = PublicUpload::store($file, 'images/products/gallery', $filename);
         }
 
         return $paths;
