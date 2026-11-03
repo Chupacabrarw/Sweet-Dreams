@@ -44,27 +44,47 @@ class ChatbotController extends Controller
             // bukan JSON "Server Error" mentah (HTTP 500 tanpa kode).
             $systemPrompt = $this->buildSystemPrompt($data['message']);
 
-            $response = Http::timeout(30)
-                ->retry(3, 1500, throw: false)   // coba 3x, jeda 1,5 detik, tetap kembalikan response terakhir
-                ->post(
-                 "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}",
-                    [
-                       'system_instruction' => ['parts' => [['text' => $systemPrompt]]],
-                       'contents'           => $contents,
-                        'generationConfig'   => ['temperature' => 0.3, 'maxOutputTokens' => 1024],
-                    ]
-            );
+            $payload = [
+                'system_instruction' => ['parts' => [['text' => $systemPrompt]]],
+                'contents'           => $contents,
+                'generationConfig'   => ['temperature' => 0.3, 'maxOutputTokens' => 1024],
+            ];
 
-            if ($response->failed()) {
-                Log::error('Gemini error: ' . $response->body());
+            // Model utama kadang 503 "high demand" atau menggantung; pindah ke model cadangan
+            // dengan timeout pendek supaya total tunggu tetap di bawah batas request hosting.
+            $models = collect([$model])
+                ->merge(explode(',', (string) config('services.gemini.fallback_models')))
+                ->map(fn ($m) => trim($m))->filter()->unique()->values();
+
+            $response = null;
+            foreach ($models as $i => $candidate) {
+                try {
+                    $response = Http::timeout($i === 0 ? 12 : 15)
+                        ->withHeaders(['x-goog-api-key' => $apiKey])   // key di header, bukan di URL (biar tidak ikut di log)
+                        ->post("https://generativelanguage.googleapis.com/v1beta/models/{$candidate}:generateContent", $payload);
+                } catch (\Illuminate\Http\Client\ConnectionException $e) {
+                    Log::warning("Gemini {$candidate} timeout/koneksi gagal: " . $this->redactSecrets($e->getMessage()));
+                    $response = null;
+                    continue;
+                }
+
+                $model = $candidate;
+                if ($response->successful() || !in_array($response->status(), [404, 429, 500, 503, 504])) {
+                    break;
+                }
+                Log::warning("Gemini {$candidate} HTTP {$response->status()}, coba model berikutnya");
+            }
+
+            if (!$response || $response->failed()) {
+                Log::error('Gemini error: ' . ($response ? $response->body() : 'semua model timeout'));
                 return response()->json([
                     'reply' => 'Maaf, saya sedang tidak dapat merespons. Silakan coba lagi sebentar atau hubungi admin kami. 😊',
                     'error' => true,
                     'code'  => 'GEMINI_FAILED',
                     'debug' => config('app.debug') ? [
-                        'http_status' => $response->status(),
+                        'http_status' => $response?->status(),
                         'model'       => $model,
-                        'body'        => mb_substr($response->body(), 0, 300),
+                        'body'        => $response ? mb_substr($response->body(), 0, 300) : 'timeout',
                     ] : null,
                 ], 502);
             }

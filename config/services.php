@@ -38,6 +38,8 @@ return [
    'gemini' => [
     'key'   => env('GEMINI_API_KEY'),
     'model' => env('GEMINI_MODEL', 'gemini-3.8-flash'),
+    // Dicoba berurutan kalau model utama sibuk (503/429) atau timeout
+    'fallback_models' => env('GEMINI_FALLBACK_MODELS', 'gemini-3.5-flash,gemini-3.5-flash-lite'),
 ],
 
     'rajaongkir' => [
