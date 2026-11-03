@@ -492,6 +492,7 @@
             <div><button type="button" onclick="this.closest('.faq-row').remove()" style="background:none;border:none;color:#d44d6e;cursor:pointer;font-size:0.8rem;font-weight:600;">Hapus baris ini</button></div>`;
         wrap.appendChild(div);
     }
+</script>
 
 <script>
     function updateCount(listId, countId) {
