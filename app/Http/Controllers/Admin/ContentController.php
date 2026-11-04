@@ -196,7 +196,7 @@ class ContentController extends Controller
             'tentang_story_p1' => 'Sweet Dreams lahir dari sebuah keyakinan sederhana: setiap wanita berhak merasakan kenyamanan dan kemewahan saat beristirahat. Didirikan pada tahun 2019 di Jakarta, kami memulai perjalanan dengan koleksi kecil sleepwear berbahan sutra pilihan.',
             'tentang_story_p2' => 'Kini, Sweet Dreams telah berkembang menjadi brand sleepwear & lingerie premium terpercaya yang melayani ribuan pelanggan di seluruh Indonesia. Setiap produk kami dirancang dengan perhatian penuh pada detail — mulai dari pemilihan bahan terbaik, proses jahitan presisi, hingga desain yang mengikuti tren mode terkini.',
             'tentang_story_p3' => 'Kami percaya bahwa pakaian tidur bukan sekadar pakaian, melainkan bentuk self-care yang layak dimiliki setiap wanita.',
-            'tentang_story_image' => 'images/cat-lingerie.jpg',
+            'tentang_story_image' => 'images/cat-baju-tidur.jpg',
             // Tentang — nilai
             'tentang_values_title' => 'Nilai-Nilai Kami',
             'tentang_values_subtitle' => 'Tiga pilar yang menjadi fondasi setiap produk Sweet Dreams',
