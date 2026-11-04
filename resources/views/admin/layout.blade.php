@@ -213,9 +213,9 @@
 
     // Vercel menolak request di atas 4,5 MB (upload tidak sampai ke server sama sekali).
     // Sebelum form upload dikirim, foto besar dikecilkan di browser: sisi terpanjang
-    // maks. 2400 px (banner tetap >= 1920 px) lalu disimpan ulang sebagai JPEG.
+    // maks. 3200 px (foto portrait pun tetap lolos syarat banner >= 1920 px) lalu disimpan ulang sebagai JPEG.
     (function () {
-        const MAX_SIDE = 2400, QUALITY = 0.85, LIMIT = 4.2 * 1024 * 1024;
+        const MAX_SIDE = 3200, QUALITY = 0.85, LIMIT = 4.2 * 1024 * 1024;
 
         async function shrink(file) {
             if (!/^image\/(jpeg|png|webp)$/.test(file.type) || file.size < 1024 * 1024) return file;

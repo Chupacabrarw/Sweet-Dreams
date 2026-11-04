@@ -47,6 +47,8 @@
                             Ukuran disarankan 2400×1000 px (landscape), minimal 1920×800 px. Format JPG/WebP.
                         </small>
 
+                        <small id="banner-size-error" style="display:none; margin-top:6px; padding:8px 10px; border-radius:8px; background:#fdecef; color:#b3264a; font-weight:600;"></small>
+
                         @error('image')
                             <small style="display:block; margin-top:6px; color:#d44d6e;">{{ $message }}</small>
                         @enderror
@@ -500,14 +502,31 @@
         document.getElementById(countId).textContent = checked;
     }
 
+    // Cek ukuran banner langsung saat dipilih (server menolak < 1920×800 px),
+    // supaya admin tidak mengira foto tersimpan padahal ditolak validasi.
     function previewBanner(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('banner-preview-img').src = e.target.result;
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
+        const note = document.getElementById('banner-size-error');
+        note.style.display = 'none';
+        if (!input.files || !input.files[0]) return;
+
+        const url = URL.createObjectURL(input.files[0]);
+        const probe = new Image();
+        probe.onload = function () {
+            if (probe.naturalWidth < 1920 || probe.naturalHeight < 800) {
+                note.textContent = `Foto ini ${probe.naturalWidth}×${probe.naturalHeight} px — terlalu kecil. Banner minimal 1920×800 px (landscape). Pilih foto lain.`;
+                note.style.display = 'block';
+                input.value = '';
+                URL.revokeObjectURL(url);
+                return;
+            }
+            document.getElementById('banner-preview-img').src = url;
+        };
+        probe.onerror = function () {
+            note.textContent = 'Format foto tidak didukung browser. Gunakan JPG, PNG, atau WebP.';
+            note.style.display = 'block';
+            input.value = '';
+        };
+        probe.src = url;
     }
 </script>
 @endsection
