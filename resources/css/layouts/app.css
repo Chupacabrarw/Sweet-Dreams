@@ -342,37 +342,69 @@
             max-width: 520px;
         }
         .hero-eyebrow {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.9rem;
             font-family: var(--font-body);
-            font-size: 0.9rem;
+            font-size: 0.78rem;
             font-weight: 500;
-            letter-spacing: 0.18em;
+            letter-spacing: 0.32em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.65);
-            margin-bottom: 1.1rem;
+            color: #f6d3dd;
+            margin-bottom: 1.2rem;
             opacity: 0;
             transform: translateY(12px);
             animation: fadeUp 0.7s ease 0.1s forwards;
         }
-        .hero-content h1 {
-            font-family: var(--font-heading);
-            font-size: clamp(3.8rem, 6.5vw, 5.5rem);
-            font-weight: 400;
-            font-style: italic;
+        .hero-eyebrow::before,
+        .hero-eyebrow::after {
+            content: '';
+            width: 34px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #f6d3dd);
+        }
+        .hero-eyebrow::after { background: linear-gradient(90deg, #f6d3dd, transparent); }
+        .hero-content h1,
+        .hero-title {
+            display: flex;
+            flex-direction: column;
+            margin: 0 0 1.6rem 0;
             color: #fff;
-            line-height: 1.08;
-            margin: 0 0 1.5rem 0;
+            text-shadow: 0 2px 24px rgba(20,8,12,0.35);
             opacity: 0;
             transform: translateY(16px);
             animation: fadeUp 0.8s ease 0.2s forwards;
         }
+        .hero-title-main {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: clamp(3.6rem, 6.8vw, 6rem);
+            font-weight: 600;
+            line-height: 0.95;
+            letter-spacing: 0.01em;
+        }
+        .hero-title-accent {
+            font-family: 'Parisienne', 'Cormorant Garamond', cursive;
+            font-size: clamp(3rem, 5.6vw, 5rem);
+            font-weight: 400;
+            line-height: 1.15;
+            margin: -0.12em 0 0 0.9em;
+            background: linear-gradient(100deg, #ffd6e2 0%, #f3a9be 55%, #e98aa5 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 14px rgba(20,8,12,0.35));
+            padding-right: 0.15em; /* ekor huruf script tidak terpotong clip */
+        }
         .hero-content p {
-            font-size: 1.2rem;
-            font-weight: 300;
-            color: rgba(255,255,255,0.80);
+            font-family: var(--font-description);
+            font-size: 1.12rem;
+            font-weight: 400;
+            color: rgba(255,255,255,0.86);
             line-height: 1.75;
             margin: 0 0 2rem 0;
-            max-width: 480px;
+            max-width: 440px;
+            padding-left: 1rem;
+            border-left: 2px solid rgba(246,211,221,0.6);
             opacity: 0;
             transform: translateY(16px);
             animation: fadeUp 0.8s ease 0.35s forwards;
@@ -842,7 +874,8 @@
                 width: 15px; height: 15px;
             }
             .hero { height: 75vh; min-height: 420px; }
-            .hero-content h1 { font-size: 3rem; }
+            .hero-title-main { font-size: 3.4rem; }
+            .hero-title-accent { font-size: 2.9rem; }
             .hero-content { max-width: 90%; }
             .section { padding: 3.5rem 1.25rem; }
             .section-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
@@ -854,7 +887,9 @@
         }
         @media (max-width: 480px) {
             .hero { height: 70vh; min-height: 380px; }
-            .hero-content h1 { font-size: 2.5rem; }
+            .hero-title-main { font-size: 2.8rem; }
+            .hero-title-accent { font-size: 2.4rem; margin-left: 0.5em; }
+            .hero-eyebrow { font-size: 0.68rem; letter-spacing: 0.26em; }
             .hero-content p { font-size: 1rem; }
             .section-header h2 { font-size: 2rem; }
         }

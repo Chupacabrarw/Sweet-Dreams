@@ -7,8 +7,27 @@
     <section class="hero" id="hero-section">
                <img src="{{ asset($banner->image) }}" alt="Sweet Dreams" class="hero-img" loading="eager">
         <div class="hero-overlay"></div>
+        @php
+            // Baris terakhir judul (atau kata terakhir bila judul 1 baris) diberi gaya aksen tulisan tangan
+            $heroLines = preg_split('/\R/', trim((string) $banner->title)) ?: [''];
+            if (count($heroLines) === 1 && str_word_count($heroLines[0]) > 1) {
+                $words = preg_split('/\s+/', $heroLines[0]);
+                $heroAccent = array_pop($words);
+                $heroLines = [implode(' ', $words)];
+            } else {
+                $heroAccent = count($heroLines) > 1 ? array_pop($heroLines) : null;
+            }
+        @endphp
         <div class="hero-content">
-            <h1>{!! nl2br(e($banner->title)) !!}</h1>
+            <span class="hero-eyebrow">Premium Sleepwear</span>
+            <h1 class="hero-title">
+                @foreach($heroLines as $line)
+                    <span class="hero-title-main">{{ $line }}</span>
+                @endforeach
+                @if($heroAccent)
+                    <span class="hero-title-accent">{{ $heroAccent }}</span>
+                @endif
+            </h1>
             <p>{{ $banner->subtitle }}</p>
             <a href="{{ $banner->link }}" class="btn-shop-now" id="btn-shop-hero">
                 {{ $banner->button_text }}
