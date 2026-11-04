@@ -1,17 +1,44 @@
 @extends('admin.layout')
 
-@section('title', 'Content Management')
-@section('page-title', 'CMS / Content Management')
-@section('page-subtitle', 'Atur tampilan homepage dan konten landing page')
+@section('title', $section ? $sections[$section]['title'] . ' - Konten' : 'Content Management')
+@section('page-title', $section ? $sections[$section]['title'] : 'CMS / Content Management')
+@section('page-subtitle', $section ? $sections[$section]['desc'] : 'Pilih bagian yang ingin diubah')
 
 @section('content')
 @push('page-styles')
     @vite('resources/css/pages/admin/content.css')
 @endpush
 
+@if(!$section)
+    {{-- ===== PILIH BAGIAN ===== --}}
+    @foreach($sectionGroups as $groupTitle => $keys)
+        <p class="cms-hub-group">{{ $groupTitle }}</p>
+        <div class="cms-hub-grid">
+            @foreach($keys as $key)
+                @php $s = $sections[$key]; @endphp
+                <a href="{{ route('admin.content.section', $key) }}" class="cms-hub-card" id="cms-hub-{{ $key }}">
+                    @if($key === 'banner')
+                        <div class="cms-hub-thumb"><img src="{{ asset($banner->image) }}" alt=""></div>
+                    @else
+                        <div class="cms-hub-icon"><i data-lucide="{{ $s['icon'] }}"></i></div>
+                    @endif
+                    <div class="cms-hub-body">
+                        <p class="cms-hub-title">{{ $s['title'] }}</p>
+                        <p class="cms-hub-desc">{{ $s['desc'] }}</p>
+                        <p class="cms-hub-status">{{ $s['status'] }}</p>
+                    </div>
+                    <i data-lucide="chevron-right" class="cms-hub-arrow"></i>
+                </a>
+            @endforeach
+        </div>
+    @endforeach
+@else
+<a href="{{ route('admin.content') }}" class="cms-back-link"><i data-lucide="arrow-left"></i> Kembali ke daftar konten</a>
+
 <div class="cms-grid">
 
     {{-- ===== BANNER SECTION ===== --}}
+    @if($section === 'banner')
     <div class="cms-card">
         <div class="cms-card-header">
             <div class="cms-card-header-left">
@@ -84,7 +111,10 @@
         </div>
     </div>
 
+    @endif
+
     {{-- ===== LANDING PAGE SECTIONS ===== --}}
+    @if($section === 'sections')
     <div class="cms-card">
         <div class="cms-card-header">
             <div class="cms-card-header-left">
@@ -170,7 +200,10 @@
         </div>
     </div>
 
-    <div class="cms-grid-2col">
+    @endif
+
+    {{-- ===== EKSPEDISI AKTIF ===== --}}
+    @if($section === 'ekspedisi')
     <div class="cms-card">
         <div class="cms-card-header">
             <div class="cms-card-header-left">
@@ -218,7 +251,10 @@
         </div>
     </div>
 
+    @endif
+
     {{-- ===== QRIS TOKO (PEMBAYARAN CHECKOUT) ===== --}}
+    @if($section === 'qris')
     <div class="cms-card">
         <div class="cms-card-header">
             <div class="cms-card-header-left">
@@ -258,9 +294,10 @@
             </form>
         </div>
     </div>
-    </div>
+    @endif
 
     {{-- ===== HALAMAN TENTANG (/tentang) ===== --}}
+    @if($section === 'tentang')
     <div class="cms-card">
         <div class="cms-card-header">
             <div class="cms-card-header-left">
@@ -391,7 +428,10 @@
         </div>
     </div>
 
+    @endif
+
     {{-- ===== HALAMAN KONTAK (/kontak) ===== --}}
+    @if($section === 'kontak')
     <div class="cms-card">
         <div class="cms-card-header">
             <div class="cms-card-header-left">
@@ -479,8 +519,10 @@
             </form>
         </div>
     </div>
+    @endif
 
 </div>
+@endif
 
 <script>
     function addFaqRow() {

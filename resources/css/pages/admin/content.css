@@ -309,3 +309,44 @@
         from { opacity: 0; transform: translateY(-8px); }
         to   { opacity: 1; transform: translateY(0); }
     }
+
+    /* ===== Pilih bagian konten (hub) ===== */
+    .cms-hub-group {
+        font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+        color: #a8909a; margin: 1.4rem 0 0.7rem;
+    }
+    .cms-hub-group:first-child { margin-top: 0; }
+    .cms-hub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; }
+    .cms-hub-card {
+        display: flex; align-items: center; gap: 1rem; padding: 1rem 1.1rem;
+        background: #fff; border: 1px solid #f3e4e8; border-radius: 16px;
+        color: inherit; text-decoration: none;
+        transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    }
+    .cms-hub-card:hover { border-color: #f2c9d3; box-shadow: 0 8px 24px rgba(212,77,110,0.12); transform: translateY(-2px); }
+    .cms-hub-icon {
+        width: 56px; height: 56px; flex-shrink: 0; border-radius: 14px;
+        background: linear-gradient(135deg, #d44d6e, #e87090); color: #fff;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .cms-hub-icon svg { width: 24px; height: 24px; }
+    .cms-hub-thumb { width: 88px; height: 56px; flex-shrink: 0; border-radius: 12px; overflow: hidden; background: #faf3f5; }
+    .cms-hub-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .cms-hub-body { flex: 1; min-width: 0; }
+    .cms-hub-title { margin: 0; font-size: 0.98rem; font-weight: 700; color: #20161b; }
+    .cms-hub-desc { margin: 0.15rem 0 0; font-size: 0.8rem; color: #8a6a72; }
+    .cms-hub-status {
+        margin: 0.45rem 0 0; font-size: 0.75rem; font-weight: 600; color: #b3405e;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .cms-hub-arrow { width: 18px; height: 18px; color: #d9a3b2; flex-shrink: 0; transition: transform 0.2s, color 0.2s; }
+    .cms-hub-card:hover .cms-hub-arrow { transform: translateX(3px); color: #d44d6e; }
+    .cms-back-link {
+        display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 1rem;
+        color: #d44d6e; font-weight: 600; font-size: 0.88rem; text-decoration: none;
+    }
+    .cms-back-link svg { width: 16px; height: 16px; }
+    .cms-back-link:hover { text-decoration: underline; }
+    @media (max-width: 640px) {
+        .cms-hub-grid { grid-template-columns: 1fr; }
+    }

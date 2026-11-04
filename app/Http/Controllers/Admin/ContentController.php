@@ -40,8 +40,53 @@ class ContentController extends Controller
         return SiteContent::firstOrCreate(['key' => $key], $defaults);
     }
 
-    public function index()
+    /** Bagian konten yang bisa dipilih di halaman Konten (urutan = urutan kartu). */
+    public const SECTIONS = ['banner', 'sections', 'tentang', 'kontak', 'ekspedisi', 'qris'];
+
+    protected function sectionMeta(array $data): array
     {
+        $enabled = count($data['enabledCouriers']);
+        $catCount = count($data['featuredCategories']);
+        $prodCount = count($data['featuredProducts']);
+
+        return [
+            'banner' => [
+                'title' => 'Banner Homepage', 'icon' => 'image',
+                'desc' => 'Gambar & teks utama di halaman depan',
+                'status' => 'Judul: ' . str_replace(["\r\n", "\n"], ' / ', $data['banner']->title),
+            ],
+            'sections' => [
+                'title' => 'Kategori & Produk Unggulan', 'icon' => 'layout-panel-top',
+                'desc' => 'Kategori dan produk yang tampil di halaman utama',
+                'status' => "{$catCount} kategori · {$prodCount} produk dipilih",
+            ],
+            'tentang' => [
+                'title' => 'Halaman Tentang', 'icon' => 'info',
+                'desc' => 'Hero, cerita, nilai, statistik, visi-misi di /tentang',
+                'status' => $data['tentang']['tentang_hero_title'],
+            ],
+            'kontak' => [
+                'title' => 'Halaman Kontak & FAQ', 'icon' => 'mail',
+                'desc' => 'Info kontak, workshop, dan FAQ di /kontak',
+                'status' => count($data['faqs']) . ' pertanyaan FAQ',
+            ],
+            'ekspedisi' => [
+                'title' => 'Ekspedisi Aktif', 'icon' => 'truck',
+                'desc' => 'Kurir yang muncul sebagai opsi di checkout',
+                'status' => "{$enabled} ekspedisi aktif",
+            ],
+            'qris' => [
+                'title' => 'QRIS Toko', 'icon' => 'qr-code',
+                'desc' => 'QR pembayaran checkout pembeli',
+                'status' => $data['qrisValid'] ? 'QRIS aktif' . ($data['qrisMerchant']['name'] ? ' · ' . $data['qrisMerchant']['name'] : '') : 'Belum diatur',
+            ],
+        ];
+    }
+
+    public function index(?string $section = null)
+    {
+        abort_if($section !== null && !in_array($section, self::SECTIONS, true), 404);
+
         $categories = \App\Models\Category::orderBy('name')->get();
         $paidSales = OrderItem::query()
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
@@ -67,7 +112,7 @@ class ContentController extends Controller
             SiteContent::where('key', 'home_products')->value('body') ?? '[]', true
         ) ?: [];
 
-        return view('admin.content', [
+        $data = [
             'banner'             => $this->getOrCreate('banner_homepage'),
             'categories'         => $categories,
             'products'           => $products,
@@ -81,6 +126,16 @@ class ContentController extends Controller
             'tentang'            => self::pageData('tentang_'),
             'kontak'             => self::pageData('kontak_'),
             'faqs'               => self::faqs(),
+        ];
+
+        return view('admin.content', $data + [
+            'section'       => $section,
+            'sections'      => $this->sectionMeta($data),
+            'sectionGroups' => [
+                'Halaman Utama'       => ['banner', 'sections'],
+                'Halaman Informasi'   => ['tentang', 'kontak'],
+                'Checkout & Pembayaran' => ['ekspedisi', 'qris'],
+            ],
         ]);
     }
 
@@ -99,7 +154,7 @@ class ContentController extends Controller
             'body' => json_encode($request->input('products', [])),
         ]);
 
-        return redirect()->route('admin.content')
+        return redirect()->route('admin.content.section', 'sections')
             ->with('success', 'Pengaturan landing page berhasil disimpan.');
     }
 
@@ -125,7 +180,7 @@ class ContentController extends Controller
 
         $banner->update($data);
 
-        return redirect()->route('admin.content')->with('success', 'Banner homepage berhasil diperbarui.');
+        return redirect()->route('admin.content.section', 'banner')->with('success', 'Banner homepage berhasil diperbarui.');
     }
 
     public function updateCouriers(Request $request)
@@ -145,7 +200,7 @@ class ContentController extends Controller
         // Tarif di-cache 24 jam per kota -> bersihkan agar pilihan baru langsung berlaku
         \Illuminate\Support\Facades\Cache::flush();
 
-        return redirect()->route('admin.content')
+        return redirect()->route('admin.content.section', 'ekspedisi')
             ->with('success', 'Ekspedisi yang tampil di checkout berhasil disimpan.');
     }
 
@@ -170,14 +225,14 @@ class ContentController extends Controller
         $qris = app(\App\Services\QrisService::class);
 
         if (!$qris->isValid($payload)) {
-            return redirect()->route('admin.content')
+            return redirect()->route('admin.content.section', 'qris')
                 ->withInput()
                 ->with('error', 'Teks QRIS tidak valid (CRC tidak cocok / terpotong). Salin ulang hasil scan QR toko secara utuh.');
         }
 
         SiteContent::updateOrCreate(['key' => 'qris_payload'], ['body' => $payload]);
 
-        return redirect()->route('admin.content')
+        return redirect()->route('admin.content.section', 'qris')
             ->with('success', 'QRIS toko berhasil disimpan. Pesanan baru akan memakai QR ini.');
     }
 
@@ -330,7 +385,7 @@ class ContentController extends Controller
             SiteContent::updateOrCreate(['key' => $key], ['body' => $value]);
         }
 
-        return redirect()->route('admin.content')->with('success', 'Halaman Tentang berhasil diperbarui.');
+        return redirect()->route('admin.content.section', 'tentang')->with('success', 'Halaman Tentang berhasil diperbarui.');
     }
 
     public function updateContact(Request $request)
@@ -367,6 +422,6 @@ class ContentController extends Controller
         }
         SiteContent::updateOrCreate(['key' => 'kontak_faq'], ['body' => json_encode($faqs, JSON_UNESCAPED_UNICODE)]);
 
-        return redirect()->route('admin.content')->with('success', 'Halaman Kontak berhasil diperbarui.');
+        return redirect()->route('admin.content.section', 'kontak')->with('success', 'Halaman Kontak berhasil diperbarui.');
     }
 }

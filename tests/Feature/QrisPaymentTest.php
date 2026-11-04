@@ -167,6 +167,9 @@ class QrisPaymentTest extends TestCase
             ->assertOk()->assertSee($order->order_number)->assertSee('Cek bukti bayar');
 
         $this->actingAs($admin)->get('/admin/konten')
+            ->assertOk()->assertSee('QRIS Toko')->assertSee(route('admin.content.section', 'qris'));
+
+        $this->actingAs($admin)->get('/admin/konten/qris')
             ->assertOk()->assertSee('ID1025433189699');
 
         $this->actingAs($admin)->put('/admin/konten/qris', ['qris_payload' => 'rusak'])

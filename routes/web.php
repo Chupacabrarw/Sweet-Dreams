@@ -101,6 +101,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::put('/konten/banner', [App\Http\Controllers\Admin\ContentController::class, 'updateBanner'])->name('content.banner');
     Route::put('/konten/featured', [App\Http\Controllers\Admin\ContentController::class, 'updateFeatured'])->name('content.featured');
     Route::put('/konten/text/{key}', [App\Http\Controllers\Admin\ContentController::class, 'updateText'])->name('content.text');
+    Route::get('/konten/{section}', [App\Http\Controllers\Admin\ContentController::class, 'index'])
+        ->whereIn('section', App\Http\Controllers\Admin\ContentController::SECTIONS)->name('content.section');
 
         Route::get('/promo', [App\Http\Controllers\Admin\VoucherController::class, 'index'])->name('vouchers');
     Route::post('/promo', [App\Http\Controllers\Admin\VoucherController::class, 'store'])->name('vouchers.store');
