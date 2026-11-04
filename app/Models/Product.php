@@ -70,4 +70,41 @@ class Product extends Model
         {
             return $this->hasMany(ProductReview::class);
         }
+
+    /**
+     * Samakan varian (ukuran × warna) dengan kolom sizes/colors:
+     * kombinasi baru dibuat dengan stok 0, kombinasi yang dihapus dibuang bila stoknya 0.
+     */
+    public function syncVariants(): void
+    {
+        $desiredVariants = [];
+        foreach ($this->sizes ?? [] as $size) {
+            foreach ($this->colors ?? [] as $color) {
+                $desiredVariants[serialize([strtolower($size), strtolower($color)])] = [
+                    'size' => $size,
+                    'color' => $color,
+                ];
+            }
+        }
+
+        foreach ($this->variants()->get() as $variant) {
+            $key = serialize([strtolower($variant->size), strtolower($variant->color)]);
+
+            if (isset($desiredVariants[$key])) {
+                $variant->update($desiredVariants[$key]);
+                unset($desiredVariants[$key]);
+            } elseif ($variant->stock === 0) {
+                $variant->delete();
+            }
+        }
+
+        foreach ($desiredVariants as $desired) {
+            ProductVariant::create([
+                'product_id' => $this->id,
+                ...$desired,
+                'stock' => 0,
+                'sku' => $this->sku,
+            ]);
+        }
+    }
 }

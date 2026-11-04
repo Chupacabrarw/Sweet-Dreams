@@ -22,6 +22,10 @@ class StockController extends Controller
     {
         $search = trim((string) $request->query('q', ''));
 
+        // Produk lama/hasil import punya sizes & colors tapi belum punya baris varian,
+        // sehingga tidak muncul di sini dan stoknya tidak bisa diisi.
+        Product::doesntHave('variants')->get()->each(fn (Product $product) => $product->syncVariants());
+
         $base = ProductVariant::query()
             ->when($search !== '', function ($query) use ($search) {
                 // SKU/nama: cocok sebagian; ukuran & warna: cocok persis

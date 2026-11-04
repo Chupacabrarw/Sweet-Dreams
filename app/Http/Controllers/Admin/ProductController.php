@@ -145,7 +145,7 @@ class ProductController extends Controller
         $data['stock'] = 0;
         DB::transaction(function () use ($data) {
             $product = Product::create($data);
-            $this->syncVariants($product);
+            $product->syncVariants();
         });
 
         return redirect()->route('admin.products')->with('success', 'Produk berhasil ditambahkan.');
@@ -164,7 +164,7 @@ class ProductController extends Controller
             $lockedProduct = Product::query()->lockForUpdate()->findOrFail($product->id);
             $this->ensureStockedVariantsRemainConfigured($lockedProduct, $data);
             $lockedProduct->update($data);
-            $this->syncVariants($lockedProduct);
+            $lockedProduct->syncVariants();
             $lockedProduct->update(['stock' => $lockedProduct->variants()->sum('stock')]);
         });
 
@@ -420,40 +420,6 @@ class ProductController extends Controller
         if ($hasRemovedStock) {
             throw ValidationException::withMessages([
                 'sizes' => 'Stok masih tersimpan pada varian yang ingin dihapus. Atur stok varian tersebut menjadi 0 terlebih dahulu.',
-            ]);
-        }
-    }
-
-    protected function syncVariants(Product $product): void
-    {
-        $desiredVariants = [];
-        foreach ($product->sizes ?? [] as $size) {
-            foreach ($product->colors ?? [] as $color) {
-                $desiredVariants[serialize([strtolower($size), strtolower($color)])] = [
-                    'size' => $size,
-                    'color' => $color,
-                ];
-            }
-        }
-
-        foreach ($product->variants()->get() as $variant) {
-            $key = serialize([strtolower($variant->size), strtolower($variant->color)]);
-
-            if (isset($desiredVariants[$key])) {
-                $desired = $desiredVariants[$key];
-                $variant->update($desired);
-                unset($desiredVariants[$key]);
-            } elseif ($variant->stock === 0) {
-                $variant->delete();
-            }
-        }
-
-        foreach ($desiredVariants as $desired) {
-            ProductVariant::create([
-                'product_id' => $product->id,
-                ...$desired,
-                'stock' => 0,
-                'sku' => $product->sku,
             ]);
         }
     }
