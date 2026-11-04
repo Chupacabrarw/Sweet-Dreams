@@ -26,49 +26,97 @@ class StockController extends Controller
         // sehingga tidak muncul di sini dan stoknya tidak bisa diisi.
         Product::doesntHave('variants')->get()->each(fn (Product $product) => $product->syncVariants());
 
-        $base = ProductVariant::query()
-            ->when($search !== '', function ($query) use ($search) {
-                // SKU/nama: cocok sebagian; ukuran & warna: cocok persis
-                // (LIKE 1 huruf "M" ikut kena "Merah Maroon"/"Muda")
-                $query->where(function ($query) use ($search) {
-                    $query->where('sku', 'like', "%{$search}%")
-                        ->orWhereRaw('LOWER(size) = ?', [mb_strtolower($search)])
-                        ->orWhereRaw('LOWER(color) = ?', [mb_strtolower($search)])
-                        ->orWhereHas('product', fn ($query) => $query->where('title', 'like', "%{$search}%"));
-                });
-            });
-
-        // Statistik dari agregat (tetap akurat walau tabel di-paginate)
-        $totalUnit = (clone $base)->sum('stock');
-        $habis = (clone $base)->where('stock', 0)->count();
-        $menipis = (clone $base)->whereBetween('stock', [1, 15])->count();
+        // Statistik seluruh varian (tidak ikut filter pencarian)
+        $totalUnit = ProductVariant::sum('stock');
+        $habis = ProductVariant::where('stock', 0)->count();
+        $menipis = ProductVariant::whereBetween('stock', [1, 15])->count();
         $lastUpdated = ProductVariant::max('updated_at');
 
-        $rows = $base->with('product')->latest('updated_at')
-            ->paginate(30)
-            ->withQueryString()
-            ->through(function ($v) {
-                $ind = $this->indicator($v->stock);
+        // Satu kartu per produk; stok varian dikelola di halaman detail produk
+        $products = Product::with(['category', 'variants'])
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('title', 'like', "%{$search}%")
+                        ->orWhere('sku', 'like', "%{$search}%")
+                        ->orWhereHas('category', fn ($query) => $query->where('name', 'like', "%{$search}%"));
+                });
+            })
+            ->orderBy('title')
+            ->get()
+            ->map(function (Product $p) {
+                $total = (int) $p->variants->sum('stock');
+                $ind = $this->indicator($total);
+
                 return [
-                    'id' => $v->id,
-                    'sku' => $v->sku ?: '-',
-                    'product' => $v->product->title,
-                    'size' => $v->size,
-                    'color' => $v->color,
-                    'stock' => $v->stock,
+                    'id' => $p->id,
+                    'title' => $p->title,
+                    'image' => $p->image,
+                    'category' => $p->category->name ?? '-',
+                    'total' => $total,
+                    'variant_count' => $p->variants->count(),
+                    'empty_variants' => $p->variants->where('stock', 0)->count(),
                     'indicator_label' => $ind['label'],
                     'indicator_class' => $ind['class'],
                 ];
             });
 
         return view('admin.stock', [
-            'rows' => $rows,
+            'products' => $products,
             'search' => $search,
             'totalUnit' => $totalUnit,
             'menipis' => $menipis,
             'habis' => $habis,
             'lastUpdated' => $lastUpdated ? \Carbon\Carbon::parse($lastUpdated)->diffForHumans() : null,
         ]);
+    }
+
+    public function show(Product $product)
+    {
+        if (!$product->variants()->exists()) {
+            $product->syncVariants();
+        }
+
+        $variants = $product->variants()->get();
+        // Urutan ukuran & warna mengikuti data produk, varian lama di luar daftar ditaruh di akhir
+        $sizes = collect($product->sizes ?? [])->merge($variants->pluck('size'))->unique(fn ($s) => strtolower($s))->values();
+        $colors = collect($product->colors ?? [])->merge($variants->pluck('color'))->unique(fn ($c) => strtolower($c))->values();
+
+        $grid = [];
+        foreach ($variants as $v) {
+            $grid[strtolower($v->size)][strtolower($v->color)] = $v;
+        }
+
+        return view('admin.stock-product', [
+            'product' => $product->load('category'),
+            'sizes' => $sizes,
+            'colors' => $colors,
+            'grid' => $grid,
+            'total' => (int) $variants->sum('stock'),
+        ]);
+    }
+
+    public function updateProduct(Request $request, Product $product)
+    {
+        $data = $request->validate([
+            'stock' => 'required|array',
+            'stock.*' => 'required|integer|min:0|max:100000',
+        ]);
+
+        DB::transaction(function () use ($product, $data) {
+            $locked = Product::query()->lockForUpdate()->findOrFail($product->id);
+            $variants = $locked->variants()->lockForUpdate()->get()->keyBy('id');
+
+            foreach ($data['stock'] as $variantId => $stock) {
+                $variant = $variants->get((int) $variantId);
+                if ($variant && $variant->stock !== (int) $stock) {
+                    $variant->update(['stock' => (int) $stock]);
+                }
+            }
+
+            $locked->update(['stock' => $locked->variants()->sum('stock')]);
+        });
+
+        return redirect()->route('admin.stock.product', $product)->with('success', 'Stok ' . $product->title . ' berhasil disimpan.');
     }
 
     public function update(Request $request, ProductVariant $variant)

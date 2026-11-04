@@ -82,6 +82,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
         Route::get('/stok', [App\Http\Controllers\Admin\StockController::class, 'index'])->name('stock');
     Route::put('/stok/{variant}', [App\Http\Controllers\Admin\StockController::class, 'update'])->name('stock.update');
+    Route::get('/stok/produk/{product}', [App\Http\Controllers\Admin\StockController::class, 'show'])->name('stock.product');
+    Route::put('/stok/produk/{product}', [App\Http\Controllers\Admin\StockController::class, 'updateProduct'])->name('stock.product.update');
 
         Route::get('/pesanan', [App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders');
     Route::get('/pesanan/{order}', [App\Http\Controllers\Admin\OrderController::class, 'show'])->name('orders.show');
