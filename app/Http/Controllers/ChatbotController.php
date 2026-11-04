@@ -47,7 +47,13 @@ class ChatbotController extends Controller
             $payload = [
                 'system_instruction' => ['parts' => [['text' => $systemPrompt]]],
                 'contents'           => $contents,
-                'generationConfig'   => ['temperature' => 0.3, 'maxOutputTokens' => 1024],
+                'generationConfig'   => array_filter([
+                    'temperature'     => 0.3,
+                    'maxOutputTokens' => 1024,
+                    'thinkingConfig'  => config('services.gemini.thinking_level')
+                        ? ['thinkingLevel' => config('services.gemini.thinking_level')]
+                        : null,
+                ]),
             ];
 
             // Model utama kadang 503 "high demand" atau menggantung; pindah ke model cadangan

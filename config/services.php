@@ -40,6 +40,9 @@ return [
     'model' => env('GEMINI_MODEL', 'gemini-3.8-flash'),
     // Dicoba berurutan kalau model utama sibuk (503/429) atau timeout
     'fallback_models' => env('GEMINI_FALLBACK_MODELS', 'gemini-3.5-flash,gemini-3.5-flash-lite'),
+    // Tingkat "berpikir" model Gemini 3 sebelum menjawab. "minimal" jauh lebih cepat
+    // (±2 dtk vs ±6 dtk) dan cukup untuk tanya-jawab toko; kosongkan untuk default model.
+    'thinking_level' => env('GEMINI_THINKING_LEVEL', 'minimal'),
 ],
 
     'rajaongkir' => [
