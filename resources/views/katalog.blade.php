@@ -774,7 +774,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return `
                 <div class="katalog-product-card" data-slug="${prod.slug}" onclick="window.location.href='/produk/${prod.slug}'">
                     <div class="katalog-product-card-img${hasDiscount ? ' has-discount' : ''}">
-                        <img src="/${prod.image}" alt="${prod.title}" loading="lazy">
+                        <img src="${/^https?:\/\//.test(prod.image) ? prod.image : '/' + prod.image}" alt="${prod.title}" loading="lazy">
                         ${discountBadge}
                         ${bestSellerRibbon}
                         <button type="button" 
