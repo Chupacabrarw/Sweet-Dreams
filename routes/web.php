@@ -65,6 +65,15 @@ Route::post('/admin/logout', [App\Http\Controllers\Admin\AuthController::class, 
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+
+    // Pengaturan Profil Admin: ganti email (OTP ke email baru) & ganti password
+    Route::get('/profile', [App\Http\Controllers\Admin\ProfileController::class, 'edit'])->name('profile');
+    Route::post('/profile/email/request-otp', [App\Http\Controllers\Admin\ProfileController::class, 'requestEmailOtp'])
+        ->middleware('throttle:10,1')->name('profile.email.request');
+    Route::post('/profile/email/verify-otp', [App\Http\Controllers\Admin\ProfileController::class, 'verifyEmailOtp'])
+        ->middleware('throttle:10,1')->name('profile.email.verify');
+    Route::delete('/profile/email/otp', [App\Http\Controllers\Admin\ProfileController::class, 'cancelEmailOtp'])->name('profile.email.cancel');
+    Route::put('/profile/password', [App\Http\Controllers\Admin\ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::get('/pesan-kontak', [App\Http\Controllers\Admin\ContactMessageController::class, 'index'])->name('contact-messages');
     Route::get('/pesan-kontak/{contactMessage}', [App\Http\Controllers\Admin\ContactMessageController::class, 'show'])->name('contact-messages.show');
     Route::put('/pesan-kontak/{contactMessage}', [App\Http\Controllers\Admin\ContactMessageController::class, 'update'])->name('contact-messages.update');

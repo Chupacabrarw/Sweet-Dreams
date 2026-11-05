@@ -27,6 +27,7 @@ export default defineConfig({
                 'resources/css/pages/admin/dashboard.css',
                 'resources/css/pages/admin/orders.css',
                 'resources/css/pages/admin/products.css',
+                'resources/css/pages/admin/profile.css',
                 'resources/css/pages/admin/reports.css',
                 'resources/css/pages/admin/stock.css',
                 'resources/css/pages/admin/vouchers.css',

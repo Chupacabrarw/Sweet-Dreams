@@ -68,6 +68,9 @@
         </nav>
 
         <div class="admin-sidebar-footer">
+            <a href="{{ route('admin.profile') }}" class="admin-nav-item {{ request()->routeIs('admin.profile*') ? 'active' : '' }}" title="Pengaturan Profil">
+                <i data-lucide="user-cog" style="width:18px;height:18px;"></i><span>Pengaturan Profil</span>
+            </a>
             <form method="POST" action="{{ route('admin.logout') }}" style="margin-bottom:1rem;">
                 @csrf
                 <button type="submit" class="admin-nav-item admin-logout-item" style="width:100%; background:none; border:none; color:#e8a4b0; cursor:pointer; text-align:left;">
@@ -92,13 +95,13 @@
                 </div>
             </div>
             <div class="admin-header-right">
-                <div class="admin-avatar-row">
+                <a href="{{ route('admin.profile') }}" class="admin-avatar-row" title="Pengaturan Profil Admin" style="text-decoration:none; color:inherit;">
                     <div class="admin-avatar-circle">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
                     <div class="admin-avatar-text">
                         <strong>{{ auth()->user()->name }}</strong>
                         <span>Admin</span>
                     </div>
-                </div>
+                </a>
             </div>
         </header>
 

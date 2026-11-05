@@ -1,0 +1,97 @@
+    .pf-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; align-items: start; }
+    .pf-card { background: #fff; border-radius: 18px; padding: 1.6rem; border: 1px solid #f3e4e8; }
+    .pf-card-head { display: flex; align-items: center; gap: 0.9rem; margin-bottom: 1.2rem; }
+    .pf-card-head h2 { margin: 0; font-size: 1.1rem; color: #20161b; }
+    .pf-card-head p { margin: 0.15rem 0 0; font-size: 0.82rem; color: #8a6a72; }
+    .pf-icon {
+        width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; color: #fff;
+        background: linear-gradient(135deg, #d44d6e, #e87090); display: flex; align-items: center; justify-content: center;
+    }
+    .pf-icon svg { width: 20px; height: 20px; }
+    .pf-icon-lg { width: 60px; height: 60px; border-radius: 16px; margin: 0 auto 0.9rem; }
+    .pf-icon-lg svg { width: 28px; height: 28px; }
+
+    .pf-current {
+        display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;
+        padding: 0.8rem 1rem; border-radius: 12px; background: #faf3f5; margin-bottom: 1rem; font-size: 0.85rem;
+    }
+    .pf-current span { color: #8a6a72; }
+    .pf-current strong { color: #20161b; word-break: break-all; }
+    .pf-pending {
+        display: flex; gap: 0.6rem; align-items: flex-start; padding: 0.8rem 1rem; margin-bottom: 1rem;
+        border-radius: 12px; background: #fff7e6; color: #8a5a10; font-size: 0.84rem; line-height: 1.5;
+    }
+    .pf-pending svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; }
+
+    .pf-form { display: flex; flex-direction: column; }
+    .pf-label { font-size: 0.8rem; font-weight: 600; color: #4a3a40; margin: 0.9rem 0 0.4rem; }
+    .pf-label:first-of-type { margin-top: 0; }
+    .pf-input {
+        width: 100%; padding: 0.72rem 0.9rem; border: 1px solid #e5dde0; border-radius: 10px;
+        font-size: 0.9rem; font-family: inherit; background: #fff; color: #20161b;
+    }
+    .pf-input:focus { outline: none; border-color: #d44d6e; box-shadow: 0 0 0 3px rgba(212,77,110,0.12); }
+    .pf-input.is-invalid { border-color: #d44d6e; background: #fff8fa; }
+    .pf-pass { position: relative; }
+    .pf-pass .pf-input { padding-right: 2.8rem; }
+    .pf-eye {
+        position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px;
+        border: none; background: none; color: #a8909a; cursor: pointer; border-radius: 8px; display: grid; place-items: center;
+    }
+    .pf-eye:hover { color: #d44d6e; background: #fdf0f3; }
+    .pf-eye svg { width: 18px; height: 18px; }
+    .pf-error { margin: 0.35rem 0 0; font-size: 0.78rem; color: #c53660; font-weight: 500; }
+    .pf-center { text-align: center; }
+    .pf-hint { margin: 0.35rem 0 0; font-size: 0.75rem; color: #a8909a; }
+    .pf-strength { height: 4px; border-radius: 4px; background: #f1e4e7; margin-top: 0.5rem; overflow: hidden; }
+    .pf-strength span { display: block; height: 100%; width: 0; background: #e0a3b3; transition: width 0.25s, background 0.25s; }
+    .pf-strength span[data-level="2"] { background: #e9a23b; }
+    .pf-strength span[data-level="3"], .pf-strength span[data-level="4"] { background: #1e9e64; }
+
+    .pf-btn {
+        margin-top: 1.3rem; align-self: flex-start; display: inline-flex; align-items: center; gap: 0.5rem;
+        padding: 0.72rem 1.3rem; border: none; border-radius: 10px; background: #d44d6e; color: #fff;
+        font-weight: 600; font-size: 0.88rem; font-family: inherit; cursor: pointer; transition: background 0.2s;
+    }
+    .pf-btn:hover { background: #b83d5c; }
+    .pf-btn svg { width: 16px; height: 16px; }
+    .pf-btn-block { width: 100%; justify-content: center; }
+    .pf-link { background: none; border: none; padding: 0; color: #d44d6e; font-weight: 600; font-size: inherit; font-family: inherit; cursor: pointer; }
+    .pf-link:hover { text-decoration: underline; }
+    .pf-link:disabled { color: #b9a3aa; cursor: default; text-decoration: none; }
+    .pf-link-muted { color: #8a6a72; }
+
+    /* Modal OTP */
+    .pf-modal {
+        position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center;
+        padding: 1rem; background: rgba(32, 22, 27, 0.55); backdrop-filter: blur(3px);
+    }
+    .pf-modal.open { display: flex; }
+    .pf-modal-box {
+        position: relative; width: 100%; max-width: 420px; background: #fff; border-radius: 20px;
+        padding: 2rem 1.8rem 1.4rem; text-align: center; box-shadow: 0 24px 60px rgba(32,22,27,0.3);
+        animation: pfPop 0.25s ease-out;
+    }
+    @keyframes pfPop { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: none; } }
+    .pf-modal-box h3 { margin: 0; font-size: 1.15rem; color: #20161b; }
+    .pf-modal-desc { margin: 0.4rem 0 1.2rem; font-size: 0.85rem; color: #8a6a72; line-height: 1.5; word-break: break-all; }
+    .pf-modal-close {
+        position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border: none; background: none;
+        color: #a8909a; cursor: pointer; border-radius: 8px; display: grid; place-items: center;
+    }
+    .pf-modal-close:hover { background: #faf3f5; color: #20161b; }
+    .pf-modal-close svg { width: 18px; height: 18px; }
+    .pf-otp {
+        width: 100%; text-align: center; font-size: 2rem; font-weight: 700; letter-spacing: 0.6em; text-indent: 0.6em;
+        padding: 0.7rem; border: 1.5px solid #e5dde0; border-radius: 14px; font-family: inherit; color: #20161b;
+    }
+    .pf-otp:focus { outline: none; border-color: #d44d6e; box-shadow: 0 0 0 3px rgba(212,77,110,0.12); }
+    .pf-otp.is-invalid { border-color: #d44d6e; background: #fff8fa; }
+    .pf-timer { margin: 0.7rem 0 0; font-size: 0.8rem; color: #8a6a72; }
+    .pf-timer span { font-weight: 700; color: #20161b; }
+    .pf-timer span.expired { color: #c53660; }
+    .pf-modal-foot { display: flex; justify-content: center; align-items: center; gap: 0.6rem; margin-top: 1rem; font-size: 0.84rem; color: #c9b5bc; }
+
+    @media (max-width: 900px) {
+        .pf-grid { grid-template-columns: 1fr; }
+    }
