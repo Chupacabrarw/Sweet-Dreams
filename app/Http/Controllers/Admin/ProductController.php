@@ -449,7 +449,7 @@ class ProductController extends Controller
             'Diskon', 'Ukuran (pisah koma)', 'Warna (pisah koma)',
             'Deskripsi Singkat', 'Deskripsi Panjang',
             'Berat (gram)', 'Panjang (cm)', 'Lebar (cm)', 'Tinggi (cm)',
-            'SKU', 'Aktif (Y/N)',
+            'SKU', 'Aktif (Y/N)', 'Foto Utama (nama file)', 'Foto Galeri (pisah koma)',
         ];
         $writer->addRow(Row::fromValues($headers, $headerStyle));
 
@@ -459,7 +459,7 @@ class ProductController extends Controller
             '-17%', 'S,M,L,XL', 'Merah,Biru,Hitam',
             'Baju tidur kimono berbahan silk lembut',
             'Cocok untuk tidur nyaman setiap malam.',
-            250, 30, 20, 5, '', 'Y',
+            250, 30, 20, 5, '', 'Y', 'kimono-1.jpg', 'kimono-2.jpg,kimono-3.jpg',
         ];
         $writer->addRow(Row::fromValues($example));
 
@@ -476,11 +476,54 @@ class ProductController extends Controller
     public function massUpload(Request $request): \Illuminate\Http\RedirectResponse
     {
         $request->validate([
-            'excel_file' => 'required|file|mimes:xlsx,xls|max:5120',
+            'excel_file' => 'required|file|mimes:xlsx,xls,zip|max:51200',
         ]);
 
-        $file = $request->file('excel_file');
-        $tmpPath = $file->getRealPath();
+        $file      = $request->file('excel_file');
+        $ext       = strtolower($file->getClientOriginalExtension());
+        $imagesDir = null; // direktori foto hasil ekstrak ZIP
+
+        // Jika ZIP: ekstrak dulu, cari Excel dan folder images di dalamnya
+        if ($ext === 'zip') {
+            if (!class_exists('\ZipArchive')) {
+                return redirect()->route('admin.products')
+                    ->with('error', 'Ekstensi ZIP tidak tersedia di server ini.');
+            }
+            $extractDir = sys_get_temp_dir() . '/sd-mass-' . uniqid();
+            mkdir($extractDir, 0755, true);
+
+            $zip = new \ZipArchive();
+            if ($zip->open($file->getRealPath()) !== true) {
+                return redirect()->route('admin.products')
+                    ->with('error', 'File ZIP tidak dapat dibuka.');
+            }
+            $zip->extractTo($extractDir);
+            $zip->close();
+
+            // Cari file Excel pertama (di root atau subfolder)
+            $excelFiles = array_merge(
+                glob($extractDir . '/*.xlsx') ?: [],
+                glob($extractDir . '/*.xls') ?: [],
+                glob($extractDir . '/*/*.xlsx') ?: [],
+                glob($extractDir . '/*/*.xls') ?: []
+            );
+            if (empty($excelFiles)) {
+                return redirect()->route('admin.products')
+                    ->with('error', 'Tidak ditemukan file Excel (.xlsx / .xls) di dalam file ZIP.');
+            }
+            $excelPath = $excelFiles[0];
+
+            // Direktori foto: cari folder images/ di root ZIP, atau di sebelah Excel, atau gunakan folder Excel
+            if (is_dir($extractDir . '/images')) {
+                $imagesDir = $extractDir . '/images';
+            } elseif (is_dir(dirname($excelPath) . '/images')) {
+                $imagesDir = dirname($excelPath) . '/images';
+            } else {
+                $imagesDir = dirname($excelPath);
+            }
+        } else {
+            $excelPath = $file->getRealPath();
+        }
 
         $categories = Category::pluck('id', 'name')->mapWithKeys(
             fn ($id, $name) => [strtolower(trim($name)) => $id]
@@ -491,9 +534,9 @@ class ProductController extends Controller
         )->all();
 
         $reader = new XlsxReader();
-        $reader->open($tmpPath);
+        $reader->open($excelPath);
 
-        $errors = [];
+        $errors  = [];
         $created = 0;
         $rowIndex = 0;
 
@@ -505,21 +548,23 @@ class ProductController extends Controller
                 $cells = $row->getCells();
                 $get = fn(int $i) => isset($cells[$i]) ? trim((string) $cells[$i]->getValue()) : '';
 
-                $title       = $get(0);
-                $catName     = $get(1);
-                $price       = (int) $get(2);
-                $origPrice   = $get(3) !== '' ? (int) $get(3) : null;
-                $discount    = $get(4) ?: null;
-                $sizesRaw    = $get(5);
-                $colorsRaw   = $get(6);
-                $shortDesc   = $get(7) ?: null;
-                $longDesc    = $get(8) ?: null;
-                $weight      = $get(9) !== '' ? (int) $get(9) : 250;
-                $length      = $get(10) !== '' ? (int) $get(10) : null;
-                $width       = $get(11) !== '' ? (int) $get(11) : null;
-                $height      = $get(12) !== '' ? (int) $get(12) : null;
-                $sku         = $get(13) ?: null;
-                $isActive    = strtolower($get(14)) !== 'n';
+                $title      = $get(0);
+                $catName    = $get(1);
+                $price      = (int) $get(2);
+                $origPrice  = $get(3) !== '' ? (int) $get(3) : null;
+                $discount   = $get(4) ?: null;
+                $sizesRaw   = $get(5);
+                $colorsRaw  = $get(6);
+                $shortDesc  = $get(7) ?: null;
+                $longDesc   = $get(8) ?: null;
+                $weight     = $get(9) !== '' ? (int) $get(9) : 250;
+                $length     = $get(10) !== '' ? (int) $get(10) : null;
+                $width      = $get(11) !== '' ? (int) $get(11) : null;
+                $height     = $get(12) !== '' ? (int) $get(12) : null;
+                $sku        = $get(13) ?: null;
+                $isActive   = strtolower($get(14)) !== 'n';
+                $fotoNama   = $get(15); // nama file foto utama, e.g. "kimono-1.jpg"
+                $galeriRaw  = $get(16); // nama-nama file galeri, e.g. "kimono-2.jpg,kimono-3.jpg"
 
                 // Skip baris kosong
                 if ($title === '' && $catName === '') continue;
@@ -557,35 +602,103 @@ class ProductController extends Controller
 
                 // Hitung diskon otomatis jika tidak diisi
                 if (!$discount && $origPrice && $origPrice > $price) {
-                    $pct = (int) round(($origPrice - $price) / $origPrice * 100);
+                    $pct      = (int) round(($origPrice - $price) / $origPrice * 100);
                     $discount = $pct > 0 ? "-{$pct}%" : null;
                 }
 
+                // Helper upload foto dari folder ekstrak ZIP
+                $uploadPhoto = function (string $filename) use ($imagesDir, $title, &$errors, $rowIndex): ?string {
+                    $filename = trim($filename);
+                    if ($filename === '' || $imagesDir === null) return null;
+
+                    // Cari file secara exact atau case-insensitive
+                    $targetPath = null;
+                    $direct = rtrim($imagesDir, '/\\') . DIRECTORY_SEPARATOR . $filename;
+                    if (file_exists($direct) && !is_dir($direct)) {
+                        $targetPath = $direct;
+                    } else {
+                        $lower = strtolower($filename);
+                        foreach (scandir($imagesDir) as $item) {
+                            if (strtolower($item) === $lower) {
+                                $candidate = rtrim($imagesDir, '/\\') . DIRECTORY_SEPARATOR . $item;
+                                if (!is_dir($candidate)) {
+                                    $targetPath = $candidate;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (!$targetPath || !file_exists($targetPath)) {
+                        $errors[] = "Baris {$rowIndex}: File foto \"{$filename}\" tidak ditemukan di folder ZIP.";
+                        return null;
+                    }
+
+                    try {
+                        $mime       = @mime_content_type($targetPath) ?: 'image/jpeg';
+                        $ext        = pathinfo($filename, PATHINFO_EXTENSION) ?: 'jpg';
+                        $targetName = Str::slug($title) . '-' . time() . '-' . Str::random(6) . '.' . $ext;
+                        $contents   = file_get_contents($targetPath);
+                        return PublicUpload::put('images/products/' . $targetName, $contents, $mime);
+                    } catch (\Throwable $e) {
+                        $errors[] = "Baris {$rowIndex}: Foto \"{$filename}\" gagal diunggah: " . $e->getMessage();
+                        return null;
+                    }
+                };
+
+                $imagePath = null;
+                if ($fotoNama !== '') {
+                    $imagePath = $uploadPhoto($fotoNama);
+                }
+
+                $galleryPaths = [];
+                if ($galeriRaw !== '') {
+                    $galeriFiles = array_filter(array_map('trim', explode(',', $galeriRaw)));
+                    foreach ($galeriFiles as $gFile) {
+                        $up = $uploadPhoto($gFile);
+                        if ($up) {
+                            $galleryPaths[] = $up;
+                        }
+                    }
+                }
+
+                // Jika foto utama kosong tetapi ada foto galeri, jadikan foto galeri pertama sebagai utama
+                if (!$imagePath && !empty($galleryPaths)) {
+                    $imagePath = $galleryPaths[0];
+                }
+
+                $productData = [
+                    'title'          => $title,
+                    'slug'           => Str::slug($title) . '-' . Str::random(5),
+                    'category_id'    => $categoryId,
+                    'price'          => $price,
+                    'original_price' => $origPrice,
+                    'discount'       => $discount,
+                    'sizes'          => $sizes,
+                    'colors'         => $colors,
+                    'short_desc'     => $shortDesc,
+                    'long_desc'      => $longDesc,
+                    'weight'         => $weight,
+                    'length'         => $length,
+                    'width'          => $width,
+                    'height'         => $height,
+                    'sku'            => $sku,
+                    'is_active'      => $isActive,
+                    'stock'          => 0,
+                ];
+                if ($imagePath !== null) {
+                    $productData['image'] = $imagePath;
+                }
+                if (!empty($galleryPaths)) {
+                    $productData['gallery'] = [
+                        'general' => $galleryPaths,
+                        'colors'  => [],
+                    ];
+                }
+
                 try {
-                    DB::transaction(function () use (
-                        $title, $categoryId, $price, $origPrice, $discount,
-                        $sizes, $colors, $shortDesc, $longDesc, $weight,
-                        $length, $width, $height, $sku, $isActive
-                    ) {
-                        $product = Product::create([
-                            'title'          => $title,
-                            'slug'           => \Illuminate\Support\Str::slug($title) . '-' . \Illuminate\Support\Str::random(5),
-                            'category_id'    => $categoryId,
-                            'price'          => $price,
-                            'original_price' => $origPrice,
-                            'discount'       => $discount,
-                            'sizes'          => $sizes,
-                            'colors'         => $colors,
-                            'short_desc'     => $shortDesc,
-                            'long_desc'      => $longDesc,
-                            'weight'         => $weight,
-                            'length'         => $length,
-                            'width'          => $width,
-                            'height'         => $height,
-                            'sku'            => $sku,
-                            'is_active'      => $isActive,
-                            'stock'          => 0,
-                        ]);
+                    DB::transaction(function () use ($productData) {
+                        $product = Product::create($productData);
                         $product->syncVariants();
                     });
                     $created++;
@@ -598,13 +711,30 @@ class ProductController extends Controller
 
         $reader->close();
 
+        // Bersihkan direktori ekstrak ZIP
+        if (isset($extractDir) && is_dir($extractDir)) {
+            $this->deleteDir($extractDir);
+        }
+
         $msg = "Berhasil menambahkan {$created} produk.";
         if ($errors) {
-            $msg .= ' Beberapa baris gagal: ' . implode(' | ', array_slice($errors, 0, 5));
+            $msg .= ' Catatan: ' . implode(' | ', array_slice($errors, 0, 5));
             if (count($errors) > 5) $msg .= ' ...dan ' . (count($errors) - 5) . ' lainnya.';
         }
 
         return redirect()->route('admin.products')
             ->with($errors && $created === 0 ? 'error' : 'success', $msg);
+    }
+
+    /** Hapus direktori beserta isinya secara rekursif */
+    protected function deleteDir(string $dir): void
+    {
+        if (!is_dir($dir)) return;
+        foreach (scandir($dir) as $item) {
+            if ($item === '.' || $item === '..') continue;
+            $path = $dir . '/' . $item;
+            is_dir($path) ? $this->deleteDir($path) : @unlink($path);
+        }
+        @rmdir($dir);
     }
 }

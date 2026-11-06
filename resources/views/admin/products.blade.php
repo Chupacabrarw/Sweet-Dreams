@@ -814,36 +814,38 @@
 
 {{-- Modal Mass Upload Produk --}}
 <div id="mass-upload-modal" style="display:none; position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,0.45); align-items:center; justify-content:center;">
-    <div style="background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:480px; box-shadow:0 8px 40px rgba(42,31,34,0.18); position:relative;">
+    <div style="background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:520px; box-shadow:0 8px 40px rgba(42,31,34,0.18); position:relative; max-height:90vh; overflow-y:auto;">
         <button onclick="document.getElementById('mass-upload-modal').style.display='none'" style="position:absolute;top:1rem;right:1rem;background:none;border:none;cursor:pointer;color:#a8939a;">
             <i data-lucide="x" style="width:22px;height:22px;"></i>
         </button>
-        <h3 style="font-size:1.1rem;font-weight:700;color:#2a1f22;margin-bottom:0.25rem;">Mass Upload Produk</h3>
-        <p style="color:#a8939a;font-size:0.85rem;margin-bottom:1.5rem;">Upload banyak produk sekaligus menggunakan file Excel.</p>
+        <h3 style="font-size:1.15rem;font-weight:700;color:#2a1f22;margin-bottom:0.25rem;">Mass Upload Produk &amp; Foto</h3>
+        <p style="color:#a8939a;font-size:0.85rem;margin-bottom:1.25rem;">Upload banyak produk sekaligus dengan file Excel atau file ZIP (Excel + foto-foto produk).</p>
 
         {{-- Download Template --}}
-        <a href="{{ route('admin.products.template') }}" class="btn-outline" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;text-decoration:none;justify-content:center;">
+        <a href="{{ route('admin.products.template') }}" class="btn-outline" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;text-decoration:none;justify-content:center;font-weight:600;">
             <i data-lucide="download" style="width:16px;height:16px;"></i> Download Template Excel
         </a>
 
-        <div style="background:#fdf4f6;border:1px solid #f0d9df;border-radius:8px;padding:0.85rem 1rem;margin-bottom:1.25rem;font-size:0.82rem;color:#7a5560;line-height:1.6;">
-            <strong>Panduan:</strong><br>
-            1. Download template Excel di atas<br>
-            2. Isi data produk sesuai kolom (baris contoh bisa dihapus)<br>
-            3. Kolom bertanda <strong>*</strong> wajib diisi<br>
-            4. Kategori &amp; warna harus sesuai nama yang sudah ada di sistem<br>
-            5. Upload file yang sudah diisi
+        <div style="background:#fdf4f6;border:1px solid #f0d9df;border-radius:10px;padding:0.9rem 1.1rem;margin-bottom:1.25rem;font-size:0.82rem;color:#7a5560;line-height:1.65;">
+            <strong style="color:#d44d6e;display:block;margin-bottom:0.35rem;">Cara Upload Beserta Foto Produk:</strong>
+            1. Download template Excel di atas.<br>
+            2. Isi kolom <strong>Foto Utama</strong> dengan nama file foto (contoh: <code>kimono-1.jpg</code>).<br>
+            3. Isi kolom <strong>Foto Galeri</strong> jika ada foto tambahan (contoh: <code>kimono-2.jpg,kimono-3.jpg</code>).<br>
+            4. Siapkan file foto-foto tersebut (bisa dimasukkan ke folder <code>images/</code> atau langsung di samping Excel).<br>
+            5. Kompres file Excel + foto menjadi <strong>1 file .ZIP</strong>, lalu upload di bawah.<br>
+            <em style="display:block;margin-top:0.4rem;color:#a8939a;">*Bisa juga langsung upload file <strong>.xlsx</strong> jika produk tanpa foto.</em>
         </div>
 
         <form method="POST" action="{{ route('admin.products.mass-upload') }}" enctype="multipart/form-data">
             @csrf
-            <div style="margin-bottom:1rem;">
-                <label style="display:block;font-size:0.85rem;font-weight:600;color:#2a1f22;margin-bottom:0.5rem;">File Excel (.xlsx)</label>
-                <input type="file" name="excel_file" accept=".xlsx,.xls" required
+            <div style="margin-bottom:1.25rem;">
+                <label style="display:block;font-size:0.85rem;font-weight:600;color:#2a1f22;margin-bottom:0.5rem;">File ZIP (.zip) atau Excel (.xlsx)</label>
+                <input type="file" name="excel_file" accept=".zip,.xlsx,.xls" required
                     style="width:100%;padding:0.6rem 0.75rem;border:1.5px solid #e8dde0;border-radius:8px;font-size:0.9rem;color:#2a1f22;background:#fff;box-sizing:border-box;">
+                <small style="display:block;margin-top:0.35rem;color:#a8939a;font-size:0.75rem;">Maksimal ukuran file 50 MB.</small>
             </div>
             <button type="submit" class="btn-pink" style="width:100%;justify-content:center;">
-                <i data-lucide="upload" style="width:16px;height:16px;"></i> Upload &amp; Proses
+                <i data-lucide="upload" style="width:16px;height:16px;"></i> Upload &amp; Proses Produk
             </button>
         </form>
     </div>
