@@ -8,6 +8,11 @@
     <meta name="keywords" content="sleepwear, baju tidur, lingerie, kimono, pakaian dalam, sweet dreams">
     <title>@yield('title', 'Sweet Dreams - Premium Sleepwear & Lingerie')</title>
 
+    {{-- Favicon --}}
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="shortcut icon" href="/favicon-32x32.png">
+
     {{-- Google Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
