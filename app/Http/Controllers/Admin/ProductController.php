@@ -13,6 +13,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use OpenSpout\Writer\XLSX\Writer as XlsxWriter;
+use OpenSpout\Common\Entity\Row;
+use OpenSpout\Common\Entity\Style\Style;
+use OpenSpout\Common\Entity\Style\Color;
+use OpenSpout\Reader\XLSX\Reader as XlsxReader;
 
 class ProductController extends Controller
 {
@@ -422,5 +427,184 @@ class ProductController extends Controller
                 'sizes' => 'Stok masih tersimpan pada varian yang ingin dihapus. Atur stok varian tersebut menjadi 0 terlebih dahulu.',
             ]);
         }
+    }
+
+    // ─── Mass Upload via Excel ────────────────────────────────────────────────
+
+    public function downloadTemplate(): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $tmpPath = sys_get_temp_dir() . '/template-produk-sweetdreams.xlsx';
+
+        $writer = new XlsxWriter();
+        $writer->openToFile($tmpPath);
+
+        // Style header
+        $headerStyle = (new Style())
+            ->setFontBold()
+            ->setFontColor(Color::WHITE)
+            ->setBackgroundColor('D44D6E');
+
+        $headers = [
+            'Nama Produk*', 'Kategori*', 'Harga Jual*', 'Harga Coret',
+            'Diskon', 'Ukuran (pisah koma)', 'Warna (pisah koma)',
+            'Deskripsi Singkat', 'Deskripsi Panjang',
+            'Berat (gram)', 'Panjang (cm)', 'Lebar (cm)', 'Tinggi (cm)',
+            'SKU', 'Aktif (Y/N)',
+        ];
+        $writer->addRow(Row::fromValues($headers, $headerStyle));
+
+        // Baris contoh
+        $example = [
+            'Baju Tidur Kimono Silk', 'Baju Tidur', 125000, 150000,
+            '-17%', 'S,M,L,XL', 'Merah,Biru,Hitam',
+            'Baju tidur kimono berbahan silk lembut',
+            'Cocok untuk tidur nyaman setiap malam.',
+            250, 30, 20, 5, '', 'Y',
+        ];
+        $writer->addRow(Row::fromValues($example));
+
+        $writer->close();
+
+        return response()->streamDownload(function () use ($tmpPath) {
+            readfile($tmpPath);
+            @unlink($tmpPath);
+        }, 'template-produk-sweetdreams.xlsx', [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    public function massUpload(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $request->validate([
+            'excel_file' => 'required|file|mimes:xlsx,xls|max:5120',
+        ]);
+
+        $file = $request->file('excel_file');
+        $tmpPath = $file->getRealPath();
+
+        $categories = Category::pluck('id', 'name')->mapWithKeys(
+            fn ($id, $name) => [strtolower(trim($name)) => $id]
+        )->all();
+
+        $colorMap = ProductColor::pluck('name', 'name')->mapWithKeys(
+            fn ($name) => [strtolower(trim($name)) => trim($name)]
+        )->all();
+
+        $reader = new XlsxReader();
+        $reader->open($tmpPath);
+
+        $errors = [];
+        $created = 0;
+        $rowIndex = 0;
+
+        foreach ($reader->getSheetIterator() as $sheet) {
+            foreach ($sheet->getRowIterator() as $row) {
+                $rowIndex++;
+                if ($rowIndex === 1) continue; // skip header
+
+                $cells = $row->getCells();
+                $get = fn(int $i) => isset($cells[$i]) ? trim((string) $cells[$i]->getValue()) : '';
+
+                $title       = $get(0);
+                $catName     = $get(1);
+                $price       = (int) $get(2);
+                $origPrice   = $get(3) !== '' ? (int) $get(3) : null;
+                $discount    = $get(4) ?: null;
+                $sizesRaw    = $get(5);
+                $colorsRaw   = $get(6);
+                $shortDesc   = $get(7) ?: null;
+                $longDesc    = $get(8) ?: null;
+                $weight      = $get(9) !== '' ? (int) $get(9) : 250;
+                $length      = $get(10) !== '' ? (int) $get(10) : null;
+                $width       = $get(11) !== '' ? (int) $get(11) : null;
+                $height      = $get(12) !== '' ? (int) $get(12) : null;
+                $sku         = $get(13) ?: null;
+                $isActive    = strtolower($get(14)) !== 'n';
+
+                // Skip baris kosong
+                if ($title === '' && $catName === '') continue;
+
+                // Validasi kolom wajib
+                if ($title === '') {
+                    $errors[] = "Baris {$rowIndex}: Nama Produk wajib diisi.";
+                    continue;
+                }
+                if ($catName === '') {
+                    $errors[] = "Baris {$rowIndex}: Kategori wajib diisi.";
+                    continue;
+                }
+                if ($price <= 0) {
+                    $errors[] = "Baris {$rowIndex}: Harga Jual harus lebih dari 0.";
+                    continue;
+                }
+
+                $categoryId = $categories[strtolower(trim($catName))] ?? null;
+                if (!$categoryId) {
+                    $errors[] = "Baris {$rowIndex}: Kategori \"{$catName}\" tidak ditemukan.";
+                    continue;
+                }
+
+                $sizes = $sizesRaw !== ''
+                    ? array_values(array_filter(array_map('trim', explode(',', $sizesRaw))))
+                    : [];
+
+                $colors = [];
+                if ($colorsRaw !== '') {
+                    foreach (array_map('trim', explode(',', $colorsRaw)) as $c) {
+                        $colors[] = $colorMap[strtolower($c)] ?? $c;
+                    }
+                }
+
+                // Hitung diskon otomatis jika tidak diisi
+                if (!$discount && $origPrice && $origPrice > $price) {
+                    $pct = (int) round(($origPrice - $price) / $origPrice * 100);
+                    $discount = $pct > 0 ? "-{$pct}%" : null;
+                }
+
+                try {
+                    DB::transaction(function () use (
+                        $title, $categoryId, $price, $origPrice, $discount,
+                        $sizes, $colors, $shortDesc, $longDesc, $weight,
+                        $length, $width, $height, $sku, $isActive
+                    ) {
+                        $product = Product::create([
+                            'title'          => $title,
+                            'slug'           => \Illuminate\Support\Str::slug($title) . '-' . \Illuminate\Support\Str::random(5),
+                            'category_id'    => $categoryId,
+                            'price'          => $price,
+                            'original_price' => $origPrice,
+                            'discount'       => $discount,
+                            'sizes'          => $sizes,
+                            'colors'         => $colors,
+                            'short_desc'     => $shortDesc,
+                            'long_desc'      => $longDesc,
+                            'weight'         => $weight,
+                            'length'         => $length,
+                            'width'          => $width,
+                            'height'         => $height,
+                            'sku'            => $sku,
+                            'is_active'      => $isActive,
+                            'stock'          => 0,
+                        ]);
+                        $product->syncVariants();
+                    });
+                    $created++;
+                } catch (\Throwable $e) {
+                    $errors[] = "Baris {$rowIndex}: Gagal disimpan — " . $e->getMessage();
+                }
+            }
+            break; // hanya sheet pertama
+        }
+
+        $reader->close();
+
+        $msg = "Berhasil menambahkan {$created} produk.";
+        if ($errors) {
+            $msg .= ' Beberapa baris gagal: ' . implode(' | ', array_slice($errors, 0, 5));
+            if (count($errors) > 5) $msg .= ' ...dan ' . (count($errors) - 5) . ' lainnya.';
+        }
+
+        return redirect()->route('admin.products')
+            ->with($errors && $created === 0 ? 'error' : 'success', $msg);
     }
 }

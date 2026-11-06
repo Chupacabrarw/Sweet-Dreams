@@ -21,6 +21,9 @@
         <button type="button" class="btn-outline" onclick="openCategoryModal()">
             <i data-lucide="folder-plus" style="width:18px;height:18px;"></i> Kategori
         </button>
+        <button type="button" class="btn-outline" onclick="document.getElementById('mass-upload-modal').style.display='flex'">
+            <i data-lucide="upload" style="width:18px;height:18px;"></i> Mass Upload
+        </button>
         <button type="button" class="btn-pink" onclick="resetProductForm(); document.getElementById('product-form-card').scrollIntoView({behavior:'smooth', block:'start'});">
             <i data-lucide="plus" style="width:18px;height:18px;"></i> Tambah Produk
         </button>
@@ -808,4 +811,42 @@
         lucide.createIcons();
     }
 </script>
+
+{{-- Modal Mass Upload Produk --}}
+<div id="mass-upload-modal" style="display:none; position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,0.45); align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:480px; box-shadow:0 8px 40px rgba(42,31,34,0.18); position:relative;">
+        <button onclick="document.getElementById('mass-upload-modal').style.display='none'" style="position:absolute;top:1rem;right:1rem;background:none;border:none;cursor:pointer;color:#a8939a;">
+            <i data-lucide="x" style="width:22px;height:22px;"></i>
+        </button>
+        <h3 style="font-size:1.1rem;font-weight:700;color:#2a1f22;margin-bottom:0.25rem;">Mass Upload Produk</h3>
+        <p style="color:#a8939a;font-size:0.85rem;margin-bottom:1.5rem;">Upload banyak produk sekaligus menggunakan file Excel.</p>
+
+        {{-- Download Template --}}
+        <a href="{{ route('admin.products.template') }}" class="btn-outline" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;text-decoration:none;justify-content:center;">
+            <i data-lucide="download" style="width:16px;height:16px;"></i> Download Template Excel
+        </a>
+
+        <div style="background:#fdf4f6;border:1px solid #f0d9df;border-radius:8px;padding:0.85rem 1rem;margin-bottom:1.25rem;font-size:0.82rem;color:#7a5560;line-height:1.6;">
+            <strong>Panduan:</strong><br>
+            1. Download template Excel di atas<br>
+            2. Isi data produk sesuai kolom (baris contoh bisa dihapus)<br>
+            3. Kolom bertanda <strong>*</strong> wajib diisi<br>
+            4. Kategori &amp; warna harus sesuai nama yang sudah ada di sistem<br>
+            5. Upload file yang sudah diisi
+        </div>
+
+        <form method="POST" action="{{ route('admin.products.mass-upload') }}" enctype="multipart/form-data">
+            @csrf
+            <div style="margin-bottom:1rem;">
+                <label style="display:block;font-size:0.85rem;font-weight:600;color:#2a1f22;margin-bottom:0.5rem;">File Excel (.xlsx)</label>
+                <input type="file" name="excel_file" accept=".xlsx,.xls" required
+                    style="width:100%;padding:0.6rem 0.75rem;border:1.5px solid #e8dde0;border-radius:8px;font-size:0.9rem;color:#2a1f22;background:#fff;box-sizing:border-box;">
+            </div>
+            <button type="submit" class="btn-pink" style="width:100%;justify-content:center;">
+                <i data-lucide="upload" style="width:16px;height:16px;"></i> Upload &amp; Proses
+            </button>
+        </form>
+    </div>
+</div>
+
 @endsection

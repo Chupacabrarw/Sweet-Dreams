@@ -82,6 +82,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/produk', [App\Http\Controllers\Admin\ProductController::class, 'store'])->name('products.store');
     Route::put('/produk/{product}', [App\Http\Controllers\Admin\ProductController::class, 'update'])->name('products.update');
     Route::delete('/produk/{product}', [App\Http\Controllers\Admin\ProductController::class, 'destroy'])->name('products.destroy');
+    Route::get('/produk/template-excel', [App\Http\Controllers\Admin\ProductController::class, 'downloadTemplate'])->name('products.template');
+    Route::post('/produk/mass-upload', [App\Http\Controllers\Admin\ProductController::class, 'massUpload'])->name('products.mass-upload');
     Route::post('/warna', [App\Http\Controllers\Admin\ProductColorController::class, 'store'])->name('colors.store');
 
     // Category management
