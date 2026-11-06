@@ -29,9 +29,7 @@
     {{-- NAVBAR --}}
     <nav class="navbar" id="navbar">
         <div class="navbar-inner">
-            <a href="/" class="nav-logo" id="nav-logo">
-                <span class="nav-logo-text">Sweet Dreams</span>
-            </a>
+            <a href="/" class="nav-logo" id="nav-logo"><img src="/images/logo.png" alt="Sweet Dream Logo"></a>
 
             <ul class="nav-links" id="nav-links">
                 <li><a href="/" class="{{ request()->is('/') ? 'active' : '' }}" id="nav-home">Home</a></li>

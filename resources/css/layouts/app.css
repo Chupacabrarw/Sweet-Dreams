@@ -71,14 +71,10 @@
             padding: 0;
             box-shadow: none;
         }
-        .nav-logo-text {
-            font-family: 'Manrope', sans-serif;
-            font-size: 1.25rem;
-            font-weight: 800;
-            color: var(--rose);
-            line-height: 1;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
+        .nav-logo img {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
         }
         .nav-links {
             display: flex;
