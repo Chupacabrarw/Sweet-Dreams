@@ -71,10 +71,12 @@
             padding: 0;
             box-shadow: none;
         }
-        .nav-logo img {
-            height: 50px;
-            width: auto;
-            object-fit: contain;
+        .nav-logo-text {
+            font-family: 'Parisienne', cursive;
+            font-size: 1.75rem;
+            color: var(--rose);
+            line-height: 1;
+            letter-spacing: 0.01em;
         }
         .nav-links {
             display: flex;
