@@ -78,6 +78,8 @@ tests/Feature/QrisPaymentTest.php
 - Filesystem **read-only** (kecuali `/tmp`) → jangan simpan file ke `public/` atau `storage/` di kode produksi; pakai `PublicUpload` / disk dari config.
 - Body request maks **4,5 MB** → upload besar harus dikecilkan dulu.
 - Log runtime paket gratis hanya ±1 jam (`vercel logs`).
+- Build `vercel-php` kadang rusak (`Cannot find module '/var/task/launcher.launcher'` → semua halaman 500 FUNCTION_INVOCATION_FAILED). **Selalu cek situs setelah deploy**; kalau 500, cukup `vercel deploy --prod --yes` lagi.
+- Env Vercel (mis. `DB_PASSWORD`) baru berlaku setelah deploy ulang; deploy lama tetap memakai nilai lama.
 - Supabase free di-**pause** kalau 7 hari tidak aktif → Restore dari dashboard.
 
 ---
