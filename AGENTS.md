@@ -109,7 +109,7 @@ tests/Feature/QrisPaymentTest.php
 
 ## 7. Status & catatan terbuka (per 5 Nov 2026)
 
-- **Katalog pameran (17 Nov 2026)**: `ExhibitionProductSeeder` menambah 24 produk (12 per kategori Baju Tidur/Kimono/Pakaian Dalam, badge "BARU", foto produk **tanpa model** dari Pexels/Unsplash di `public/images/products/`; jangan pakai foto yang ada orangnya), mengisi stok varian yang 0, dan **menonaktifkan semua produk Lingerie**. Kategori tanpa produk aktif otomatis tersembunyi di katalog, beranda, dan chatbot — aktifkan lagi produk Lingerie dari admin bila ingin muncul. Seeder aman dijalankan ulang.
+- **Katalog pameran (17 Nov 2026)**: `ExhibitionProductSeeder` menambah 24 produk (12 per kategori Baju Tidur/Kimono/Pakaian Dalam, badge "BARU", foto produk **tanpa model** dari Pexels/Unsplash di `public/images/products/`; jangan pakai foto yang ada orangnya), mengisi stok varian yang 0, dan **menonaktifkan semua produk Lingerie & Pakaian Dalam**. Kategori tanpa produk aktif otomatis tersembunyi di katalog, beranda, dan chatbot — aktifkan lagi produk Lingerie dari admin bila ingin muncul. Seeder aman dijalankan ulang.
 - **Email produksi belum diset**: di Vercel `MAIL_MAILER=log`, jadi OTP ganti email admin belum benar-benar terkirim. Perlu isi env `MAIL_*` (SMTP Gmail App Password / Resend / Brevo) di Vercel sebelum fitur ganti email dipakai di situs live.
 - Folder `promo/` (video promo MP4) tidak untuk di-commit.
 - Sisa infrastruktur lama yang tidak dipakai: Render (`render.yaml`, `Dockerfile`, `docker/`, `DEPLOY-RENDER.md`) + MySQL Aiven, dan project Supabase kosong di organisasi "NodeSync" (ref `zrcxkjgeokjaxioldhmq`). Aman dimatikan/dihapus pemilik.
