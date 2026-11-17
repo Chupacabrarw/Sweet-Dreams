@@ -157,8 +157,8 @@ class ExhibitionProductSeeder extends Seeder
                 }
             }
 
-            // Lingerie disembunyikan selama pameran (aktifkan lagi per produk dari admin)
-            Product::whereHas('category', fn ($q) => $q->where('slug', 'lingerie'))->update(['is_active' => false]);
+            // Lingerie & Pakaian Dalam disembunyikan selama pameran (aktifkan lagi per produk dari admin)
+            Product::whereHas('category', fn ($q) => $q->whereIn('slug', ['lingerie', 'pakaian-dalam']))->update(['is_active' => false]);
 
             // Stok pameran: varian aktif yang masih 0 diisi 6–18 (angka tetap per varian, bukan acak tiap jalan)
             $active = Product::where('is_active', true)->get();
