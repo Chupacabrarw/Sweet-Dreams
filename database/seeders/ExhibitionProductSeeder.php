@@ -10,7 +10,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Isi katalog untuk pameran: 12 produk per kategori (Baju Tidur, Kimono, Pakaian Dalam),
+ * Isi katalog untuk pameran: 12 produk per kategori (Baju Tidur, Kimono),
  * isi stok varian yang masih 0, dan sembunyikan kategori Lingerie (produknya dinonaktifkan).
  * Aman dijalankan berulang (updateOrCreate per slug). Foto: Pexels (lisensi gratis, boleh komersial),
  * disimpan di public/images/products/{slug}.jpg.
@@ -30,8 +30,6 @@ class ExhibitionProductSeeder extends Seeder
     {
         $tidur = ['S', 'M', 'L', 'XL'];
         $robe = ['S', 'M', 'L', 'XL'];
-        $dalam = ['M', 'L', 'XL'];
-        $bra = ['34', '36', '38'];
 
         return [
             'baju-tidur' => [
@@ -54,16 +52,7 @@ class ExhibitionProductSeeder extends Seeder
                 ['Long Robe Katun Cream', 429000, null, $robe, ['cream'], 'Long robe katun warna krem dengan tali pinggang panjang. Lembut dan tampil rapi sebagai luaran baju tidur.'],
                 ['Kimono Waffle Katun Abu', 319000, 359000, $robe, ['grey'], 'Kimono bahan katun waffle warna abu yang tebal namun ringan. Menyerap air, cocok dipakai setelah mandi.'],
             ],
-            'pakaian-dalam' => [
-                ['Celana Dalam Katun Floral (Isi 3)', 129000, null, $dalam, ['pink'], 'Isi 3 celana dalam katun motif bunga dan warna lembut. Elastis di pinggang dan nyaman dipakai seharian.'],
-                ['Celana Dalam Katun Navy & Merah (Isi 3)', 119000, null, $dalam, ['navy'], 'Isi 3 celana dalam katun warna navy, kotak-kotak, dan merah. Bahan adem dan tidak mudah melar.'],
-                ['Celana Dalam Katun Putih Daisy (Isi 3)', 119000, null, $dalam, ['white'], 'Isi 3 celana dalam katun warna biru muda, putih, dan motif bunga daisy. Lembut dan menyerap keringat.'],
-                ['Celana Dalam Katun Motif Ceria (Isi 3)', 125000, null, $dalam, ['red'], 'Isi 3 celana dalam katun motif ceria dengan aksen pita kecil. Nyaman untuk aktivitas sehari-hari.'],
-                ['Bra Busa Tanpa Kawat Mauve', 199000, 239000, $bra, ['mauve'], 'Bra dengan busa tipis tanpa kawat warna mauve. Menopang dengan nyaman tanpa menekan.'],
-                ['Bra Katun Tanpa Kawat Basic', 159000, null, $bra, ['white', 'cream', 'mocca'], 'Bra katun basic tanpa kawat dengan tali lebar. Tersedia warna putih, krem, dan mocca untuk pemakaian harian.'],
-                ['Sport Bra Seamless Mauve', 189000, null, ['S', 'M', 'L'], ['mauve'], 'Sport bra seamless warna mauve dengan pad yang bisa dilepas. Elastis, cocok untuk olahraga ringan atau di rumah.'],
-                ['Bra Satin Rib Pink', 179000, null, ['S', 'M', 'L'], ['pink'], 'Bra model sport bahan satin bertekstur rib warna pink. Tanpa kawat dan nyaman dipakai santai.'],
-            ],
+            // Kategori Pakaian Dalam dihapus permanen oleh pemilik toko (17 Nov 2026)
         ];
     }
 
@@ -130,7 +119,7 @@ class ExhibitionProductSeeder extends Seeder
                 }
             }
 
-            $weights = ['baju-tidur' => 300, 'kimono' => 350, 'pakaian-dalam' => 120];
+            $weights = ['baju-tidur' => 300, 'kimono' => 350];
             foreach ($this->products() as $categorySlug => $items) {
                 $category = Category::where('slug', $categorySlug)->firstOrFail();
 
