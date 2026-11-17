@@ -391,7 +391,8 @@ document.addEventListener('DOMContentLoaded', function() {
         page: 1
     };
 
-    const PRODUCTS_PER_PAGE = 8;
+    // 18 = habis dibagi 3 kolom (desktop) dan 2 kolom (mobile), satu kategori muat satu halaman
+    const PRODUCTS_PER_PAGE = 18;
     window.initialWishlist = (@json($wishlistIds ?? [])).map(Number);
 
     // Wishlist tersimpan di database
