@@ -104,7 +104,10 @@ class ProductController extends Controller
 
     public function index(Request $request, $category = null)
     {
-        $categories = Category::query()->orderBy('name')->get(['name', 'slug']);
+        // Kategori tanpa produk aktif (mis. Lingerie saat disembunyikan) tidak ditampilkan
+        $categories = Category::query()
+            ->whereHas('products', fn ($q) => $q->where('is_active', true))
+            ->orderBy('name')->get(['name', 'slug']);
         $activeCategory = $categories->contains('slug', $category) ? $category : null;
 
         $wishlistIds = $request->user()

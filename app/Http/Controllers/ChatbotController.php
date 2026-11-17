@@ -130,7 +130,8 @@ class ChatbotController extends Controller
     private function buildSystemPrompt(string $message): string
     {
         $products = $this->findRelevantProducts($message);
-        $categories = \App\Models\Category::orderBy('name')->pluck('name')->implode(', ');
+        $categories = \App\Models\Category::whereHas('products', fn ($q) => $q->where('is_active', true))
+            ->orderBy('name')->pluck('name')->implode(', ');
         $totalActive = \App\Models\Product::where('is_active', true)->count();
         $inStockCount = \App\Models\Product::where('is_active', true)
             ->whereHas('variants', fn ($q) => $q->where('stock', '>', 0))
