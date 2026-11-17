@@ -65,7 +65,7 @@ tests/Feature/QrisPaymentTest.php
 ## 4. Deploy produksi (Vercel + Supabase)
 
 - **Vercel project**: `sweet-dreams` (akun Vercel `chupacabrarw`, team `billy-cc00`), domain `sweet-dreams-omega.vercel.app`.
-  Deploy manual dari laptop: `vercel deploy --prod --yes` (repo GitHub **belum** disambungkan ke Vercel, jadi push tidak auto-deploy).
+  Deploy manual dari laptop: `vercel deploy --prod --yes`. Repo GitHub tersambung ke Vercel, tapi deploy otomatis dari Git dimatikan di `vercel.json` (lihat batasan di bawah).
 - **Supabase**: organisasi **"Sweet Dreams"**, project **`sweet-dreams`** (ref `ghdkqyspaowdinkbgqbo`, region Frankfurt `eu-central-1`), akun Supabase milik pemilik (login via GitHub).
   Koneksi lewat **session pooler** `aws-1-eu-central-1.pooler.supabase.com:5432`, user `postgres.ghdkqyspaowdinkbgqbo`, `DB_SSLMODE=require`.
   Data API Supabase **dimatikan**; semua tabel public sudah RLS on + revoke anon/authenticated.
@@ -78,7 +78,7 @@ tests/Feature/QrisPaymentTest.php
 - Filesystem **read-only** (kecuali `/tmp`) → jangan simpan file ke `public/` atau `storage/` di kode produksi; pakai `PublicUpload` / disk dari config.
 - Body request maks **4,5 MB** → upload besar harus dikecilkan dulu.
 - Log runtime paket gratis hanya ±1 jam (`vercel logs`).
-- Build `vercel-php` kadang rusak (`Cannot find module '/var/task/launcher.launcher'` → semua halaman 500 FUNCTION_INVOCATION_FAILED). **Selalu cek situs setelah deploy**; kalau 500, cukup `vercel deploy --prod --yes` lagi.
+- **Deploy hanya lewat Vercel CLI** (`vercel deploy --prod --yes`). Build yang dipicu dari GitHub selalu rusak untuk runtime `vercel-php` (`Cannot find module '/var/task/launcher.launcher'` → semua halaman 500 FUNCTION_INVOCATION_FAILED), jadi `vercel.json` memakai `"git": {"deploymentEnabled": false}` — push ke GitHub **tidak** men-deploy. Selalu cek situs setelah deploy.
 - Env Vercel (mis. `DB_PASSWORD`) baru berlaku setelah deploy ulang; deploy lama tetap memakai nilai lama.
 - Supabase free di-**pause** kalau 7 hari tidak aktif → Restore dari dashboard.
 
