@@ -10,7 +10,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Isi katalog untuk pameran: 12 produk per kategori (Baju Tidur, Kimono),
+ * Isi katalog untuk pameran: 12 produk per kategori (Baju Tidur, Kimono, Baju Tidur Anak),
  * isi stok varian yang masih 0, dan sembunyikan kategori Lingerie (produknya dinonaktifkan).
  * Aman dijalankan berulang (updateOrCreate per slug). Foto: Pexels (lisensi gratis, boleh komersial),
  * disimpan di public/images/products/{slug}.jpg.
@@ -30,6 +30,8 @@ class ExhibitionProductSeeder extends Seeder
     {
         $tidur = ['S', 'M', 'L', 'XL'];
         $robe = ['S', 'M', 'L', 'XL'];
+        $bayi = ['0-6 Bln', '6-12 Bln', '12-24 Bln'];
+        $anak = ['2-3 Th', '4-5 Th', '6-7 Th'];
 
         return [
             'baju-tidur' => [
@@ -53,6 +55,20 @@ class ExhibitionProductSeeder extends Seeder
                 ['Kimono Waffle Katun Abu', 319000, 359000, $robe, ['grey'], 'Kimono bahan katun waffle warna abu yang tebal namun ringan. Menyerap air, cocok dipakai setelah mandi.'],
             ],
             // Kategori Pakaian Dalam dihapus permanen oleh pemilik toko (17 Nov 2026)
+            'baju-tidur-anak' => [
+                ['Set Piyama Bayi Motif Bunga', 179000, 209000, $bayi, ['pink'], 'Setelan piyama bayi lengan panjang bermotif bunga kecil dengan bahan katun lembut. Nyaman untuk tidur dan aman di kulit sensitif.'],
+                ['Setelan Tidur Anak Garis Hitam Putih', 159000, null, $anak, ['black'], 'Setelan kaos dan celana pendek motif garis hitam-putih dari katun adem. Praktis untuk tidur siang maupun malam.'],
+                ['Sleepsuit Bayi Putih & Pink (Isi 2)', 229000, 269000, $bayi, ['white', 'pink'], 'Isi 2 sleepsuit bayi lengan panjang warna putih motif dan pink dengan kancing depan. Lembut, hangat, dan mudah dipakaikan.'],
+                ['Romper Bayi Katun Sage', 149000, null, $bayi, ['green'], 'Romper bayi katun warna sage dan motif garis. Kancing depan memudahkan ganti popok saat tidur.'],
+                ['Jumpsuit Anak Motif Safari', 189000, null, $anak, ['cream'], 'Jumpsuit anak lengan pendek bermotif safari dengan kancing depan. Bahan katun ringan, nyaman dipakai seharian.'],
+                ['Romper Bayi Karakter (Isi 3)', 199000, 239000, $bayi, ['black', 'red', 'terracotta'], 'Isi 3 romper bayi dengan bordir karakter panda, bunga, dan beruang. Warna-warni dan nyaman untuk tidur maupun bermain.'],
+                ['Sleepsuit Bayi Pink Pita', 169000, null, $bayi, ['pink'], 'Sleepsuit bayi warna pink motif dengan aksen pita dan rimpel. Lengan panjang dan kaki tertutup agar tetap hangat.'],
+                ['Setelan Tidur Anak Hoodie Cokelat', 199000, null, $anak, ['mocca'], 'Setelan tidur anak berupa hoodie cokelat dan celana bermotif hewan. Hangat dan lucu untuk malam yang sejuk.'],
+                ['Bodysuit Bayi Katun Putih', 89000, null, $bayi, ['white'], 'Bodysuit bayi katun putih polos lengan pendek dengan kancing bawah. Lembut dan cocok dipakai sebagai baju tidur dalam.'],
+                ['Piyama Anak Katun Warna Pastel', 169000, 199000, $anak, ['pink', 'blue', 'green'], 'Piyama anak katun dengan pilihan warna pastel pink, biru, dan hijau. Lembut, adem, dan menyerap keringat.'],
+                ['Kaos Tidur Anak Katun Putih', 79000, null, $anak, ['white'], 'Kaos tidur anak katun putih yang ringan dan adem. Cocok dipadukan dengan celana tidur favorit si kecil.'],
+                ['Celana Tidur Anak Katun (Isi 3)', 129000, null, $anak, ['blue', 'navy', 'cream'], 'Isi 3 celana tidur anak katun warna biru muda, navy, dan krem dengan karet pinggang yang lembut.'],
+            ],
         ];
     }
 
@@ -119,9 +135,12 @@ class ExhibitionProductSeeder extends Seeder
                 }
             }
 
-            $weights = ['baju-tidur' => 300, 'kimono' => 350];
+            $weights = ['baju-tidur' => 300, 'kimono' => 350, 'baju-tidur-anak' => 150];
+            $names = ['baju-tidur' => 'Baju Tidur', 'kimono' => 'Kimono', 'baju-tidur-anak' => 'Baju Tidur Anak'];
             foreach ($this->products() as $categorySlug => $items) {
-                $category = Category::where('slug', $categorySlug)->firstOrFail();
+                // Cari per slug atau nama (kategori dibuat admin bisa punya slug berbeda); buat bila belum ada
+                $category = Category::where('slug', $categorySlug)->orWhere('name', $names[$categorySlug])->first()
+                    ?? Category::create(['name' => $names[$categorySlug], 'slug' => $categorySlug]);
 
                 foreach ($items as [$title, $price, $original, $sizes, $colors, $desc]) {
                     $slug = \Illuminate\Support\Str::slug($title);
