@@ -350,3 +350,90 @@
     @media (max-width: 640px) {
         .cms-hub-grid { grid-template-columns: 1fr; }
     }
+
+/* ===== Foto slide tambahan (slider hero beranda) ===== */
+.slide-manager {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #ecdfe3;
+}
+.slide-manager-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: .5rem;
+    margin-bottom: .6rem;
+}
+.slide-manager-head small { color: #8a7a7f; font-size: .75rem; }
+.slide-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+    gap: .6rem;
+}
+.slide-thumb,
+.slide-add {
+    position: relative;
+    aspect-ratio: 12 / 5;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.slide-thumb { display: block; cursor: pointer; background: #f6eef1; }
+.slide-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: filter .2s, opacity .2s; }
+.slide-thumb input { position: absolute; opacity: 0; pointer-events: none; }
+.slide-remove {
+    position: absolute;
+    inset: auto 6px 6px auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.92);
+    color: #b3264a;
+    font-size: .68rem;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity .2s;
+}
+.slide-remove svg { width: 12px; height: 12px; }
+.slide-thumb:hover .slide-remove { opacity: 1; }
+.slide-thumb:has(input:checked) img { filter: grayscale(1); opacity: .45; }
+.slide-thumb:has(input:checked) .slide-remove { opacity: 1; background: #b3264a; color: #fff; }
+.slide-thumb:has(input:checked)::after {
+    content: 'Akan dihapus';
+    position: absolute;
+    top: 6px; left: 6px;
+    font-size: .66rem;
+    font-weight: 700;
+    color: #b3264a;
+    background: #fff;
+    padding: 2px 7px;
+    border-radius: 999px;
+}
+.slide-new-badge {
+    position: absolute;
+    top: 6px; left: 6px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: #d44d6e;
+    color: #fff;
+    font-size: .66rem;
+    font-weight: 700;
+}
+.slide-add {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border: 1.5px dashed #e3c6cf;
+    background: #fdf7f9;
+    color: #c0657e;
+    font: inherit;
+    font-size: .74rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s, border-color .2s;
+}
+.slide-add:hover { background: #fbeef2; border-color: #d44d6e; }
+.slide-add svg { width: 20px; height: 20px; }

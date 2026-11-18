@@ -320,11 +320,66 @@
             max-height: 800px;
             overflow: hidden;
         }
+        .hero-slides { position: absolute; inset: 0; }
         .hero-img {
+            position: absolute;
+            inset: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
             object-position: center 15%;
+            opacity: 0;
+            transform: scale(1.06);
+            transition: opacity 1.2s ease, transform 6.5s ease-out;
+        }
+        .hero-img.is-active { opacity: 1; transform: scale(1); }
+        .hero-arrow {
+            position: absolute;
+            top: 50%;
+            z-index: 3;
+            width: 46px;
+            height: 46px;
+            margin-top: -23px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(255,255,255,0.35);
+            border-radius: 50%;
+            background: rgba(30,16,20,0.25);
+            color: #fff;
+            cursor: pointer;
+            backdrop-filter: blur(6px);
+            opacity: 0;
+            transition: opacity .3s, background .2s;
+        }
+        .hero:hover .hero-arrow,
+        .hero-arrow:focus-visible { opacity: 1; }
+        .hero-arrow:hover { background: rgba(30,16,20,0.5); }
+        .hero-arrow svg { width: 22px; height: 22px; }
+        .hero-arrow-prev { left: 20px; }
+        .hero-arrow-next { right: 20px; }
+        .hero-dots {
+            position: absolute;
+            left: 50%;
+            bottom: 28px;
+            z-index: 3;
+            display: flex;
+            gap: 10px;
+            transform: translateX(-50%);
+        }
+        .hero-dot {
+            width: 9px;
+            height: 9px;
+            padding: 0;
+            border: none;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: width .35s ease, background .35s ease;
+        }
+        .hero-dot.is-active { width: 30px; background: #fff; }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-img { transition: opacity .3s; transform: none; }
+            .hero-img.is-active { transform: none; }
         }
         .hero-overlay {
             position: absolute;
@@ -876,6 +931,8 @@
                 width: 15px; height: 15px;
             }
             .hero { height: 75vh; min-height: 420px; }
+            .hero-arrow { display: none; }
+            .hero-dots { bottom: 18px; }
             .hero-title-main { font-size: 3.4rem; }
             .hero-title-accent { font-size: 2.9rem; }
             .hero-content { max-width: 90%; }

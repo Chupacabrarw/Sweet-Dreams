@@ -4,9 +4,29 @@
 
 @section('content')
     {{-- HERO SECTION --}}
-    <section class="hero" id="hero-section">
-               <img src="{{ asset($banner->image) }}" alt="Sweet Dreams" class="hero-img" loading="eager">
+    <section class="hero" id="hero-section" @if(count($heroSlides) > 1) data-hero-slider aria-roledescription="carousel" @endif>
+        {{-- Foto hero: banner utama + foto slide tambahan (diatur di Admin → Konten → Banner) --}}
+        <div class="hero-slides">
+            @foreach($heroSlides as $slide)
+                <img src="{{ asset($slide) }}" alt="Sweet Dreams" class="hero-img {{ $loop->first ? 'is-active' : '' }}"
+                     loading="{{ $loop->first ? 'eager' : 'lazy' }}" @if(!$loop->first) aria-hidden="true" @endif>
+            @endforeach
+        </div>
         <div class="hero-overlay"></div>
+        @if(count($heroSlides) > 1)
+            <button type="button" class="hero-arrow hero-arrow-prev" data-hero-dir="-1" aria-label="Foto sebelumnya">
+                <i data-lucide="chevron-left"></i>
+            </button>
+            <button type="button" class="hero-arrow hero-arrow-next" data-hero-dir="1" aria-label="Foto berikutnya">
+                <i data-lucide="chevron-right"></i>
+            </button>
+            <div class="hero-dots" role="tablist" aria-label="Pilih foto">
+                @foreach($heroSlides as $slide)
+                    <button type="button" class="hero-dot {{ $loop->first ? 'is-active' : '' }}" data-hero-index="{{ $loop->index }}"
+                            aria-label="Foto {{ $loop->iteration }}" @if($loop->first) aria-current="true" @endif></button>
+                @endforeach
+            </div>
+        @endif
         @php
             // Baris terakhir judul (atau kata terakhir bila judul 1 baris) diberi gaya aksen tulisan tangan
             $heroLines = preg_split('/\R/', trim((string) $banner->title)) ?: [''];
@@ -160,6 +180,54 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Slider foto hero: crossfade otomatis tiap 5 detik, berhenti saat tab tidak aktif
+    const hero = document.querySelector('[data-hero-slider]');
+    if (hero) {
+        const slides = [...hero.querySelectorAll('.hero-img')];
+        const dots = [...hero.querySelectorAll('.hero-dot')];
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let current = 0, timer = null;
+
+        const show = (index) => {
+            current = (index + slides.length) % slides.length;
+            slides.forEach((img, i) => {
+                img.classList.toggle('is-active', i === current);
+                img.setAttribute('aria-hidden', i === current ? 'false' : 'true');
+            });
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('is-active', i === current);
+                dot.toggleAttribute('aria-current', i === current);
+            });
+            // Muat foto berikutnya lebih awal supaya pergantian tidak berkedip
+            const next = slides[(current + 1) % slides.length];
+            if (next.loading === 'lazy') next.loading = 'eager';
+        };
+        const stop = () => { clearInterval(timer); timer = null; };
+        const start = () => {
+            stop();
+            if (!reduceMotion && !document.hidden) timer = setInterval(() => show(current + 1), 5000);
+        };
+
+        hero.querySelectorAll('[data-hero-dir]').forEach(btn =>
+            btn.addEventListener('click', () => { show(current + Number(btn.dataset.heroDir)); start(); }));
+        dots.forEach(dot =>
+            dot.addEventListener('click', () => { show(Number(dot.dataset.heroIndex)); start(); }));
+
+        // Geser (swipe) di layar sentuh
+        let touchX = null;
+        hero.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+        hero.addEventListener('touchend', e => {
+            if (touchX === null) return;
+            const dx = e.changedTouches[0].clientX - touchX;
+            touchX = null;
+            if (Math.abs(dx) > 45) { show(current + (dx < 0 ? 1 : -1)); start(); }
+        });
+
+        document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
+        show(0);
+        start();
+    }
+
     // Slider kanan-kiri home (kategori + produk unggulan)
     document.querySelectorAll('.slider-arrow').forEach(function(btn) {
         btn.addEventListener('click', function() {

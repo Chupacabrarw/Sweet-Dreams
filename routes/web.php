@@ -33,7 +33,9 @@ Route::get('/', function () {
         ->take(3)
         ->get();
 
-    return view('welcome', compact('banner', 'homeCategories', 'homeProducts', 'wishlistIds', 'featuredReviews'));
+    $heroSlides = \App\Models\SiteContent::heroSlides($banner);
+
+    return view('welcome', compact('banner', 'heroSlides', 'homeCategories', 'homeProducts', 'wishlistIds', 'featuredReviews'));
 });
 
 Route::get('/tentang', function () {

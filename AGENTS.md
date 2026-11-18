@@ -56,7 +56,7 @@ tests/Feature/QrisPaymentTest.php
 - **Pembayaran QRIS**: `QrisService::makeDynamic()` mengubah QRIS statis toko (`QRIS_PAYLOAD` / diatur di admin) jadi QR bernominal (total + kode unik). Pembeli upload bukti → admin verifikasi di `/admin/pesanan`. Pesanan lewat batas (`QRIS_EXPIRY_MINUTES`) dibatalkan otomatis dan stok dikembalikan.
 - **Chatbot "Dreamy"** (`ChatbotController`, `POST /api/chatbot`): system prompt diisi data toko asli (produk relevan + stok + kategori + voucher aktif). Model utama `GEMINI_MODEL`, cadangan `GEMINI_FALLBACK_MODELS` (dipakai kalau 404/429/5xx/timeout). `GEMINI_THINKING_LEVEL=minimal` (default) → balasan ±2–4 dtk. API key dikirim lewat header, bukan URL.
 - **CMS Konten** (`/admin/konten`): hub kartu per bagian → `/admin/konten/{banner|sections|tentang|kontak|ekspedisi|qris}`. Data disimpan di tabel `site_contents` (key/body/image). Default teks halaman Tentang/Kontak ada di `ContentController::pageDefaults()`.
-- **Landing page**: judul hero dari banner; baris/kata terakhir otomatis jadi aksen script (Parisienne).
+- **Landing page**: judul hero dari banner; baris/kata terakhir otomatis jadi aksen script (Parisienne). Foto hero = **slider** (crossfade 5 dtk, titik + panah + swipe): gambar banner utama lalu foto slide tambahan (maks. 6) yang diatur di `/admin/konten/banner`. Daftar slide disimpan JSON di `site_contents` key `banner_slides` (`SiteContent::bannerSlides()`); bila key belum ada dipakai foto bawaan `public/images/hero/*`.
 - **Upload gambar admin**: dikecilkan di browser sebelum dikirim (maks sisi 3200 px, JPEG 85%) — skrip di `admin/layout.blade.php`. Banner wajib ≥ 1920×800 px (dicek di browser dan server).
 - **Pengaturan Profil Admin** (`/admin/profile`, `Admin\ProfileController`): ganti email dengan OTP 6 angka yang dikirim ke **email baru** (`App\Mail\SendOtpMail`, view `emails/otp`) dan ganti password. Data OTP disimpan di **Cache** (key `admin-email-otp:{userId}`, hash kode, 10 menit, maks 5 salah, jeda kirim ulang 60 dtk) — tanpa migrasi.
 
@@ -90,7 +90,7 @@ tests/Feature/QrisPaymentTest.php
 - `public/hot` mungkin tertinggal dari `npm run dev` → aset mengarah ke Vite dev server yang mati. Hapus/rename file itu, atau jalankan `npm run dev`; untuk build: `npm run build`.
 - Server cepat tanpa Laragon: `php -S 127.0.0.1:8124 vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php` dari folder `public/` (`php artisan serve` sempat error APP_KEY di mesin ini).
 - **Tes**: PHP lokal tidak punya driver SQLite, jadi jalankan dengan MySQL:
-  `DB_CONNECTION=mysql DB_DATABASE=sweetdreams_test php artisan test` (14 tes, semuanya harus lolos).
+  `DB_CONNECTION=mysql DB_DATABASE=sweetdreams_test php artisan test` (16 tes, semuanya harus lolos).
 - Email lokal: `MAIL_MAILER=log` → isi email (mis. kode OTP) tertulis di `storage/logs/laravel.log`.
 - Akun admin seeder: `admin@sweetdreams.com` (lihat `database/seeders/AdminSeeder.php`).
 

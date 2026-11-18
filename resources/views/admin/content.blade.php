@@ -79,6 +79,40 @@
                         @error('image')
                             <small style="display:block; margin-top:6px; color:#d44d6e;">{{ $message }}</small>
                         @enderror
+
+                        {{-- Foto tambahan slider hero --}}
+                        <div class="slide-manager">
+                            <div class="slide-manager-head">
+                                <span class="field-label" style="margin:0;">Foto Slide Tambahan</span>
+                                <small>{{ count($bannerSlides) }}/{{ \App\Models\SiteContent::MAX_BANNER_SLIDES }} · berganti otomatis tiap 5 detik</small>
+                            </div>
+                            <div class="slide-grid" id="slide-grid">
+                                @foreach($bannerSlides as $slide)
+                                    <label class="slide-thumb" title="Centang untuk menghapus foto ini">
+                                        <img src="{{ asset($slide) }}" alt="Slide {{ $loop->iteration + 1 }}" loading="lazy">
+                                        <input type="checkbox" name="remove_slides[]" value="{{ $slide }}">
+                                        <span class="slide-remove"><i data-lucide="trash-2"></i> Hapus</span>
+                                    </label>
+                                @endforeach
+                                @if(count($bannerSlides) < \App\Models\SiteContent::MAX_BANNER_SLIDES)
+                                    <button type="button" class="slide-add" onclick="document.getElementById('slide-file-input').click()">
+                                        <i data-lucide="image-plus"></i>
+                                        <span>Tambah foto</span>
+                                    </button>
+                                @endif
+                            </div>
+                            <input type="file" id="slide-file-input" name="slides[]" accept="image/*" multiple style="display:none;"
+                                   onchange="previewSlides(this, {{ \App\Models\SiteContent::MAX_BANNER_SLIDES - count($bannerSlides) }})">
+                            <small style="display:block; margin-top:8px; color:#8a7a7f; line-height:1.4;">
+                                Foto banner utama tampil pertama, lalu foto-foto ini bergantian. Syarat ukuran sama (min. 1920×800 px). Centang foto untuk menghapusnya, lalu Simpan.
+                            </small>
+                            <small id="slide-error" style="display:none; margin-top:6px; padding:8px 10px; border-radius:8px; background:#fdecef; color:#b3264a; font-weight:600;"></small>
+                            @foreach($errors->get('slides*') as $messages)
+                                @foreach((array) $messages as $message)
+                                    <small style="display:block; margin-top:6px; color:#d44d6e;">{{ $message }}</small>
+                                @endforeach
+                            @endforeach
+                        </div>
                     </div>
 
 
@@ -569,6 +603,42 @@
             input.value = '';
         };
         probe.src = url;
+    }
+
+    // Foto slide baru: buang yang terlalu kecil / melebihi kuota, tampilkan pratinjau sebelum disimpan.
+    async function previewSlides(input, slotsLeft) {
+        const note = document.getElementById('slide-error');
+        const grid = document.getElementById('slide-grid');
+        grid.querySelectorAll('.slide-thumb.is-new').forEach(el => el.remove());
+        note.style.display = 'none';
+
+        const problems = [];
+        const keep = new DataTransfer();
+        for (const file of input.files) {
+            const url = URL.createObjectURL(file);
+            const size = await new Promise(resolve => {
+                const probe = new Image();
+                probe.onload = () => resolve([probe.naturalWidth, probe.naturalHeight]);
+                probe.onerror = () => resolve(null);
+                probe.src = url;
+            });
+            if (!size) { problems.push(`${file.name}: format tidak didukung`); URL.revokeObjectURL(url); continue; }
+            if (size[0] < 1920 || size[1] < 800) { problems.push(`${file.name}: ${size[0]}×${size[1]} px terlalu kecil`); URL.revokeObjectURL(url); continue; }
+            if (keep.items.length >= slotsLeft) { problems.push(`${file.name}: melebihi batas foto slide`); URL.revokeObjectURL(url); continue; }
+
+            keep.items.add(file);
+            const thumb = document.createElement('div');
+            thumb.className = 'slide-thumb is-new';
+            thumb.innerHTML = `<img alt=""><span class="slide-new-badge">Baru</span>`;
+            thumb.querySelector('img').src = url;
+            grid.insertBefore(thumb, grid.querySelector('.slide-add'));
+        }
+        input.files = keep.files;
+
+        if (problems.length) {
+            note.textContent = 'Tidak ditambahkan — ' + problems.join(' · ') + '. Minimal 1920×800 px.';
+            note.style.display = 'block';
+        }
     }
 </script>
 @endsection

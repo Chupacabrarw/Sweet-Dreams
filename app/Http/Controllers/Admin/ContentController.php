@@ -53,7 +53,7 @@ class ContentController extends Controller
             'banner' => [
                 'title' => 'Banner Homepage', 'icon' => 'image',
                 'desc' => 'Gambar & teks utama di halaman depan',
-                'status' => 'Judul: ' . str_replace(["\r\n", "\n"], ' / ', $data['banner']->title),
+                'status' => (1 + count($data['bannerSlides'])) . ' foto slide · ' . str_replace(["\r\n", "\n"], ' / ', $data['banner']->title),
             ],
             'sections' => [
                 'title' => 'Kategori & Produk Unggulan', 'icon' => 'layout-panel-top',
@@ -114,7 +114,8 @@ class ContentController extends Controller
 
         $data = [
             'banner'             => $this->getOrCreate('banner_homepage'),
-            'categories'         => $categories,
+            'bannerSlides'       => SiteContent::bannerSlides(),
+            'categories'       => $categories,
             'products'           => $products,
             'featuredCategories' => $featuredCategories,
             'featuredProducts'   => $featuredProducts,
@@ -166,8 +167,14 @@ class ContentController extends Controller
     'button_text' => 'nullable|string|max:100',
     'link'        => 'nullable|string|max:255',
     'image'       => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120|dimensions:min_width=1920,min_height=800',
+    'slides'      => 'nullable|array|max:' . SiteContent::MAX_BANNER_SLIDES,
+    'slides.*'    => 'image|mimes:jpg,jpeg,png,webp|max:5120|dimensions:min_width=1920,min_height=800',
+    'remove_slides'   => 'nullable|array',
+    'remove_slides.*' => 'string',
 ], [
-    'image.dimensions' => 'Gambar banner minimal 1920×800 px (disarankan 2400×1000 px, landscape).',
+    'image.dimensions'    => 'Gambar banner minimal 1920×800 px (disarankan 2400×1000 px, landscape).',
+    'slides.*.dimensions' => 'Foto slide minimal 1920×800 px (disarankan 2400×1000 px, landscape).',
+    'slides.*.image'      => 'File slide harus berupa gambar (JPG, PNG, atau WebP).',
 ]);
 
         $banner = $this->getOrCreate('banner_homepage');
@@ -178,6 +185,18 @@ class ContentController extends Controller
             $data['image'] = PublicUpload::store($file, 'images', $filename);
         }
 
+        // Foto tambahan slider hero: hapus yang dicentang, lalu tambahkan upload baru
+        $slides = array_values(array_diff(SiteContent::bannerSlides(), (array) $request->input('remove_slides', [])));
+        foreach ((array) $request->file('slides', []) as $file) {
+            if (count($slides) >= SiteContent::MAX_BANNER_SLIDES) {
+                break;
+            }
+            $filename = 'banner-slide-' . time() . '-' . Str::lower(Str::random(5)) . '.' . $file->getClientOriginalExtension();
+            $slides[] = PublicUpload::store($file, 'images', $filename);
+        }
+        $this->getOrCreate('banner_slides')->update(['body' => json_encode($slides)]);
+
+        unset($data['slides'], $data['remove_slides']);
         $banner->update($data);
 
         return redirect()->route('admin.content.section', 'banner')->with('success', 'Banner homepage berhasil diperbarui.');
