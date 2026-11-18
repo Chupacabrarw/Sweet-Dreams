@@ -80,9 +80,15 @@
                class="category-card reveal reveal-delay-{{ ($i % 4) + 1 }}"
                id="cat-{{ $category->slug }}">
                 <div class="category-card-img">
-                    <img src="{{ asset('images/cat-' . $category->slug . '.jpg') }}"
+                    @php
+                        // Foto kategori: images/cat-{slug}.jpg; kalau belum ada, pakai foto produk aktif pertama di kategori itu
+                        $catImage = file_exists(public_path('images/cat-' . $category->slug . '.jpg'))
+                            ? 'images/cat-' . $category->slug . '.jpg'
+                            : ($category->products()->where('is_active', true)->whereNotNull('image')->value('image') ?? 'images/hero-banner.jpg');
+                    @endphp
+                    <img src="{{ asset($catImage) }}"
                          alt="{{ $category->name }}" loading="lazy"
-                         onerror="this.onerror=null;this.src='{{ asset('images/placeholder.jpg') }}'">
+                         onerror="this.onerror=null;this.src='{{ asset('images/hero-banner.jpg') }}'">
                 </div>
                 <div class="category-card-body">
                     <h3>{{ $category->name }}</h3>
