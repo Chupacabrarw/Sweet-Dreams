@@ -81,8 +81,9 @@
                id="cat-{{ $category->slug }}">
                 <div class="category-card-img">
                     @php
-                        // Foto kategori: images/cat-{slug}.jpg; kalau belum ada, pakai foto produk aktif pertama di kategori itu
-                        $catImage = file_exists(public_path('images/cat-' . $category->slug . '.jpg'))
+                        // Foto kategori: images/cat-{slug}.jpg; kalau belum ada, pakai foto produk aktif pertama di kategori itu.
+                        // Daftar ditulis manual karena di Vercel file public/ tidak terlihat oleh file_exists().
+                        $catImage = in_array($category->slug, ['baju-tidur', 'baju-tidur-anak', 'kimono', 'lingerie'], true)
                             ? 'images/cat-' . $category->slug . '.jpg'
                             : ($category->products()->where('is_active', true)->whereNotNull('image')->value('image') ?? 'images/hero-banner.jpg');
                     @endphp
